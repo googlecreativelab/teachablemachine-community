@@ -1,0 +1,14 @@
+.vscode/
+.terser_build_cache/
+node_modules/
+.DS_Store
+.sass-cache
+*.swp
+.idea/
+package-lock.json
+src/*
+bundles/*
+*.tgz
+webpack.config.js
+tsconfig.json
+
