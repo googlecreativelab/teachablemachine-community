@@ -13,7 +13,7 @@
     "upload": "gsutil -m cp -r ./bundles/** gs://tm-pro",
     "upload-tarball": "npm pack && gsutil -m cp ./*.tgz gs://tm-pro-tgz",
     "update-release": "npm run build && npm run upload",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "karma start",
     "tsc": "tsc"
   },
   "license": "Apache-2",
@@ -22,7 +22,13 @@
   },
   "devDependencies": {
     "@tensorflow/tfjs": "^1.1.2",
+    "@types/mocha": "^5.2.7",
+    "karma": "^4.1.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-mocha": "^1.3.0",
+    "karma-typescript": "^4.1.0",
     "lodash.clonedeep": "^4.5.0",
+    "mocha": "^6.1.4",
     "source-map-loader": "^0.2.4",
     "terser-webpack-plugin": "^1.3.0",
     "ts-loader": "^5.3.1",
