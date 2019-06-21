@@ -1,3 +1,4 @@
+process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function(config) {
   config.set({
@@ -20,7 +21,7 @@ module.exports = function(config) {
     },
     //logLevel: config.LOG_DEBUG,
     reporters: ['progress', 'karma-typescript'],
-    browsers: ['Chrome'/*, 'Firefox'*/],
+    browsers: ['ChromeHeadless'], // ['Chrome'/*, 'Firefox'*/],
     reportSlowerThan: 500,
     browserNoActivityTimeout: 30000
   });
