@@ -2,7 +2,9 @@ const fs = require('fs');
 const { resolve } = require('path');
 const exec = require('child_process').exec;
 
-const pkg = JSON.parse(fs.readFileSync(resolve(__dirname, '../package.json'), 'utf8'));
+const pkgPath = resolve(__dirname, '../package.json');
+const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+const originalVersion = pkg.version;
 
 const findNthPeriodIndex = (str, nth) => {
     let index = -1;
@@ -38,11 +40,15 @@ switch(process.argv[2]) {
 
 console.log(pkg.version);
 const pkgStr = JSON.stringify(pkg, null, '  ');
+if (pkg.version !== originalVersion) {
+    console.log('writing new package.json');
+    fs.writeFileSync(pkgPath, pkgStr);
+}
 //console.log(pkgStr);
 
 
 exports.tagExists = (tag, callback) => {
-    exec(`git tag ${tag}`, (err, tagsStr) => {
+    exec(`git tag`, (err, tagsStr) => {
         if (err) {
             callback(err);
             return;
@@ -51,4 +57,29 @@ exports.tagExists = (tag, callback) => {
         const tags = tagsStr.split('\n');
         callback(null, !!tags.filter((tagLine) => tagLine === tag).length);
     });
-}
+};
+
+exports.tag = (callback = () =>{}) => {
+    exec(`git tag v${pkg.version}`, callback);
+};
+
+
+exports.ensureTag = (callback = () =>{}) => {
+    exports.tagExists(`v${pkg.version}`, (err, exists) => {
+        if (err) {
+            callback(err);
+            return;
+        }
+        if (exists) {
+            callback(null, { existed: true })
+        } else {
+            exports.tag((err) => {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                callback(null, { existed: false });
+            });
+        }
+    });
+};
