@@ -14,11 +14,12 @@
 
 
 const fs = require('fs');
-const { resolve } = require('path')
+const { join, resolve } = require('path')
 const cloneDeep = require('lodash.clonedeep');
 const TerserPlugin = require('terser-webpack-plugin');
 
-const { write: makeVersionModule } = require('./scripts/make-version');
+const { write: versionModuleWrite } = require('./scripts/make-version');
+const { writeSync: snippetWriteSync } = require('./scripts/make-snippet-json');
 
 const outputPath = resolve('bundles');
 
@@ -56,11 +57,42 @@ const baseConfig = {
         apply: (compiler) => {
             // whenever the compiler runs, update the generated version module
             compiler.hooks.beforeCompile.tapAsync('Generate Version Module', (params, callback) => {
-                makeVersionModule((err) => {
+                versionModuleWrite((err) => {
                     if (err) {
                         throw new Error('Failed generating version.ts module', err);
                     }
                     console.log(`Generated version module`);
+                    callback();
+                });
+            });
+
+            compiler.hooks.done.tapAsync('Copy bundle files to bundles/latest', (params, callback) => {
+                const { outputOptions } = params.compilation;
+                // If this isnt a production build do not perform copy
+                if (params.compilation.options.mode !== 'production') {
+                    callback();
+                    return;
+                }
+
+                const snippetJSONPath = join(outputOptions.path, 'snippet.json');
+                snippetWriteSync(snippetJSONPath);
+
+                // the bundle in bundles/v<version>/<filename>js
+                const sourceBundle = resolve(outputOptions.path, outputOptions.filename);
+                const latestBundleFolder = join(outputPath, 'latest');
+                // the destination bundles/latest/<filename>.js
+                const destBundle = join(latestBundleFolder, outputOptions.filename);
+
+                // ensure the bundles/latest folder exists
+                fs.mkdir(latestBundleFolder, (err) => {
+                    // if the error is EEXIST it already existed, ignore error
+                    if (err && err.code !== 'EEXIST') {
+                        throw err;
+                    }
+                    // copy bundle into latest
+                    fs.copyFileSync(sourceBundle, destBundle);
+                    // copy snippet.json into latest
+                    fs.copyFileSync(snippetJSONPath, join(latestBundleFolder, 'snippet.json'));
                     callback();
                 });
             });
