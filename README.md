@@ -1,6 +1,6 @@
-# Teachable Machine Support Libraries
+# Teachable Machine Support Libraries (in beta)
 
-This repo contains support libraries for a new version of Teachable Machine. For more info go to: [Teachable Machine](https://teachablemachine.withgoogle.com/io19).
+This repo contains support libraries for a new version of Teachable Machine (currently in beta). For more info or request to be a beta tester: [Teachable Machine](https://teachablemachine.withgoogle.com/io19).
 
 ## Model Libraries
 
