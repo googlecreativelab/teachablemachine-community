@@ -48,7 +48,7 @@ function flatOneHot(label: number, numClasses: number) {
 function convertToTfDataset(xs: Float32Array[], ys: number[][]) {
     const xTrain = tf.data.array(xs);
     const yTrain = tf.data.array(ys);
-
+    
     const trainDataset = tf.data.zip({ xs: xTrain,  ys: yTrain});
 
     //TODO: ys.length might not always be best
@@ -108,12 +108,11 @@ export class TeachableMobileNet extends CustomMobileNet {
      * @param sample the image / tensor that belongs in this classification
      */
     // public async addExample(className: number, sample: HTMLCanvasElement | tf.Tensor) {
-    public async addExample(className: number, sample: HTMLCanvasElement | tf.Tensor) {
+    public async addExample(className: number, sample: HTMLImageElement | HTMLCanvasElement | tf.Tensor) {
         const cap = isTensor(sample) ? sample : capture(sample);
         const example = this.truncatedModel.predict(cap) as tf.Tensor;
-
+        
         const activation = example.dataSync() as Float32Array;
-
         cap.dispose();
         this.examples.push([ className, activation ]);
 
@@ -170,15 +169,15 @@ export class TeachableMobileNet extends CustomMobileNet {
         // Approach 1 in dataset.ts
         const inputShape = this.truncatedModel.outputs[0].shape.slice(1); // [ 7 x 7 x 256]
         const inputSize = tf.util.sizeFromShape(inputShape);
-
         // Creates a 2-layer fully connected model. By creating a separate model,
         // rather than adding layers to the mobilenet model, we "freeze" the weights
         // of the mobilenet model, and only train weights from the new model.
+        
         const trainingModel = tf.sequential({
             layers: [
             // Layer 1.
             tf.layers.dense({
-                inputShape: [inputSize],
+                inputShape: [62720],
                 units: params.denseUnits,
                 activation: 'relu',
                 kernelInitializer: 'varianceScaling',
@@ -256,7 +255,7 @@ export class TeachableMobileNet extends CustomMobileNet {
     }
 }
 
-export async function createTeachable(metadata: Partial<Metadata>, checkpoint?: string) {
+export async function createTeachable(metadata: Partial<Metadata>, checkpoint?: string) {    
     const mobilenet = await loadTruncatedMobileNet(checkpoint);
     return new TeachableMobileNet(mobilenet, metadata);
 }

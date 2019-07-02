@@ -21,6 +21,21 @@ import { dispose } from '@tensorflow/tfjs';
 import { capture } from '../utils/tf';
 import { cropTo } from '../utils/canvas';
 import { version } from '../version';
+import { conv2dTranspose } from '@tensorflow/tfjs-layers/dist/exports_layers';
+
+
+const MOBILENET_MODEL_PATH =
+    // tslint:disable-next-line:max-line-length
+    'https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_0.35_224_no_top/model.json';
+    // tslint:disable-next-line:max-line-length
+    // 'https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_0.35_224/model.json';
+    // tslint:disable-next-line:max-line-length
+    // 'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json';
+
+const TRAINING_LAYER = 'out_relu'; //MobileNetV2
+// const TRAINING_LAYER = 'conv_pw_13_relu'; // MobilenetV1
+
+export const IMAGE_SIZE = 224;
 
 /**
  * the metadata to describe the model's creation,
@@ -88,13 +103,6 @@ const processMetadata = async (metadata: string | Metadata) => {
     }
     return fillMetadata(metadataJSON);
 };
-
-
-const MOBILENET_MODEL_PATH =
-    // tslint:disable-next-line:max-line-length
-    'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json';
-
-export const IMAGE_SIZE = 224;
 
 export type ClassifierInputSource = HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap;
 
@@ -188,7 +196,7 @@ export class CustomMobileNet {
  */
 export async function loadTruncatedMobileNet(checkpoint: string = MOBILENET_MODEL_PATH) {
     const mobilenet = await tf.loadLayersModel(checkpoint);
-    const layer = mobilenet.getLayer('conv_pw_13_relu');
+    const layer = mobilenet.getLayer(TRAINING_LAYER);
     const truncatedModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
     return truncatedModel;
 }
