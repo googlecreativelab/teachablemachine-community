@@ -21,18 +21,16 @@ import { dispose } from '@tensorflow/tfjs';
 import { capture } from '../utils/tf';
 import { cropTo } from '../utils/canvas';
 import { version } from '../version';
-import { conv2dTranspose } from '@tensorflow/tfjs-layers/dist/exports_layers';
 
 
 const MOBILENET_MODEL_PATH =
     // tslint:disable-next-line:max-line-length
     'https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_0.35_224_no_top/model.json';
     // tslint:disable-next-line:max-line-length
-    // 'https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_0.35_224/model.json';
-    // tslint:disable-next-line:max-line-length
     // 'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json';
 
-const TRAINING_LAYER = 'out_relu'; //MobileNetV2
+// const TRAINING_LAYER = 'out_relu'; //MobileNetV2
+const TRAINING_LAYER = 'block_16_project_BN'; //MobileNetV2
 // const TRAINING_LAYER = 'conv_pw_13_relu'; // MobilenetV1
 
 export const IMAGE_SIZE = 224;

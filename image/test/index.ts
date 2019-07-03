@@ -5,7 +5,7 @@ import * as tm from '../src/index';
 
 function loadFlowerImage(c:string, i:number):Promise<HTMLImageElement>{
     // tslint:disable-next-line:max-line-length
-    const src = `https://storage.googleapis.com/teachable-machine-models/test_data/flowers_20/class-${c}-image-model/${i}.png`;
+    const src = `https://storage.googleapis.com/teachable-machine-models/test_data/flowers_200/class-${c}-image-model/${i}.png`;
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
@@ -40,21 +40,35 @@ describe('Train a custom model', () => {
         });
         assert.exists(teachableMobileNet);
     });
-    
-    it('trains', async ()=>{
+
+    it('Train flower dataset', async ()=>{
+        const DATASET_TRAIN_SIZE = 30;
+        const DATASET_VALIDATION_SIZE = 30;
         const teachableMobileNet = await tm.mobilenet.createTeachable({
             tfjsVersion: tf.version.tfjs,
         });
 
-        const classes = ['daisy','dandelion','roses','sunflower','tulips'];
+        const classes = ['daisy','dandelion','roses','sunflowers','tulips'];
         teachableMobileNet.setLabels(classes);
 
+        const images:HTMLImageElement[][] = [];
+        for(const c of classes){
+            const load: Array<Promise<HTMLImageElement>> = [];
+            for(let i=0;i<DATASET_TRAIN_SIZE;i++){
+                load.push(loadFlowerImage(c, i));
+            }
+            images.push(
+                await Promise.all(load)
+            );
+        }
+
+        
+
+        
         await tf.nextFrame().then(async () => {
             let index = 0;
-            for(const c of classes){
-                for(let i=0;i<15;i++){
-                    console.log(c,i);
-                    const img  = await loadFlowerImage(c, i);
+            for(const imgSet of images){
+                for(const img of imgSet){
                     teachableMobileNet.addExample(index, img);                
                 }
                 index ++;
@@ -81,19 +95,25 @@ describe('Train a custom model', () => {
             console.timeEnd("Train");            
         });
 
+
+        // Validation
+        let accuracy = 0;
         for(const c of classes){
             let s = 0;
-            for(let i=15; i<20; i++){
+            for(let i=DATASET_TRAIN_SIZE; i<DATASET_TRAIN_SIZE+DATASET_VALIDATION_SIZE; i++){
                 const testImage = await loadFlowerImage(c,i);
-                const scores = await teachableMobileNet.predict(testImage, false, 10);
-                s += scores.find(s => s.className === c).probability;
-                console.log(c, scores);
+                const scores = await teachableMobileNet.predict(testImage, false);
+                if(scores[0].className === c){
+                    s ++;
+                }
             }
-            console.log(c, s/5);
-            // assert.equal(scores[0].className, c);
+            console.log(c, s/DATASET_VALIDATION_SIZE);
+            accuracy += s/DATASET_VALIDATION_SIZE;
         }
+        assert.isTrue(accuracy > 0.6);
+        console.log("Final accuracy", accuracy/classes.length);
     
     
-    }).timeout(120000);
+    }).timeout(240000);
     
 });

@@ -177,7 +177,7 @@ export class TeachableMobileNet extends CustomMobileNet {
             layers: [
             // Layer 1.
             tf.layers.dense({
-                inputShape: [62720],
+                inputShape: [inputSize],
                 units: params.denseUnits,
                 activation: 'relu',
                 kernelInitializer: 'varianceScaling',
