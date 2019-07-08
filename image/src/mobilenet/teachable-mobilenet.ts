@@ -20,7 +20,8 @@ import { util } from '@tensorflow/tfjs';
 import { capture } from '../utils/tf';
 import { TensorContainer } from '@tensorflow/tfjs-core/dist/tensor_types';
 import { CustomCallbackArgs, equalStrict } from '@tensorflow/tfjs';
-import { CustomMobileNet, Metadata, loadTruncatedMobileNet, ClassifierInputSource } from './custom-mobilenet';
+import { CustomMobileNet, Metadata, loadTruncatedMobileNet, ClassifierInputSource, ModelOptions } 
+    from './custom-mobilenet';
 
 
 export interface TrainingParameters {
@@ -255,7 +256,7 @@ export class TeachableMobileNet extends CustomMobileNet {
     }
 }
 
-export async function createTeachable(metadata: Partial<Metadata>, checkpoint?: string) {    
-    const mobilenet = await loadTruncatedMobileNet(checkpoint);
+export async function createTeachable(metadata: Partial<Metadata>, modelOptions?: ModelOptions) {    
+    const mobilenet = await loadTruncatedMobileNet(modelOptions);
     return new TeachableMobileNet(mobilenet, metadata);
 }

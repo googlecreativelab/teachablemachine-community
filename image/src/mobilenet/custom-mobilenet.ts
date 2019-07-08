@@ -22,16 +22,12 @@ import { capture } from '../utils/tf';
 import { cropTo } from '../utils/canvas';
 import { version } from '../version';
 
-
-const MOBILENET_MODEL_PATH =
-    // tslint:disable-next-line:max-line-length
-    'https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_0.35_224_no_top/model.json';
-    // tslint:disable-next-line:max-line-length
-    // 'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json';
-
-// const TRAINING_LAYER = 'out_relu'; //MobileNetV2
-const TRAINING_LAYER = 'block_16_project_BN'; //MobileNetV2
-// const TRAINING_LAYER = 'conv_pw_13_relu'; // MobilenetV1
+const DEFAULT_MOBILENET_VERSION = 2;
+const DEFAULT_TRAINING_LAYER_V1 = 'conv_pw_13_relu';
+// const TRAINING_LAYER_V2 = 'out_relu'; 
+const DEFAULT_TRAINING_LAYER_V2 = 'block_16_project_BN'; 
+const DEFAULT_ALPHA_V1 = 0.25;
+const DEFAULT_ALPHA_V2 = 0.35;
 
 export const IMAGE_SIZE = 224;
 
@@ -48,6 +44,13 @@ export interface Metadata {
     timeStamp?: string;
     labels: string[];
     userMetadata?: {};
+}
+
+export interface ModelOptions {
+    version?: number;
+    checkpointUrl?: string;
+    alpha?: number;
+    trainingLayer?: string;
 }
 
 /**
@@ -68,6 +71,37 @@ const fillMetadata = (data: Partial<Metadata>) => {
 const isMetadata = (c: any): c is Metadata =>
     !!c && typeof c.tmVersion === 'string' &&
     typeof c.tmSupportVersion === 'string' && Array.isArray(c.labels);
+
+const parseModelOptions = (options?: ModelOptions) => {
+    options = options || {};
+    if(options.checkpointUrl){
+        if(options.alpha || options.version){
+            console.warn("Checkpoint URL passed to modelOptions, alpha and version options are ignored");
+        }        
+        return [options.checkpointUrl, options.trainingLayer];
+    } else {
+        options.version = options.version || DEFAULT_MOBILENET_VERSION;
+        if(options.version === 1){
+            options.alpha = options.alpha || DEFAULT_ALPHA_V1;    
+            options.trainingLayer = options.trainingLayer || DEFAULT_TRAINING_LAYER_V1;
+            return [
+                // tslint:disable-next-line:max-line-length        
+                `https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_${options.alpha}_${IMAGE_SIZE}/model.json`,
+                options.trainingLayer
+            ];
+        } else if(options.version === 2){
+            options.alpha = options.alpha || DEFAULT_ALPHA_V2;    
+            options.trainingLayer = options.trainingLayer || DEFAULT_TRAINING_LAYER_V2;
+            return [
+                // tslint:disable-next-line:max-line-length        
+                `https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_${options.alpha}_${IMAGE_SIZE}_no_top/model.json`,
+                options.trainingLayer
+            ];
+        } else {
+            throw new Error(`MobileNet V${options.version} doesn't exist`);
+        }        
+    }
+};
 
 // export const toMetadata = (
 //    tfjsVersion: string,
@@ -190,11 +224,12 @@ export class CustomMobileNet {
 
 /**
  * load the base mobilenet model
- * @param checkpoint the URL to load the mobilenet json
+ * @param modelOptions options determining what model to load
  */
-export async function loadTruncatedMobileNet(checkpoint: string = MOBILENET_MODEL_PATH) {
-    const mobilenet = await tf.loadLayersModel(checkpoint);
-    const layer = mobilenet.getLayer(TRAINING_LAYER);
+export async function loadTruncatedMobileNet(modelOptions?: ModelOptions) {
+    const [checkpointUrl, trainingLayer] = parseModelOptions(modelOptions);
+    const mobilenet = await tf.loadLayersModel(checkpointUrl);
+    const layer = mobilenet.getLayer(trainingLayer);
     const truncatedModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
     return truncatedModel;
 }

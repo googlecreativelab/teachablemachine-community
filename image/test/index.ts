@@ -2,6 +2,7 @@ import { assert } from 'chai';
 
 import * as tf from '@tensorflow/tfjs';
 import * as tm from '../src/index';
+import { TeachableMobileNet } from '../src/mobilenet';
 
 function loadFlowerImage(c:string, i:number):Promise<HTMLImageElement>{
     // tslint:disable-next-line:max-line-length
@@ -13,7 +14,73 @@ function loadFlowerImage(c:string, i:number):Promise<HTMLImageElement>{
       img.crossOrigin = "anonymous";
       img.src = src;
     });
+}
+
+async function testModel(
+  model: TeachableMobileNet,
+  trainSize: number,
+  validationSize: number,
+  loadFunction: Function,
+  classes: string[],
+  epochs = 20
+) {
+  model.setLabels(classes);
+
+  const images: HTMLImageElement[][] = [];
+  for (const c of classes) {
+    const load: Array<Promise<HTMLImageElement>> = [];
+    for (let i = 0; i < trainSize; i++) {
+      load.push(loadFunction(c, i));
+    }
+    images.push(await Promise.all(load));
   }
+
+  await tf.nextFrame().then(async () => {
+    let index = 0;
+    for (const imgSet of images) {
+      for (const img of imgSet) {
+        model.addExample(index, img);
+      }
+      index++;
+    }
+    console.log("data loaded");
+    console.time("Train");
+    await model.train(
+      {
+        denseUnits: 100,
+        epochs,
+        learningRate: 0.0001
+      },
+      {
+        onBatchEnd: async (batch, logs) => {
+        },
+        onEpochBegin: async (epoch, logs) => {
+          console.log("Epoch: ", epoch);
+        },
+        onEpochEnd: async (epoch, logs) => {
+          console.log(logs);
+        }
+      }
+    );
+    console.timeEnd("Train");
+  });
+
+  // Validation
+  let accuracy = 0;
+  for (const c of classes) {
+    let s = 0;
+    for (let i = trainSize; i < trainSize + validationSize; i++) {
+      const testImage = await loadFlowerImage(c, i);
+      const scores = await model.predict(testImage, false);
+      if (scores[0].className === c) {
+        s++;
+      }
+    }
+    console.log(c, s / validationSize);
+    accuracy += s / validationSize;
+  }
+  return accuracy;
+}
 
 // Weird workaround...
 tf.util.fetch = (a,b)=> window.fetch(a,b);
@@ -28,10 +95,6 @@ describe('Beginning', () => {
 });
 
 
-// benchmark('test', =>{
-
-// })
-
 describe('Train a custom model', () => {
     it('create a model', async ()=>{
         const teachableMobileNet = await tm.mobilenet.createTeachable({
@@ -41,79 +104,49 @@ describe('Train a custom model', () => {
         assert.exists(teachableMobileNet);
     });
 
-    it('Train flower dataset', async ()=>{
+    it('Train flower dataset on mobilenet v2', async ()=>{
         const DATASET_TRAIN_SIZE = 30;
         const DATASET_VALIDATION_SIZE = 30;
-        const teachableMobileNet = await tm.mobilenet.createTeachable({
-            tfjsVersion: tf.version.tfjs,
+        const CLASSES = ['daisy','dandelion','roses','sunflowers','tulips'];
+        
+        const teachableMobileNetV2 = await tm.mobilenet.createTeachable({
+            tfjsVersion: tf.version.tfjs,            
+        }, { 
+            version: 2 
+        });
+          
+        const accuracyV2 = await testModel(
+          teachableMobileNetV2,
+          DATASET_TRAIN_SIZE,
+          DATASET_VALIDATION_SIZE,
+          loadFlowerImage,
+          CLASSES
+        );       
+        assert.isTrue(accuracyV2 > 0.6);
+        console.log("Final accuracy MobileNetV2", accuracyV2/CLASSES.length);
+    
+    }).timeout(240000);
+
+    it('Train flower dataset on mobilenet v1', async ()=>{
+        const DATASET_TRAIN_SIZE = 30;
+        const DATASET_VALIDATION_SIZE = 30;
+        const CLASSES = ['daisy','dandelion','roses','sunflowers','tulips'];
+        
+        const teachableMobileNetV1 = await tm.mobilenet.createTeachable({
+            tfjsVersion: tf.version.tfjs,            
+        }, { 
+            version: 1 
         });
 
-        const classes = ['daisy','dandelion','roses','sunflowers','tulips'];
-        teachableMobileNet.setLabels(classes);
-
-        const images:HTMLImageElement[][] = [];
-        for(const c of classes){
-            const load: Array<Promise<HTMLImageElement>> = [];
-            for(let i=0;i<DATASET_TRAIN_SIZE;i++){
-                load.push(loadFlowerImage(c, i));
-            }
-            images.push(
-                await Promise.all(load)
-            );
-        }
-
-        
-
-        
-        await tf.nextFrame().then(async () => {
-            let index = 0;
-            for(const imgSet of images){
-                for(const img of imgSet){
-                    teachableMobileNet.addExample(index, img);                
-                }
-                index ++;
-            }
-            console.log("data loaded");
-            console.time("Train");
-            await teachableMobileNet.train({
-                denseUnits: 100,
-                epochs:20,
-                learningRate: 0.0001
-            },
-            {
-                onBatchEnd: async (batch, logs) => {
-                    console.log(logs);
-                },
-                onEpochBegin: async (epoch, logs) => {
-                    console.log('Epoch: ', epoch);
-                },
-                onEpochEnd: async (epoch, logs) => {
-                    console.log(logs);
-                    console.log('\n');
-                }
-            });
-            console.timeEnd("Train");            
-        });
-
-
-        // Validation
-        let accuracy = 0;
-        for(const c of classes){
-            let s = 0;
-            for(let i=DATASET_TRAIN_SIZE; i<DATASET_TRAIN_SIZE+DATASET_VALIDATION_SIZE; i++){
-                const testImage = await loadFlowerImage(c,i);
-                const scores = await teachableMobileNet.predict(testImage, false);
-                if(scores[0].className === c){
-                    s ++;
-                }
-            }
-            console.log(c, s/DATASET_VALIDATION_SIZE);
-            accuracy += s/DATASET_VALIDATION_SIZE;
-        }
-        assert.isTrue(accuracy > 0.6);
-        console.log("Final accuracy", accuracy/classes.length);
-    
-    
+        const accuracyV1 = await testModel(
+            teachableMobileNetV1,
+            DATASET_TRAIN_SIZE,
+            DATASET_VALIDATION_SIZE,
+            loadFlowerImage,
+            CLASSES
+          );       
+          assert.isTrue(accuracyV1 > 0.6);
+          console.log("Final accuracy MobileNetV1", accuracyV1/CLASSES.length);
     }).timeout(240000);
     
 });
