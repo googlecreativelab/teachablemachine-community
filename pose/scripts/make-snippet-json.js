@@ -9,11 +9,8 @@ const tagCapturePattern = "([A-Za-z0-9]{1,})+";
 exports.writeSync = (outputPath) => {
     const code = fs.readFileSync(resolve(__dirname, './snippet.tmpl'), 'utf8');
 
-    console.log(typeof(code));
-    // const re = new RegExp(startPattern + tagCapturePattern + endPattern, 'g');
-
     // find all of the template tags that exist in the snippet
-    const tags = Array.from(code.matchAll(new RegExp(startPattern + tagCapturePattern + endPattern, 'g')))
+    const tags = Array.from(code.match(new RegExp(startPattern + tagCapturePattern + endPattern, 'g')))
         .reduce((mem, match) => {
             const value = match[1];
             if (mem.indexOf(value) === -1) {
