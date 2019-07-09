@@ -54,6 +54,8 @@ export function getWebcam(
     return window.navigator.mediaDevices.getUserMedia({ video: options })
         .then((mediaStream) => {
             video.srcObject = mediaStream;
+            video.width = width;
+            video.height = height;
             return video;
         }, () => {
             return Promise.reject('Could not open your camera. You may have denied access.');
