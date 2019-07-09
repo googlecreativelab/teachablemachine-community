@@ -21,9 +21,6 @@ import { padAndResizeTo, scaleAndFlipPoses, getInputTensorDimensions, toTensorBu
 import { decodeSinglePose } from '@tensorflow-models/posenet/dist/single_pose/decode_single_pose';
 
 import { util, SymbolicTensor } from '@tensorflow/tfjs';
-import { dispose } from '@tensorflow/tfjs';
-import { capture } from '../utils/tf';
-import { cropTo } from '../utils/canvas';
 import { version } from '../version';
 import { decodeMultiplePoses } from '@tensorflow-models/posenet';
 /**
@@ -80,7 +77,7 @@ const processMetadata = async (metadata: string | Metadata) => {
     return fillMetadata(metadataJSON);
 };
 
-export type ClassifierInputSource = HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap;
+export type ClassifierInputSource = PosenetInput;
 
 /**
  * Computes the probabilities of the topK classes given logits by computing
@@ -135,7 +132,7 @@ export class CustomPoseNet {
         return totalClasses;
     }
 
-    public async predictPosenet(sample: HTMLCanvasElement, flipHorizontal = false) {
+    public async predictPosenet(sample: PosenetInput, flipHorizontal = false) {
         const { heatmapScores, offsets, displacementFwd, displacementBwd, padding } = 
             await this.predictPosenetOutputs(sample);
 
@@ -150,12 +147,12 @@ export class CustomPoseNet {
 
     // for multi pose
     // taken from: https://github.com/tensorflow/tfjs-models/blob/master/posenet/src/posenet_model.ts
-    public async predictPosenetOutputs(sample: HTMLCanvasElement) {
+    public async predictPosenetOutputs(sample: PosenetInput) {
         const inputResolution = this.posenetModel.inputResolution;
 
         const {resized, padding} =
             padAndResizeTo(sample, [inputResolution, inputResolution]);
-
+        
         const {heatmapScores, offsets, displacementFwd, displacementBwd} = 
             await this.posenetModel.baseModel.predict(resized);
 
@@ -176,7 +173,7 @@ export class CustomPoseNet {
         return concatArray;
     }
 
-    public async predictPosenetPose(input: HTMLCanvasElement, heatmapScores: tf.Tensor3D, 
+    public async predictPosenetPose(input: PosenetInput, heatmapScores: tf.Tensor3D, 
         offsets: tf.Tensor3D, displacementFwd: tf.Tensor3D, displacementBwd: tf.Tensor3D, 
         padding: Padding, flipHorizontal: boolean = false) {
 

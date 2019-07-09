@@ -17,9 +17,7 @@
 
 import * as tf from '@tensorflow/tfjs';
 import { PoseNet } from '@tensorflow-models/posenet'
-import { PosenetInput } from '@tensorflow-models/posenet/dist/types';
 import { util } from '@tensorflow/tfjs';
-import { capture } from '../utils/tf';
 import { TensorContainer } from '@tensorflow/tfjs-core/dist/tensor_types';
 import { CustomCallbackArgs, equalStrict } from '@tensorflow/tfjs';
 
