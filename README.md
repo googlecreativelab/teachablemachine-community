@@ -8,7 +8,11 @@ This repo contains support libraries for a new version of Teachable Machine (cur
 |---------|-----------------|---------------------------------------------------------|---------|
 | [Image](https://github.com/googlecreativelab/teachablemachine-libraries/tree/master/image) | [MobileNet](https://github.com/tensorflow/tfjs-models/tree/master/mobilenet)       | Use a model trained to classify your own images         | Coming soon    |
 | [Audio](https://github.com/googlecreativelab/teachablemachine-libraries/tree/master/audio)   | [Speech Commands](https://github.com/tensorflow/tfjs-models/tree/master/speech-commands) | Use a model trained to classify your own audio snippets | Coming soon     |
+| [Pose](https://github.com/googlecreativelab/teachablemachine-libraries/tree/master/pose)   | [PoseNet](https://github.com/tensorflow/tfjs-models/tree/master/posenet) | Use a model trained to classify body poses | Coming soon     |
 
+## Development
+
+You must use a node version > 12.
 
 ## Disclaimer
 
