@@ -18,8 +18,6 @@ import * as tf from '@tensorflow/tfjs';
 import * as posenet from '@tensorflow-models/posenet';
 import { PosenetInput, Padding } from '@tensorflow-models/posenet/dist/types';
 import { padAndResizeTo, scaleAndFlipPoses, getInputTensorDimensions, toTensorBuffers3D } from '@tensorflow-models/posenet/dist/util';
-import { decodeSinglePose } from '@tensorflow-models/posenet/dist/single_pose/decode_single_pose';
-
 import { util, SymbolicTensor } from '@tensorflow/tfjs';
 import { version } from '../version';
 import { decodeMultiplePoses } from '@tensorflow-models/posenet';
