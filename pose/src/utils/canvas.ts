@@ -15,10 +15,18 @@
  * =============================================================================
  */
 
-import * as posenet from './posenet/index';
+export function createCanvas(width: number = 200, height: number = 200, flipHorizontal = false) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
 
-export { posenet };
-export { getWebcam } from './utils/webcam';
-export { createCanvas } from './utils/canvas';
-export { drawKeypoints, drawSkeleton, drawPoint, drawSegment } from './utils/pose-draw';
-export { version } from './version';
+    if (flipHorizontal) {
+        const ctx = canvas.getContext('2d');
+        ctx.translate(width, 0);
+        ctx.scale(-1, 1);
+    }
+
+    return canvas;
+}
+
+
