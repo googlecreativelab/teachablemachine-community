@@ -29,7 +29,7 @@
         // predict can take in an image, video or canvas html element
         // we set flip to true since the webcam was only flipped in CSS
         const flip = true;
-        const prediction = await model.predict(sample, flip, maxPredictions);
+        const prediction = await model.predict(webcamEl, flip, maxPredictions);
         console.log(prediction);
     }
 
