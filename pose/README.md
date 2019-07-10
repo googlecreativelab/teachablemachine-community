@@ -30,7 +30,7 @@ Coming soon
 
 ```js
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://storage.googleapis.com/tm-pro/{{version}}/teachablemachine-pose.min.js"></script>
+<script src="https://storage.googleapis.com/tm-pro/VERSION/teachablemachine-pose.min.js"></script>
 <script type="text/javascript">
     // the json file (model topology) has a reference to the bin file (model weights)
     const checkpointURL = 'https://storage.googleapis.com/tm-posenet/YOUR_MODEL_NAME/model.json';
@@ -71,7 +71,7 @@ Coming soon
         // predictPosenet can take in an image, video or canvas html element
         const flipHorizontal = false;
         const { pose, posenetOutput } = await model.predictPosenet(webcamEl, flipHorizontal);
-        // Prediction 2: run input through teachable machine assification model
+        // Prediction 2: run input through teachable machine classification model
         const prediction = await model.predict(posenetOutput, flipHorizontal, maxPredictions);
 
         ctx.drawImage(webcamEl, 0, 0);
