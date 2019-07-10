@@ -6,33 +6,53 @@
     // the metatadata json file contains the text labels of your model and additional information
     const metadataURL = '{{metadata}}';
 
-    let model;
-    let webcamEl;
-
+    let model; let webcamEl; let ctx; let maxPredictions;
+       
     async function init() {
         // load the model and metadata
-        model = await tm.mobilenet.load(checkpointURL, metadataURL);
-        const maxPredictions = model.getTotalClasses();
+        model = await tm.posenet.load(checkpointURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+		const width = 200; const height = 200;
 
         // optional function for creating a webcam
         // webcam has a square ratio and is flipped by default to match training
-        webcamEl = await tm.getWebcam(200, 200);
+        webcamEl = await tm.getWebcam(width, height);
         webcamEl.play();
-        document.body.appendChild(webcamEl);
-
-        // use tm.mobilenet.loadFromFiles() function to support files from a file picker or files from your local hard drive
-        // you need to create File objects, like with file input elements (<input type="file" ...>)
-        // const uploadJSONInput = document.getElementById('upload-json');
-        // const uploadWeightsInput = document.getElementById('upload-weights');
-        // model = await tm.mobilenet.loadFromFiles(uploadJSONInput.files[0], uploadWeightsInput.files[0])
-
-        // predict can take in an image, video or canvas html element
-        // we set flip to true since the webcam was only flipped in CSS
+        // document.body.appendChild(webcamEl);
+        
+        // optional function for creating a canvas to draw the webcam + keypoints to
         const flip = true;
-        const prediction = await model.predict(sample, flip, maxPredictions);
-        console.log(prediction);
+        const canvas = tm.createCanvas(width, height, flip);
+        ctx = canvas.getContext('2d');
+        document.body.appendChild(canvas);
+        
+        window.requestAnimationFrame(loop); // kick of pose prediction loop
     }
+    
+   	async function loop(timestamp) {
+        await predict();
+        window.requestAnimationFrame(loop);
+    }
+    
+    async function predict() {
+        // Prediction #1: run input through posenet
+        // predictPosenet can take in an image, video or canvas html element
+        const flipHorizontal = false;
+        const { pose, posenetOutput } = await model.predictPosenet(webcamEl, flipHorizontal);
+        // Prediction 2: run input through teachable machine assification model
+        const prediction = await model.predict(posenetOutput, flipHorizontal, maxPredictions);
 
+        ctx.drawImage(webcamEl, 0, 0);
+        // draw the keypoints and skeleton
+        if (pose) {
+            const minPartConfidence = 0.5;
+            tm.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
+            tm.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+        }
+
+        console.log(prediction);      
+    }
 
     init();
 </script>
