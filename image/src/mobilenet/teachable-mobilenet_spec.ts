@@ -17,12 +17,12 @@
 
 import * as tf from '@tensorflow/tfjs';
 import { TeachableMobileNet, createTeachable } from './teachable-mobilenet';
-
+import { version } from '../version'
 
 async function init() {
     const trainableModel = await createTeachable({
         tfjsVersion: tf.version.tfjs,
-        tmSupportVersion: '0.0.4'
+        tmSupportVersion: version
     });
 }
 
