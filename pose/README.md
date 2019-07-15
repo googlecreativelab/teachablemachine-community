@@ -19,7 +19,7 @@ There are two ways to easily use the model provided by Teachable Machine in your
 
 ```js
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://storage.googleapis.com/tm-pro/v0.1.0/teachablemachine-pose.min.js"></script>
+<script src="https://storage.googleapis.com/tm-pro/v0.2.0/teachablemachine-pose.min.js"></script>
 ```
 
 ### via NPM
@@ -41,20 +41,20 @@ Coming soon
        
     async function init() {
         // load the model and metadata
-        model = await tm.posenet.load(checkpointURL, metadataURL);
+        model = await tmPose.posenet.load(checkpointURL, metadataURL);
         maxPredictions = model.getTotalClasses();
 
         const width = 200; const height = 200;
 
         // optional function for creating a webcam
         // webcam has a square ratio and is flipped by default to match training
-        webcamEl = await tm.getWebcam(width, height);
+        webcamEl = await tmPose.getWebcam(width, height);
         webcamEl.play();
         // document.body.appendChild(webcamEl);
         
         // optional function for creating a canvas to draw the webcam + keypoints to
         const flip = true;
-        const canvas = tm.createCanvas(width, height, flip);
+        const canvas = tmPose.createCanvas(width, height, flip);
         ctx = canvas.getContext('2d');
         document.body.appendChild(canvas);
         
@@ -68,9 +68,9 @@ Coming soon
     
     async function predict() {
         // Prediction #1: run input through posenet
-        // predictPosenet can take in an image, video or canvas html element
+        // estimatePose can take in an image, video or canvas html element
         const flipHorizontal = false;
-        const { pose, posenetOutput } = await model.predictPosenet(webcamEl, flipHorizontal);
+        const { pose, posenetOutput } = await model.estimatePose(webcamEl, flipHorizontal);
         // Prediction 2: run input through teachable machine classification model
         const prediction = await model.predict(posenetOutput, flipHorizontal, maxPredictions);
 
@@ -78,8 +78,8 @@ Coming soon
         // draw the keypoints and skeleton
         if (pose) {
             const minPartConfidence = 0.5;
-            tm.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
-            tm.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+            tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
+            tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
         }
 
         console.log(prediction);      
@@ -95,10 +95,10 @@ Coming soon
 
 ### Loading the model - url checkpoints
 
-`tm.posenet` is the module name, which is automatically included when you use the `<script src>` method. When using ES6 imports, `posenet` is the module.
+`tmPose.posenet` is the module name, which is automatically included when you use the `<script src>` method. When using ES6 imports, `posenet` is the module.
 
 ```ts
-tm.posenet.load(
+tmPose.posenet.load(
     checkpoint: string, 
     metadata?: string | Metadata
 )
@@ -113,14 +113,14 @@ Args:
 Usage:
 
 ```js
-await tm.posenet.load(checkpointURL, metadataURL);
+await tmPose.posenet.load(checkpointURL, metadataURL);
 ```
 
 ### Model - get total classes
 
 Once you have loaded a model, you can obtain the total number of classes in the model. 
 
-This method exists on the model that is loaded from `tm.posenet.load`.
+This method exists on the model that is loaded from `tmPose.posenet.load`.
 
 ```ts
 model.getTotalClasses()
@@ -132,10 +132,10 @@ Returns a number representing the total number of classes
 
 You'll have to run your input through two models to make a prediction: first through posenet and then through the classification model created via Teachable Machine.
 
-This method exists on the model that is loaded from `tm.posenet.load`.
+This method exists on the model that is loaded from `tmPose.posenet.load`.
 
 ```ts
-model.predictPosenet(
+model.estimatePose(
     sample: ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | tf.Tensor3D,
     flipHorizontal = false
 )
@@ -150,7 +150,7 @@ Usage:
 
 ```js
 const flipHorizontal = false;
-const { pose, posenetOutput } = await model.predictPosenet(webcamElement, flipHorizontal);
+const { pose, posenetOutput } = await model.estimatePose(webcamElement, flipHorizontal);
 ```
 
 The function returns `pose` an object with the keypoints data (for drawing) and `posenetOutput` a Float32Array of concatenated posenet output data (for the classification prediction). 
@@ -160,7 +160,7 @@ The function returns `pose` an object with the keypoints data (for drawing) and 
 
 Once you have the output from posenet, you can make a classificaiton with the Teachable Machine model you trained.
 
-This method exists on the model that is loaded from `tm.posenet.load`.
+This method exists on the model that is loaded from `tmPose.posenet.load`.
 
 ```ts
 model.predict(
@@ -172,7 +172,7 @@ model.predict(
 
 Args:
 
-* **poseOutput**: an array representing the output of posenet from the `mode.predictPosenet` function
+* **poseOutput**: an array representing the output of posenet from the `mode.estimatePose` function
 * **flipped**: a boolean to trigger whether to flip on X or not the image input
 * **maxPredictions**: total number of predictions to return
 
@@ -185,18 +185,18 @@ Usage:
 const maxPredictions = model.getTotalClasses();
 const flipHorizontal = false;
 
-const { pose, posenetOutput } = await model.predictPosenet(webcamElement, flipHorizontal);
+const { pose, posenetOutput } = await model.estimatePose(webcamElement, flipHorizontal);
 const prediction = await model.predict(posenetOutput, flipHorizontal, maxPredictions);
 ```
 
 ### Webcam
 
-You can optionally use a webcam utility that comes with the library, or spin up your own webcam. This method exists on the `tm` module.
+You can optionally use a webcam utility that comes with the library, or spin up your own webcam. This method exists on the `tmPose` module.
 
 Please note that the webcam used in Teachable Machine was flipped on X - so you should probably do the same if creating your own webcam.
 
 ```ts
-tm.getWebcam(
+tmPose.getWebcam(
     width = 400,
     height = 400,
     facingMode = 'front',
@@ -219,7 +219,7 @@ Usage:
 
 ```js
 // webcam has a square ratio and is flipped by default to match training
-const webcamEl = await tm.getWebcam(200, 200);
+const webcamEl = await tmPose.getWebcam(200, 200);
 webcamEl.play();
 document.body.appendChild(webcamEl);
 ```
@@ -227,9 +227,9 @@ document.body.appendChild(webcamEl);
 or
 
 ```js
-const webcamEl = await tm.getWebcam(200, 200, 'front');
-const webcamEl = await tm.getWebcam(200, 200, 'back');
-const webcamEl = await tm.getWebcam(200, 200, 'front', false);
+const webcamEl = await tmPose.getWebcam(200, 200, 'front');
+const webcamEl = await tmPose.getWebcam(200, 200, 'back');
+const webcamEl = await tmPose.getWebcam(200, 200, 'front', false);
 ```
 
 ### Create canvas
@@ -237,7 +237,7 @@ const webcamEl = await tm.getWebcam(200, 200, 'front', false);
 You can optionally use a utility to create a canvas for drawing the webcam data as well as the pose keypoints.
 
 ```ts
-tm.createCanvas(
+tmPose.createCanvas(
     width = 200,
     height = 200,
     flipHorizontal = false
@@ -254,15 +254,15 @@ Usage:
 
 ```js
 const flip = false;
-const canvas = tm.createCanvas(200, 200, flip);
+const canvas = tmPose.createCanvas(200, 200, flip);
 ```
 
 ### Draw keypoints
 
-You can optionally use a utility function to draw the pose keypoints from `model.predictPosenet`.
+You can optionally use a utility function to draw the pose keypoints from `model.estimatePose`.
 
 ```ts
-tm.drawKeypoints(
+tmPose.drawKeypoints(
     keypoints: Keypoint[], 
     minConfidence: number, 
     ctx: CanvasRenderingContext2D, 
@@ -287,18 +287,18 @@ Usage:
 
 ```js
 const flipHorizontal = false;
-const { pose, posenetOutput } = await model.predictPosenet(webcamEl, flipHorizontal);
+const { pose, posenetOutput } = await model.estimatePose(webcamEl, flipHorizontal);
 
 const minPartConfidence = 0.5;
-tm.drawKeypoints(pose.keypoints, minPartConfidence, canvasContext);
+tmPose.drawKeypoints(pose.keypoints, minPartConfidence, canvasContext);
 ```
 
 ### Draw skeleton
 
-You can optionally use a utility function to draw the pose keypoints from `model.predictPosenet`.
+You can optionally use a utility function to draw the pose keypoints from `model.estimatePose`.
 
 ```ts
-tm.drawSkeleton(
+tmPose.drawSkeleton(
     keypoints: Keypoint[], 
     minConfidence: number, 
     ctx: CanvasRenderingContext2D, 
@@ -321,9 +321,9 @@ Usage:
 
 ```js
 const flipHorizontal = false;
-const { pose, posenetOutput } = await model.predictPosenet(webcamEl, flipHorizontal);
+const { pose, posenetOutput } = await model.estimatePose(webcamEl, flipHorizontal);
 
 const minPartConfidence = 0.5;
-tm.drawKeypoints(pose.keypoints, minPartConfidence, canvasContext);
-tm.drawSkeleton(pose.keypoints, minPartConfidence, canvasContext);
+tmPose.drawKeypoints(pose.keypoints, minPartConfidence, canvasContext);
+tmPose.drawSkeleton(pose.keypoints, minPartConfidence, canvasContext);
 ```

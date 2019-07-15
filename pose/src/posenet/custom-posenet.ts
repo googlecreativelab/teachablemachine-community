@@ -130,14 +130,14 @@ export class CustomPoseNet {
         return totalClasses;
     }
 
-    public async predictPosenet(sample: PosenetInput, flipHorizontal = false) {
+    public async estimatePose(sample: PosenetInput, flipHorizontal = false) {
         const { heatmapScores, offsets, displacementFwd, displacementBwd, padding } = 
-            await this.predictPosenetOutputs(sample);
+            await this.estimatePoseOutputs(sample);
 
-        const posenetOutput = this.predictPosenetOutputsArray(heatmapScores, offsets, displacementFwd, displacementBwd);
+        const posenetOutput = this.poseOutputsToAray(heatmapScores, offsets, displacementFwd, displacementBwd);
 
         const pose = 
-            await this.predictPosenetPose(sample, heatmapScores, offsets, displacementFwd, displacementBwd, padding, flipHorizontal);
+            await this.poseOutputsToKeypoints(sample, heatmapScores, offsets, displacementFwd, displacementBwd, padding, flipHorizontal);
 
         return { pose: pose, posenetOutput: posenetOutput }
     }
@@ -145,7 +145,7 @@ export class CustomPoseNet {
 
     // for multi pose
     // taken from: https://github.com/tensorflow/tfjs-models/blob/master/posenet/src/posenet_model.ts
-    public async predictPosenetOutputs(sample: PosenetInput) {
+    public async estimatePoseOutputs(sample: PosenetInput) {
         const inputResolution = this.posenetModel.inputResolution;
 
         const {resized, padding} =
@@ -159,7 +159,7 @@ export class CustomPoseNet {
         return {heatmapScores, offsets, displacementFwd, displacementBwd, padding};
     }
 
-    public predictPosenetOutputsArray(heatmapScores: tf.Tensor3D, 
+    public poseOutputsToAray(heatmapScores: tf.Tensor3D, 
         offsets: tf.Tensor3D, displacementFwd: tf.Tensor3D, displacementBwd: tf.Tensor3D) {
         
         const axis = 2;
@@ -171,7 +171,7 @@ export class CustomPoseNet {
         return concatArray;
     }
 
-    public async predictPosenetPose(input: PosenetInput, heatmapScores: tf.Tensor3D, 
+    public async poseOutputsToKeypoints(input: PosenetInput, heatmapScores: tf.Tensor3D, 
         offsets: tf.Tensor3D, displacementFwd: tf.Tensor3D, displacementBwd: tf.Tensor3D, 
         padding: Padding, flipHorizontal: boolean = false) {
 
