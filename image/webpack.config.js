@@ -32,7 +32,7 @@ const baseConfig = {
     entry : './src/index.ts',
     output : {
         path : outputPath,
-        library: ['tm'],
+        library: ['tmImage'],
         filename : 'teachablemachine-image.min.js'
     },
     mode : 'development',
