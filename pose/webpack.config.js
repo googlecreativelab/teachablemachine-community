@@ -32,7 +32,7 @@ const baseConfig = {
     entry : './src/index.ts',
     output : {
         path : outputPath,
-        library: ['tm'],
+        library: ['tmPose'],
         filename : 'teachablemachine-pose.min.js'
     },
     mode : 'development',

@@ -17,11 +17,12 @@
 
 import * as tf from '@tensorflow/tfjs';
 import { TeachablePoseNet, createTeachable } from './teachable-posenet';
+import { version } from '../version';
 
 async function init() {
     const trainableModel = await createTeachable({
         tfjsVersion: tf.version.tfjs,
-        tmSupportVersion: '0.0.4'
+        tmSupportVersion: version
     });
 }
 
