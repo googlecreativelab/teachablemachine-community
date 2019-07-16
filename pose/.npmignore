@@ -11,4 +11,8 @@ bundles/*
 *.tgz
 webpack.config.js
 tsconfig.json
+karma.conf.js
+tslint.json
+test/
+scripts/
 
