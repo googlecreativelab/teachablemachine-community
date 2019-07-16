@@ -1,0 +1,31 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TESTS</title>
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.2.0/chai.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
+    <script src="../bundles/v0.1.0/teachablemachine-pose.min.js"></script>
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+</head>
+<body>
+    <div id="mocha"></div>
+    <script type="text/javascript">
+        /**
+         * The purpose of this test suite is only to test that the bundle loads
+         * correctly. The rest of the test suite tests the local typescript files
+         */
+        const assert = chai.assert;
+        describe('Testing UMD Bundle', () => {
+            it('should be on window', () => {
+                assert.equal(typeof tm, 'object');
+                assert.equal(typeof tm.version, 'string');
+                assert.equal(typeof tm.posenet, 'object');
+            });
+        });
+        setTimeout(() => {
+            mocha.run()
+        }, 100)
+    </script>
+</body>
+</html>
