@@ -11,7 +11,7 @@
     "dev-lite": "webpack --watch --reporter=basic --mode=development",
     "lint": "tslint -p . -t verbose",
     "make-version": "node scripts/make-version.js",
-    "publish-local": "npm run build-clean && yalc push",
+    "publish-local": "npm run build-clean && yalc publish",
     "update-release": "npm run build && npm run upload",
     "upload": "gsutil -m cp -r ./bundles/** gs://tm-pro",
     "upload-tarball": "npm pack && gsutil -m cp ./*.tgz gs://tm-pro-tgz",
