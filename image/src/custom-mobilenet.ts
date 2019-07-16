@@ -18,9 +18,9 @@
 import * as tf from '@tensorflow/tfjs';
 import { util, SymbolicTensor } from '@tensorflow/tfjs';
 import { dispose } from '@tensorflow/tfjs';
-import { capture } from '../utils/tf';
-import { cropTo } from '../utils/canvas';
-import { version } from '../version';
+import { capture } from './utils/tf';
+import { cropTo } from './utils/canvas';
+import { version } from './version';
 
 /**
  * the metadata to describe the model's creation,

@@ -17,10 +17,14 @@
 
 import * as tf from '@tensorflow/tfjs';
 import { util } from '@tensorflow/tfjs';
-import { capture } from '../utils/tf';
+import { capture } from './utils/tf';
 import { TensorContainer } from '@tensorflow/tfjs-core/dist/tensor_types';
-import { CustomCallbackArgs, equalStrict } from '@tensorflow/tfjs';
-import { CustomMobileNet, Metadata, loadTruncatedMobileNet, ClassifierInputSource } from './custom-mobilenet';
+import { CustomCallbackArgs } from '@tensorflow/tfjs';
+import { CustomMobileNet,
+    Metadata,
+    loadTruncatedMobileNet,
+    ClassifierInputSource
+} from './custom-mobilenet';
 
 
 export interface TrainingParameters {

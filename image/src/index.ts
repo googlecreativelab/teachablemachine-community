@@ -15,8 +15,16 @@
  * =============================================================================
  */
 
-import * as mobilenet from './mobilenet/index';
+export {
+    Metadata,
+    IMAGE_SIZE,
+    ClassifierInputSource,
+    CustomMobileNet,
+    load,
+    loadFromFiles,
+    loadTruncatedMobileNet
+} from './custom-mobilenet';
 
-export { mobilenet };
+export { TeachableMobileNet, createTeachable } from './teachable-mobilenet';
 export { getWebcam } from './utils/webcam';
 export { version } from './version';
