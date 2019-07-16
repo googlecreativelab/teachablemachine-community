@@ -11,6 +11,7 @@
     "dev-lite": "webpack --watch --reporter=basic --mode=development",
     "lint": "tslint -p . -t verbose",
     "make-version": "node scripts/make-version.js",
+    "publish-local": "npm run build-clean && yalc push",
     "update-release": "npm run build && npm run upload",
     "upload": "gsutil -m cp -r ./bundles/** gs://tm-pro",
     "upload-tarball": "npm pack && gsutil -m cp ./*.tgz gs://tm-pro-tgz",
@@ -41,6 +42,7 @@
     "tslint": "^5.17.0",
     "typescript": "^3.2.2",
     "webpack": "^4.28.0",
-    "webpack-cli": "^3.1.2"
+    "webpack-cli": "^3.1.2",
+    "yalc": "^1.0.0-pre.32"
   }
 }
