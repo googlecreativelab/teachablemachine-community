@@ -32,8 +32,8 @@ const baseConfig = {
     entry : './src/index.ts',
     output : {
         path : outputPath,
-        library: ['tmImage'],
-        filename : 'teachablemachine-image.min.js'
+        library: ['tmPose'],
+        filename : 'teachablemachine-pose.min.js'
     },
     mode : 'development',
     watchOptions: {

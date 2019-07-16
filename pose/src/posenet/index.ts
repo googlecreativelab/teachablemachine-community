@@ -15,15 +15,11 @@
  * =============================================================================
  */
 
-import * as tf from '@tensorflow/tfjs';
-import { TeachableMobileNet, createTeachable } from './teachable-mobilenet';
-import { version } from '../version'
+export {
+    Metadata,
+    ClassifierInputSource,
+    CustomPoseNet,
+    load
+} from './custom-posenet';
 
-async function init() {
-    const trainableModel = await createTeachable({
-        tfjsVersion: tf.version.tfjs,
-        tmSupportVersion: version
-    });
-}
-
-init();
+export { TeachablePoseNet, createTeachable } from './teachable-posenet';
