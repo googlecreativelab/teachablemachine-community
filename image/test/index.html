@@ -18,7 +18,7 @@
         const assert = chai.assert;
         describe('Testing UMD Bundle', () => {
             it('should be on window', () => {
-                assert.equal(typeof tmImage, 'object');
+                assert.equal(typeof window.tmImage, 'object');
                 assert.equal(typeof tmImage.version, 'string');
                 assert.equal(tmImage.IMAGE_SIZE, 224, 'IMAGE_SIZE should be 224');
             });
