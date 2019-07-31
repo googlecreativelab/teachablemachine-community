@@ -128,8 +128,6 @@ describe('Train a custom model', () => {
         
         const teachableMobileNetV2 = await tm.mobilenet.createTeachable({
             tfjsVersion: tf.version.tfjs,            
-        }, { 
-            version: 2 
         });
           
         const accuracyV2 = await testModel(
@@ -142,28 +140,5 @@ describe('Train a custom model', () => {
         assert.isTrue(accuracyV2 > 0.6);
         console.log("Final accuracy MobileNetV2", accuracyV2/CLASSES.length);
     
-    }).timeout(240000);
-
-    it('Train flower dataset on mobilenet v1', async ()=>{
-        const DATASET_TRAIN_SIZE = 30;
-        const DATASET_VALIDATION_SIZE = 30;
-        const CLASSES = ['daisy','dandelion','roses','sunflowers','tulips'];
-        
-        const teachableMobileNetV1 = await tm.mobilenet.createTeachable({
-            tfjsVersion: tf.version.tfjs,            
-        }, { 
-            version: 1 
-        });
-
-        const accuracyV1 = await testModel(
-            teachableMobileNetV1,
-            DATASET_TRAIN_SIZE,
-            DATASET_VALIDATION_SIZE,
-            loadFlowerImage,
-            CLASSES
-          );       
-          assert.isTrue(accuracyV1 > 0.6);
-          console.log("Final accuracy MobileNetV1", accuracyV1/CLASSES.length);
-    }).timeout(240000);
-    
+    }).timeout(240000);    
 });

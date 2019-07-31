@@ -22,12 +22,6 @@ import { capture } from '../utils/tf';
 import { cropTo } from '../utils/canvas';
 import { version } from '../version';
 
-const DEFAULT_MOBILENET_VERSION = 2;
-const DEFAULT_TRAINING_LAYER_V1 = 'conv_pw_13_relu';
-// const TRAINING_LAYER_V2 = 'out_relu'; 
-// const DEFAULT_TRAINING_LAYER_V2 = 'block_16_project_BN'; 
-const DEFAULT_TRAINING_LAYER_V2 = 'out_relu'; 
-const DEFAULT_ALPHA_V1 = 0.25;
 const DEFAULT_ALPHA_V2 = 0.35;
 
 export const IMAGE_SIZE = 224;
@@ -48,7 +42,6 @@ export interface Metadata {
 }
 
 export interface ModelOptions {
-    version?: number;
     checkpointUrl?: string;
     alpha?: number;
     trainingLayer?: string;
@@ -76,30 +69,17 @@ const isMetadata = (c: any): c is Metadata =>
 const parseModelOptions = (options?: ModelOptions) => {
     options = options || {};
     if(options.checkpointUrl){
-        if(options.alpha || options.version){
-            console.warn("Checkpoint URL passed to modelOptions, alpha and version options are ignored");
+        if(options.alpha){
+            console.warn("Checkpoint URL passed to modelOptions, alpha options are ignored");
         }        
         return [options.checkpointUrl, options.trainingLayer];
     } else {
-        options.version = options.version || DEFAULT_MOBILENET_VERSION;
-        if(options.version === 1){
-            options.alpha = options.alpha || DEFAULT_ALPHA_V1;    
-            options.trainingLayer = options.trainingLayer || DEFAULT_TRAINING_LAYER_V1;
-            return [
-                // tslint:disable-next-line:max-line-length        
-                `https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_${options.alpha}_${IMAGE_SIZE}/model.json`,
-                options.trainingLayer
-            ];
-        } else if(options.version === 2){
-            options.alpha = options.alpha || DEFAULT_ALPHA_V2;                
-            return [
-                // tslint:disable-next-line:max-line-length        
-                `https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_${options.alpha}_${IMAGE_SIZE}_no_top/model.json`,
-                null
-            ];
-        } else {
-            throw new Error(`MobileNet V${options.version} doesn't exist`);
-        }        
+        options.alpha = options.alpha || DEFAULT_ALPHA_V2;                
+        return [
+            // tslint:disable-next-line:max-line-length        
+            `https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_${options.alpha}_${IMAGE_SIZE}_no_top/model.json`,
+            null
+        ];        
     }
 };
 
@@ -230,21 +210,12 @@ export async function loadTruncatedMobileNet(modelOptions?: ModelOptions) {
     const [checkpointUrl, trainingLayer] = parseModelOptions(modelOptions);
     const mobilenet = await tf.loadLayersModel(checkpointUrl);
     
-    if(modelOptions && modelOptions.version === 1){
-        const layer = mobilenet.getLayer(trainingLayer);
-        const truncatedModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
-        
-        const model = tf.sequential();
-        model.add(truncatedModel);
-        model.add(tf.layers.flatten());
-        return model;
-    } else {
-        // Add a Global Average Pooling 2D to mobilenet, to go from shape [7, 7, 1280] to [1280]
-        const model = tf.sequential();
-        model.add(mobilenet);
-        model.add(tf.layers.globalAveragePooling2d({}));
-        return model;
-    }
+    // Add a Global Average Pooling 2D to mobilenet, to go from shape [7, 7, 1280] to [1280]
+    const model = tf.sequential();
+    model.add(mobilenet);
+    model.add(tf.layers.globalAveragePooling2d({}));
+    return model;
+    
 }
 
 export async function load(checkpoint: string, metadata?: string | Metadata ) {
