@@ -168,7 +168,7 @@ export class TeachableMobileNet extends CustomMobileNet {
             () => `Can not train, has ${numLabels} labels and ${this.numClasses} classes`);
 
         // Approach 1 in dataset.ts
-        const inputShape = this.truncatedModel.outputs[0].shape.slice(1); // [ 7 x 7 x 256]
+        const inputShape = this.truncatedModel.outputs[0].shape.slice(1); // [ 7 x 7 x 1280]
         const inputSize = tf.util.sizeFromShape(inputShape);
         // Creates a 2-layer fully connected model. By creating a separate model,
         // rather than adding layers to the mobilenet model, we "freeze" the weights
@@ -190,14 +190,14 @@ export class TeachableMobileNet extends CustomMobileNet {
                 units: this.numClasses,
                 kernelInitializer: 'varianceScaling',
                 useBias: false,
-                activation: 'softmax'
+                activation: 'softmax',
+                // inputShape: [inputSize],
             })
             ]
         });
 
         const optimizer = tf.train.adam(params.learningRate);
         trainingModel.compile({ optimizer, loss: 'categoricalCrossentropy' });
-
         //const batchSize = Math.floor(dataset.xs.shape[0] * trainParams.getBatchSizeFraction())
         const batchSize = Math.min(16, this.examples.length);
 
@@ -223,7 +223,7 @@ export class TeachableMobileNet extends CustomMobileNet {
 
         const jointModel = tf.sequential();
         jointModel.add(this.truncatedModel);
-        jointModel.add(tf.layers.flatten());
+        // jointModel.add(tf.layers.flatten());
         jointModel.add(trainingModel);
 
         this.model = jointModel;

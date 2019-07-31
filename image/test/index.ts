@@ -66,7 +66,7 @@ async function testModel(
       {
         denseUnits: 100,
         epochs,
-        learningRate: 0.0001
+        learningRate: 0.001
       },
       {
         onBatchEnd: async (batch, logs) => {
