@@ -23,7 +23,7 @@
     "@tensorflow/tfjs": "1.1.2"
   },
   "devDependencies": {
-    "@tensorflow/tfjs": "^1.1.2",
+    "@tensorflow/tfjs": "1.1.2",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
