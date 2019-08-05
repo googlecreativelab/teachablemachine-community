@@ -24,8 +24,6 @@ import { CustomMobileNet, Metadata, loadTruncatedMobileNet, ClassifierInputSourc
 
 import * as seedrandom from 'seedrandom';
 
-console.log("test16");
-
 const VALIDATION_FRACTION = 0.15;
 
 export interface TrainingParameters {
