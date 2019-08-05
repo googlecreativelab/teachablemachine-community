@@ -44,7 +44,6 @@ export interface Metadata {
 export interface ModelOptions {
     checkpointUrl?: string;
     alpha?: number;
-    trainingLayer?: string;
 }
 
 /**
@@ -72,14 +71,11 @@ const parseModelOptions = (options?: ModelOptions) => {
         if(options.alpha){
             console.warn("Checkpoint URL passed to modelOptions, alpha options are ignored");
         }        
-        return [options.checkpointUrl, options.trainingLayer];
+        return options.checkpointUrl;
     } else {
         options.alpha = options.alpha || DEFAULT_ALPHA_V2;                
-        return [
-            // tslint:disable-next-line:max-line-length        
-            `https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_${options.alpha}_${IMAGE_SIZE}_no_top/model.json`,
-            null
-        ];        
+        // tslint:disable-next-line:max-line-length
+        return `https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_${options.alpha}_${IMAGE_SIZE}_no_top/model.json`;
     }
 };
 
@@ -207,7 +203,7 @@ export class CustomMobileNet {
  * @param modelOptions options determining what model to load
  */
 export async function loadTruncatedMobileNet(modelOptions?: ModelOptions) {
-    const [checkpointUrl, trainingLayer] = parseModelOptions(modelOptions);
+    const checkpointUrl = parseModelOptions(modelOptions);
     const mobilenet = await tf.loadLayersModel(checkpointUrl);
     
     // Add a Global Average Pooling 2D to mobilenet, to go from shape [7, 7, 1280] to [1280]
