@@ -5,7 +5,7 @@
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.2.0/chai.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-    <script src="../bundles/v0.1.0/teachablemachine-image.min.js"></script>
+    <script src="../bundles/v0.1.0/teachablemachine-pose.min.js"></script>
     <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
 </head>
 <body>
@@ -18,10 +18,9 @@
         const assert = chai.assert;
         describe('Testing UMD Bundle', () => {
             it('should be on window', () => {
-                assert.equal(typeof window.tmImage, 'object');
-                assert.equal(typeof tmImage.version, 'string');
-                assert.equal(typeof tmImage.mobilenet, 'object');
-                assert.equal(tmImage.mobilenet.IMAGE_SIZE, 224, 'IMAGE_SIZE should be 224');
+                assert.equal(typeof tm, 'object');
+                assert.equal(typeof tm.version, 'string');
+                assert.equal(typeof tm.posenet, 'object');
             });
         });
         setTimeout(() => {

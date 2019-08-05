@@ -15,15 +15,18 @@
  * =============================================================================
  */
 
-import * as tf from '@tensorflow/tfjs';
-import { TeachableMobileNet, createTeachable } from './teachable-mobilenet';
-import { version } from '../version'
+export function createCanvas(width: number = 200, height: number = 200, flipHorizontal = false) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
 
-async function init() {
-    const trainableModel = await createTeachable({
-        tfjsVersion: tf.version.tfjs,
-        tmSupportVersion: version
-    });
+    if (flipHorizontal) {
+        const ctx = canvas.getContext('2d');
+        ctx.translate(width, 0);
+        ctx.scale(-1, 1);
+    }
+
+    return canvas;
 }
 
-init();
+

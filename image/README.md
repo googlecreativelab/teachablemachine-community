@@ -19,7 +19,7 @@ There are two ways to easily use the model provided by Teachable Machine in your
 
 ```js
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://storage.googleapis.com/tm-pro/v1.0.5-c/teachablemachine-image.min.js"></script>
+<script src="https://storage.googleapis.com/tm-pro/v0.2.0/teachablemachine-image.min.js"></script>
 ```
 
 ### via NPM
@@ -30,7 +30,7 @@ Coming soon
 
 ```js
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://storage.googleapis.com/tm-pro/v1.0.5-c/teachablemachine-image.min.js"></script>
+<script src="https://storage.googleapis.com/tm-pro/v0.2.0/teachablemachine-image.min.js"></script>
 <script type="text/javascript">
     const checkpointURL = 'https://storage.googleapis.com/tm-mobilenet/YOUR_MODEL_NAME/model.json';
     const metadataURL = 'https://storage.googleapis.com/tm-mobilenet/YOUR_MODEL_NAME/metadata.json';
@@ -39,11 +39,11 @@ Coming soon
     let webcamEl;
 
     async function init() {
-        model = await tm.mobilenet.load(checkpointURL, metadataURL);
+        model = await tmImage.mobilenet.load(checkpointURL, metadataURL);
         const maxPredictions = model.getTotalClasses();
 
         // webcam has a square ratio and is flipped by default to match training
-        webcamEl = await tm.getWebcam(200, 200, ‘front’);
+        webcamEl = await tmImage.getWebcam(200, 200, ‘front’);
         webcamEl.play();
         document.body.appendChild(webcamEl);
 
@@ -63,10 +63,10 @@ Coming soon
 
 ### Loading the model - url checkpoints
 
-`tm.mobilenet` is the module name, which is automatically included when you use the `<script src>` method. When using ES6 imports, `mobilenet` is the module.
+`tmImage.mobilenet` is the module name, which is automatically included when you use the `<script src>` method. When using ES6 imports, `mobilenet` is the module.
 
 ```ts
-tm.mobilenet.load(
+tmImage.mobilenet.load(
 	checkpoint: string, 
 	metadata?: string | Metadata
 )
@@ -81,7 +81,7 @@ Args:
 Usage:
 
 ```js
-await tm.mobilenet.load(checkpointURL, metadataURL);
+await tmImage.mobilenet.load(checkpointURL, metadataURL);
 ```
 
 
@@ -90,7 +90,7 @@ await tm.mobilenet.load(checkpointURL, metadataURL);
 You can upload your model files from a local hard drive by using a file picker and the File interface. 
 
 ```ts
-tm.mobilenet.loadFromFiles(
+tmImage.mobilenet.loadFromFiles(
 	model: File, 
 	weights: File, 
 	metadata?: string | Metadata
@@ -109,14 +109,14 @@ Usage:
 // you need to create File objects, like with file input elements (<input type="file" ...>)
 const uploadJSONInput = document.getElementById('upload-json');
 const uploadWeightsInput = document.getElementById('upload-weights');
-model = await tm.mobilenet.loadFromFiles(uploadJSONInput.files[0], uploadWeightsInput.files[0])
+model = await tmImage.mobilenet.loadFromFiles(uploadJSONInput.files[0], uploadWeightsInput.files[0])
 ```
 
 ### Model - get total classes
 
 Once you have loaded a model, you can obtain the total number of classes in the model. 
 
-This method exists on the model that is loaded from `tm.mobilenet.load`.
+This method exists on the model that is loaded from `tmImage.mobilenet.load`.
 
 ```ts
 model.getTotalClasses()
@@ -129,7 +129,7 @@ Returns a number representing the total number of classes
 
 Once you have loaded a model, you can make a classificaiton with a couple of different input options.
 
-This method exists on the model that is loaded from `tm.mobilenet.load`.
+This method exists on the model that is loaded from `tmImage.mobilenet.load`.
 
 ```ts
 model.predict(
@@ -158,12 +158,12 @@ const prediction = await model.predict(webcamElement, flip, maxPredictions);
 
 ### Webcam
 
-You can optionally use a webcam utility that comes with the library, or spin up your own webcam. This method exists on the `tm` module.
+You can optionally use a webcam utility that comes with the library, or spin up your own webcam. This method exists on the `tmImage` module.
 
 Please note that the webcam used in Teachable Machine was flipped on X - so you should probably do the same if creating your own webcam.
 
 ```ts
-tm.getWebcam(
+tmImage.getWebcam(
     width = 400,
     height = 400,
     facingMode = 'front',
@@ -186,7 +186,7 @@ Usage:
 
 ```js
 // webcam has a square ratio and is flipped by default to match training
-const webcamEl = await tm.getWebcam(200, 200);
+const webcamEl = await tmImage.getWebcam(200, 200);
 webcamEl.play();
 document.body.appendChild(webcamEl);
 ```
@@ -194,9 +194,9 @@ document.body.appendChild(webcamEl);
 or
 
 ```js
-const webcamEl = await tm.getWebcam(200, 200, 'front');
-const webcamEl = await tm.getWebcam(200, 200, 'back');
-const webcamEl = await tm.getWebcam(200, 200, 'front', false);
+const webcamEl = await tmImage.getWebcam(200, 200, 'front');
+const webcamEl = await tmImage.getWebcam(200, 200, 'back');
+const webcamEl = await tmImage.getWebcam(200, 200, 'front', false);
 ```
 
 

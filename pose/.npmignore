@@ -13,6 +13,6 @@ webpack.config.js
 tsconfig.json
 karma.conf.js
 tslint.json
-scripts/
 test/
+scripts/
 

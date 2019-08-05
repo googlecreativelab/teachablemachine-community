@@ -15,15 +15,10 @@
  * =============================================================================
  */
 
-import * as tf from '@tensorflow/tfjs';
-import { TeachableMobileNet, createTeachable } from './teachable-mobilenet';
-import { version } from '../version'
+import * as posenet from './posenet/index';
 
-async function init() {
-    const trainableModel = await createTeachable({
-        tfjsVersion: tf.version.tfjs,
-        tmSupportVersion: version
-    });
-}
-
-init();
+export { posenet };
+export { getWebcam } from './utils/webcam';
+export { createCanvas } from './utils/canvas';
+export { drawKeypoints, drawSkeleton, drawPoint, drawSegment } from './utils/pose-draw';
+export { version } from './version';

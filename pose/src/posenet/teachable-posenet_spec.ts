@@ -15,9 +15,15 @@
  * =============================================================================
  */
 
-declare global {
-    interface Window {
-        // tf: any;
-        tm: any;
-    }
+import * as tf from '@tensorflow/tfjs';
+import { TeachablePoseNet, createTeachable } from './teachable-posenet';
+import { version } from '../version';
+
+async function init() {
+    const trainableModel = await createTeachable({
+        tfjsVersion: tf.version.tfjs,
+        tmSupportVersion: version
+    });
 }
+
+init();
