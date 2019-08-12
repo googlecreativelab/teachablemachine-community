@@ -21,7 +21,8 @@
   },
   "license": "Apache-2",
   "dependencies": {
-    "@tensorflow-models/posenet": "^2.1.0"
+    "@tensorflow-models/posenet": "^2.1.0",
+    "seedrandom": "^3.0.1"
   },
   "peerDependencies": {
     "@tensorflow/tfjs": "1.1.2"
