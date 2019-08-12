@@ -316,6 +316,9 @@ export class TeachableMobileNet extends CustomMobileNet {
         return this.model;
     }
 
+    /*
+     * Setup the exampls array to hold samples per class
+     */
     public prepareDataset() {
         for (let i = 0; i < this.numClasses; i++) {
             this.examples[i] = [];
