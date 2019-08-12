@@ -20,13 +20,21 @@ import { PoseNet } from '@tensorflow-models/posenet'
 import { util } from '@tensorflow/tfjs';
 import { TensorContainer } from '@tensorflow/tfjs-core/dist/tensor_types';
 import { CustomCallbackArgs, equalStrict } from '@tensorflow/tfjs';
-
 import { CustomPoseNet, Metadata, loadPoseNet } from './custom-posenet';
+import * as seedrandom from 'seedrandom';
+
+const VALIDATION_FRACTION = 0.15;
 
 export interface TrainingParameters {
     denseUnits: number;
     epochs: number;
     learningRate: number;
+    batchSizeFraction: number;
+}
+
+interface Sample {
+    data: Float32Array;
+    label: number[];
 }
 
 // tslint:disable-next-line:no-any
@@ -38,11 +46,34 @@ const isTensor = (c: any): c is tf.Tensor =>
  * the data as a JS Array.
  */
 function flatOneHot(label: number, numClasses: number) {
-    const labelOneHot = new Array(numClasses).fill(0);
+    const labelOneHot = new Array(numClasses).fill(0) as number[];
     labelOneHot[label] = 1;
+
     return labelOneHot;
 }
 
+function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
+    const length = array.length;
+
+    // need to clone array or we'd be editing original as we goo
+    let shuffled = array.slice();
+
+    for (let i = (length - 1); i > 0; i -= 1) {
+        let randomIndex ;
+        if (seed) {
+            randomIndex = Math.floor(seed() * (i + 1));
+        }
+        else {
+            randomIndex = Math.floor(Math.random() * (i + 1));
+        }
+        
+        [shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex],shuffled[i]];
+    }
+  
+    return shuffled;
+}
+
+/*
 function convertToTfDataset(xs: Float32Array[], ys: number[][]) {
     const xTrain = tf.data.array(xs);
     const yTrain = tf.data.array(ys);
@@ -51,12 +82,21 @@ function convertToTfDataset(xs: Float32Array[], ys: number[][]) {
     const shuffled = trainDataset.shuffle(ys.length);
     return shuffled;
 }
+*/
 
 export class TeachablePoseNet extends CustomPoseNet{
+    private trainDataset: tf.data.Dataset<TensorContainer>;
+    private validationDataset: tf.data.Dataset<TensorContainer>;
+
+    private totalSamples: number = 0;
+    public examples: Array<Array<Float32Array>> = [];
+
+    private seed: seedrandom.prng;
+
     // Array<[className, activation]>
-    public examples: Array<[number, Float32Array]> = [];
-    private ys: number[][];
-    private dataset: tf.data.Dataset<TensorContainer>;
+    // public examples: Array<[number, Float32Array]> = [];
+    // private ys: number[][];
+    // private dataset: tf.data.Dataset<TensorContainer>;
 
     /**
      * has the teachable model been trained?
@@ -69,14 +109,13 @@ export class TeachablePoseNet extends CustomPoseNet{
      * has the dataset been prepared with all labels and samples processed?
      */
     public get isPrepared() {
-        return !!this.dataset;
+        return !!this.trainDataset;
     }
     /**
      * how many classes are in the dataset?
      */
     public get numClasses() {
-        // get the highest provided className
-        return Math.max(...this.examples.map(ex => ex[0])) + 1;
+        return this._metadata.labels.length;
     }
 
     constructor(public model: tf.LayersModel, public posenetModel: PoseNet, metadata: Partial<Metadata>) {
@@ -93,13 +132,13 @@ export class TeachablePoseNet extends CustomPoseNet{
         // TODO: Do I need to normalize or flip image?
         // const cap = isTensor(sample) ? sample : capture(sample);
         // const example = this.posenet.predict(cap) as tf.Tensor;
-
         // const embeddingsArray = await this.predictPosenet(sample);
 
-        this.examples.push([className, sample]);
-        
-        // we dont have a dataset if we just changed the data examples
-        this.dataset = null;
+        // save samples of each class separately
+        this.examples[className].push(sample);
+
+        // increase our sample counter
+        this.totalSamples++;
     }
 
     /**
@@ -123,16 +162,74 @@ export class TeachablePoseNet extends CustomPoseNet{
      * into proper tf.data.Dataset
      */
     public prepare() {
-        const xs: Float32Array[] = this.examples.map(ex => ex[1]);
-        if (!xs.length) {
-            throw new Error('Add some examples before training');
+        // const xs: Float32Array[] = this.examples.map(ex => ex[1]);
+        // if (!xs.length) {
+        //     throw new Error('Add some examples before training');
+        // }
+        // const ys: number[][] = [];
+        // const numClasses = this.numClasses;
+        // for ( const [label] of this.examples) {
+        //     ys.push(flatOneHot(label, numClasses));
+        // }
+        // this.dataset = convertToTfDataset(xs, ys);
+
+        for (let classes in this.examples){
+            if (classes.length == 0) {
+                throw new Error('Add some examples before training');
+            }
         }
-        const ys: number[][] = [];
-        const numClasses = this.numClasses;
-        for ( const [label] of this.examples) {
-            ys.push(flatOneHot(label, numClasses));
+
+        const datasets = this.convertToTfDataset();
+        this.trainDataset = datasets.trainDataset;
+        this.validationDataset = datasets.validationDataset;
+    }
+
+    private convertToTfDataset() {
+        // first shuffle each class individually
+        // TODO: we could basically replicate this by insterting randomly
+        for (let i = 0; i < this.examples.length; i++) {
+            this.examples[i] = fisherYates(this.examples[i], this.seed) as Float32Array[];
         }
-        this.dataset = convertToTfDataset(xs, ys);
+
+        // then break into validation and test datasets
+
+        let trainDataset: Array<Sample> = [];
+        let validationDataset: Array<Sample> = [];
+
+        // for each class, add samples to train and validation dataset
+        for (let i = 0; i < this.examples.length; i++) {
+            const y = flatOneHot(i, this.numClasses);
+
+            const classLength = this.examples[i].length;
+            const numValidation = Math.round(VALIDATION_FRACTION * classLength);
+            const numTrain = classLength - numValidation;
+
+            let classTrain = this.examples[i].slice(0, numTrain).map((dataArray) => {
+                return { data: dataArray, label: y };
+            });
+
+            let classValidation = this.examples[i].slice(numTrain).map((dataArray) => {
+                return { data: dataArray, label: y };
+            });
+
+            trainDataset = trainDataset.concat(classTrain);
+            validationDataset = validationDataset.concat(classValidation);
+        }
+
+        // finally shuffle both train and validation datasets
+        trainDataset = fisherYates(trainDataset, this.seed) as Sample[];
+        validationDataset = fisherYates(validationDataset, this.seed) as Sample[];
+
+        const trainX = tf.data.array(trainDataset.map(sample => sample.data));
+        const validationX = tf.data.array(validationDataset.map(sample => sample.data));
+        const trainY = tf.data.array(trainDataset.map(sample => sample.label));
+        const validationY = tf.data.array(validationDataset.map(sample => sample.label));
+    
+        // return tf.data dataset objects
+        return { 
+            trainDataset: tf.data.zip({ xs: trainX,  ys: trainY}), 
+            validationDataset: tf.data.zip({ xs: validationX,  ys: validationY})
+        }
     }
 
     /**
@@ -182,14 +279,18 @@ export class TeachablePoseNet extends CustomPoseNet{
         });
         const optimizer = tf.train.adam(params.learningRate);
         trainingModel.compile({ optimizer, loss: 'categoricalCrossentropy' });
-        //const batchSize = Math.floor(dataset.xs.shape[0] * trainParams.getBatchSizeFraction())
-        const batchSize = Math.min(16, this.examples.length);
+
+        const batchSize = Math.floor((this.totalSamples * (1 - VALIDATION_FRACTION)) * params.batchSizeFraction);
+        console.log("Batch size of ", batchSize);
+
         if (!(batchSize > 0)) {
             throw new Error(
             `Batch size is 0 or NaN. Please choose a non-zero fraction`
             );
         }
-        const trainDataset = this.dataset.batch(batchSize);
+        
+        const trainData = this.trainDataset.batch(batchSize);
+        const validationData = this.validationDataset.batch(batchSize);
 
         // For debugging: check for shuffle or result from trainDataset
         /*
@@ -200,8 +301,9 @@ export class TeachablePoseNet extends CustomPoseNet{
             console.log(data);
         });
         */
-        const history = await trainingModel.fitDataset(trainDataset, {
+        const history = await trainingModel.fitDataset(trainData, {
             epochs: params.epochs,
+            validationData: validationData,
             callbacks
         });
 
@@ -209,23 +311,39 @@ export class TeachablePoseNet extends CustomPoseNet{
         return this.model;
     }
 
+    public prepareDataset() {
+        for (let i = 0; i < this.numClasses; i++) {
+            this.examples[i] = [];
+        }
+    }
+
     public setLabel(index: number, label: string) {
         this._metadata.labels[index] = label;
     }
+
     public setLabels(labels: string[]) {
         this._metadata.labels = labels;
     }
+
     public getLabel(index: number) {
         return this._metadata.labels[index];
     }
+
     public getLabels() {
         return this._metadata.labels;
     }
+
     public setName(name: string) {
         this._metadata.modelName = name;
     }
+
     public getName() {
         return this._metadata.modelName;
+    }
+
+    // optional seed for predictable shuffling of dataset
+    public setSeed(seed: string) {
+        this.seed = seedrandom(seed);
     }
 }
 
