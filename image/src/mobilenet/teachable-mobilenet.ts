@@ -35,7 +35,7 @@ export interface TrainingParameters {
 
 interface Sample {
     data: Float32Array;
-    class: number[];
+    label: number[];
 }
 
 // tslint:disable-next-line:no-any
@@ -193,11 +193,11 @@ export class TeachableMobileNet extends CustomMobileNet {
             const numTrain = classLength - numValidation;
 
             let classTrain = this.examples[i].slice(0, numTrain).map((dataArray) => {
-                return { data: dataArray, class: y };
+                return { data: dataArray, label: y };
             });
 
             let classValidation = this.examples[i].slice(numTrain).map((dataArray) => {
-                return { data: dataArray, class: y };
+                return { data: dataArray, label: y };
             });
 
             trainDataset = trainDataset.concat(classTrain);
@@ -210,8 +210,8 @@ export class TeachableMobileNet extends CustomMobileNet {
 
         const trainX = tf.data.array(trainDataset.map(sample => sample.data));
         const validationX = tf.data.array(validationDataset.map(sample => sample.data));
-        const trainY = tf.data.array(trainDataset.map(sample => sample.class));
-        const validationY = tf.data.array(validationDataset.map(sample => sample.class));
+        const trainY = tf.data.array(trainDataset.map(sample => sample.label));
+        const validationY = tf.data.array(validationDataset.map(sample => sample.label));
     
         // return tf.data dataset objects
         return { 
