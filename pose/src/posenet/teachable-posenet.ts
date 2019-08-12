@@ -52,6 +52,10 @@ function flatOneHot(label: number, numClasses: number) {
     return labelOneHot;
 }
 
+/**
+ * Shuffle an array of Float32Array or Samples using Fisher-Yates algorithm
+ * Takes an optional seed value to make shuffling predictable
+ */
 function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
     const length = array.length;
 
@@ -73,30 +77,21 @@ function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
     return shuffled;
 }
 
-/*
-function convertToTfDataset(xs: Float32Array[], ys: number[][]) {
-    const xTrain = tf.data.array(xs);
-    const yTrain = tf.data.array(ys);
-    const trainDataset = tf.data.zip({ xs: xTrain,  ys: yTrain});
-    //TODO: ys.length might not always be best
-    const shuffled = trainDataset.shuffle(ys.length);
-    return shuffled;
-}
-*/
-
-export class TeachablePoseNet extends CustomPoseNet{
+export class TeachablePoseNet extends CustomPoseNet {
+    /**
+     * Training and validation datasets
+     */
     private trainDataset: tf.data.Dataset<TensorContainer>;
     private validationDataset: tf.data.Dataset<TensorContainer>;
 
+    // Number of total samples
     private totalSamples: number = 0;
+
+    // Array of all the examples collected
     public examples: Array<Array<Float32Array>> = [];
 
+    // Optional seed to make shuffling of data predictable
     private seed: seedrandom.prng;
-
-    // Array<[className, activation]>
-    // public examples: Array<[number, Float32Array]> = [];
-    // private ys: number[][];
-    // private dataset: tf.data.Dataset<TensorContainer>;
 
     /**
      * has the teachable model been trained?
@@ -162,17 +157,6 @@ export class TeachablePoseNet extends CustomPoseNet{
      * into proper tf.data.Dataset
      */
     public prepare() {
-        // const xs: Float32Array[] = this.examples.map(ex => ex[1]);
-        // if (!xs.length) {
-        //     throw new Error('Add some examples before training');
-        // }
-        // const ys: number[][] = [];
-        // const numClasses = this.numClasses;
-        // for ( const [label] of this.examples) {
-        //     ys.push(flatOneHot(label, numClasses));
-        // }
-        // this.dataset = convertToTfDataset(xs, ys);
-
         for (let classes in this.examples){
             if (classes.length == 0) {
                 throw new Error('Add some examples before training');
@@ -184,6 +168,11 @@ export class TeachablePoseNet extends CustomPoseNet{
         this.validationDataset = datasets.validationDataset;
     }
 
+    /**
+     * Process the examples by first shuffling randomly per class, then adding
+     * one-hot labels, then splitting into training/validation datsets, and finally
+     * sorting one last time
+     */
     private convertToTfDataset() {
         // first shuffle each class individually
         // TODO: we could basically replicate this by insterting randomly
@@ -278,7 +267,11 @@ export class TeachablePoseNet extends CustomPoseNet{
             ]
         });
         const optimizer = tf.train.adam(params.learningRate);
-        trainingModel.compile({ optimizer, loss: 'categoricalCrossentropy' });
+        trainingModel.compile({ 
+            optimizer, 
+            loss: 'categoricalCrossentropy', 
+            metrics: ['accuracy'] 
+        });
 
         const batchSize = Math.floor((this.totalSamples * (1 - VALIDATION_FRACTION)) * params.batchSizeFraction);
         console.log("Batch size of ", batchSize);
@@ -311,6 +304,9 @@ export class TeachablePoseNet extends CustomPoseNet{
         return this.model;
     }
 
+    /*
+     * Setup the exampls array to hold samples per class
+     */
     public prepareDataset() {
         for (let i = 0; i < this.numClasses; i++) {
             this.examples[i] = [];
@@ -341,7 +337,9 @@ export class TeachablePoseNet extends CustomPoseNet{
         return this._metadata.modelName;
     }
 
-    // optional seed for predictable shuffling of dataset
+    /* 
+     * optional seed for predictable shuffling of dataset
+     */
     public setSeed(seed: string) {
         this.seed = seedrandom(seed);
     }
