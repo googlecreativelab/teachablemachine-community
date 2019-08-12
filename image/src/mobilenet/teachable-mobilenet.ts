@@ -21,7 +21,6 @@ import { capture } from '../utils/tf';
 import { TensorContainer } from '@tensorflow/tfjs-core/dist/tensor_types';
 import { CustomCallbackArgs, equalStrict } from '@tensorflow/tfjs';
 import { CustomMobileNet, Metadata, loadTruncatedMobileNet, ClassifierInputSource } from './custom-mobilenet';
-
 import * as seedrandom from 'seedrandom';
 
 const VALIDATION_FRACTION = 0.15;
@@ -53,6 +52,10 @@ function flatOneHot(label: number, numClasses: number) {
     return labelOneHot;
 }
 
+/**
+ * Shuffle an array of Float32Array or Samples using Fisher-Yates algorithm
+ * Takes an optional seed value to make shuffling predictable
+ */
 function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
     const length = array.length;
 
@@ -75,23 +78,29 @@ function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
 }
 
 export class TeachableMobileNet extends CustomMobileNet {
-
     /**
      * the truncated mobilenet model we will train on top of
      */
     protected truncatedModel: tf.LayersModel;
 
-    public get asSequentialModel() {
-        return this.model as tf.Sequential;
-    }
-
-    private totalSamples: number = 0;
-    public examples: Array<Array<Float32Array>> = [];
-
+    /**
+     * Training and validation datasets
+     */
     private trainDataset: tf.data.Dataset<TensorContainer>;
     private validationDataset: tf.data.Dataset<TensorContainer>;
 
+    // Number of total samples
+    private totalSamples: number = 0;
+
+    // Array of all the examples collected
+    public examples: Array<Array<Float32Array>> = [];
+
+    // Optional seed to make shuffling of data predictable
     private seed: seedrandom.prng;
+
+    public get asSequentialModel() {
+        return this.model as tf.Sequential;
+    }
 
     /**
      * has the teachable model been trained?
@@ -111,9 +120,6 @@ export class TeachableMobileNet extends CustomMobileNet {
      * how many classes are in the dataset?
      */
     public get numClasses(): number {
-        // get the highest provided className
-        // return Math.max(...this.examples.map(ex => ex[0])) + 1;
-        // gets set before anything else
         return this._metadata.labels.length;
     }
 
@@ -172,6 +178,11 @@ export class TeachableMobileNet extends CustomMobileNet {
         this.validationDataset = datasets.validationDataset;
     }
 
+    /**
+     * Process the examples by first shuffling randomly per class, then adding
+     * one-hot labels, then splitting into training/validation datsets, and finally
+     * sorting one last time
+     */
     private convertToTfDataset() {
         // first shuffle each class individually
         // TODO: we could basically replicate this by insterting randomly
@@ -272,7 +283,6 @@ export class TeachableMobileNet extends CustomMobileNet {
 
         const batchSize = Math.floor((this.totalSamples * (1 - VALIDATION_FRACTION)) * params.batchSizeFraction);
         console.log("Batch size of ", batchSize);
-        // const batchSize = Math.min(16, this.examples.length);
 
         if (!(batchSize > 0)) {
             throw new Error(
@@ -336,7 +346,9 @@ export class TeachableMobileNet extends CustomMobileNet {
         return this._metadata.modelName;
     }
 
-    // optional seed for predictable shuffling of dataset
+    /* 
+     * optional seed for predictable shuffling of dataset
+     */
     public setSeed(seed: string) {
         this.seed = seedrandom(seed);
     }
