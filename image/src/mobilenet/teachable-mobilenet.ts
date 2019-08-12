@@ -20,7 +20,8 @@ import { util } from '@tensorflow/tfjs';
 import { capture } from '../utils/tf';
 import { TensorContainer } from '@tensorflow/tfjs-core/dist/tensor_types';
 import { CustomCallbackArgs, equalStrict } from '@tensorflow/tfjs';
-import { CustomMobileNet, Metadata, loadTruncatedMobileNet, ClassifierInputSource } from './custom-mobilenet';
+import { CustomMobileNet, Metadata, loadTruncatedMobileNet, ClassifierInputSource, ModelOptions } 
+    from './custom-mobilenet';
 
 
 export interface TrainingParameters {
@@ -48,7 +49,7 @@ function flatOneHot(label: number, numClasses: number) {
 function convertToTfDataset(xs: Float32Array[], ys: number[][]) {
     const xTrain = tf.data.array(xs);
     const yTrain = tf.data.array(ys);
-
+    
     const trainDataset = tf.data.zip({ xs: xTrain,  ys: yTrain});
 
     //TODO: ys.length might not always be best
@@ -108,12 +109,11 @@ export class TeachableMobileNet extends CustomMobileNet {
      * @param sample the image / tensor that belongs in this classification
      */
     // public async addExample(className: number, sample: HTMLCanvasElement | tf.Tensor) {
-    public async addExample(className: number, sample: HTMLCanvasElement | tf.Tensor) {
+    public async addExample(className: number, sample: HTMLImageElement | HTMLCanvasElement | tf.Tensor) {
         const cap = isTensor(sample) ? sample : capture(sample);
         const example = this.truncatedModel.predict(cap) as tf.Tensor;
-
+        
         const activation = example.dataSync() as Float32Array;
-
         cap.dispose();
         this.examples.push([ className, activation ]);
 
@@ -168,12 +168,12 @@ export class TeachableMobileNet extends CustomMobileNet {
             () => `Can not train, has ${numLabels} labels and ${this.numClasses} classes`);
 
         // Approach 1 in dataset.ts
-        const inputShape = this.truncatedModel.outputs[0].shape.slice(1); // [ 7 x 7 x 256]
+        const inputShape = this.truncatedModel.outputs[0].shape.slice(1); // [ 7 x 7 x 1280]
         const inputSize = tf.util.sizeFromShape(inputShape);
-
         // Creates a 2-layer fully connected model. By creating a separate model,
         // rather than adding layers to the mobilenet model, we "freeze" the weights
         // of the mobilenet model, and only train weights from the new model.
+        
         const trainingModel = tf.sequential({
             layers: [
             // Layer 1.
@@ -190,14 +190,14 @@ export class TeachableMobileNet extends CustomMobileNet {
                 units: this.numClasses,
                 kernelInitializer: 'varianceScaling',
                 useBias: false,
-                activation: 'softmax'
+                activation: 'softmax',
+                // inputShape: [inputSize],
             })
             ]
         });
 
         const optimizer = tf.train.adam(params.learningRate);
         trainingModel.compile({ optimizer, loss: 'categoricalCrossentropy' });
-
         //const batchSize = Math.floor(dataset.xs.shape[0] * trainParams.getBatchSizeFraction())
         const batchSize = Math.min(16, this.examples.length);
 
@@ -223,7 +223,7 @@ export class TeachableMobileNet extends CustomMobileNet {
 
         const jointModel = tf.sequential();
         jointModel.add(this.truncatedModel);
-        jointModel.add(tf.layers.flatten());
+        // jointModel.add(tf.layers.flatten());
         jointModel.add(trainingModel);
 
         this.model = jointModel;
@@ -256,7 +256,7 @@ export class TeachableMobileNet extends CustomMobileNet {
     }
 }
 
-export async function createTeachable(metadata: Partial<Metadata>, checkpoint?: string) {
-    const mobilenet = await loadTruncatedMobileNet(checkpoint);
+export async function createTeachable(metadata: Partial<Metadata>, modelOptions?: ModelOptions) {    
+    const mobilenet = await loadTruncatedMobileNet(modelOptions);
     return new TeachableMobileNet(mobilenet, metadata);
 }
