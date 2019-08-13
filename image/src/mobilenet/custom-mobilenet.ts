@@ -22,6 +22,10 @@ import { capture } from '../utils/tf';
 import { cropTo } from '../utils/canvas';
 import { version } from '../version';
 
+const DEFAULT_ALPHA_V2 = 0.35;
+
+export const IMAGE_SIZE = 224;
+
 /**
  * the metadata to describe the model's creation,
  * includes the labels associated with the classes
@@ -35,6 +39,11 @@ export interface Metadata {
     timeStamp?: string;
     labels: string[];
     userMetadata?: {};
+}
+
+export interface ModelOptions {
+    checkpointUrl?: string;
+    alpha?: number;
 }
 
 /**
@@ -55,6 +64,20 @@ const fillMetadata = (data: Partial<Metadata>) => {
 const isMetadata = (c: any): c is Metadata =>
     !!c && typeof c.tmVersion === 'string' &&
     typeof c.tmSupportVersion === 'string' && Array.isArray(c.labels);
+
+const parseModelOptions = (options?: ModelOptions) => {
+    options = options || {};
+    if(options.checkpointUrl){
+        if(options.alpha){
+            console.warn("Checkpoint URL passed to modelOptions, alpha options are ignored");
+        }        
+        return options.checkpointUrl;
+    } else {
+        options.alpha = options.alpha || DEFAULT_ALPHA_V2;                
+        // tslint:disable-next-line:max-line-length
+        return `https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_${options.alpha}_${IMAGE_SIZE}_no_top/model.json`;
+    }
+};
 
 // export const toMetadata = (
 //    tfjsVersion: string,
@@ -88,13 +111,6 @@ const processMetadata = async (metadata: string | Metadata) => {
     }
     return fillMetadata(metadataJSON);
 };
-
-
-const MOBILENET_MODEL_PATH =
-    // tslint:disable-next-line:max-line-length
-    'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json';
-
-export const IMAGE_SIZE = 224;
 
 export type ClassifierInputSource = HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap;
 
@@ -184,13 +200,18 @@ export class CustomMobileNet {
 
 /**
  * load the base mobilenet model
- * @param checkpoint the URL to load the mobilenet json
+ * @param modelOptions options determining what model to load
  */
-export async function loadTruncatedMobileNet(checkpoint: string = MOBILENET_MODEL_PATH) {
-    const mobilenet = await tf.loadLayersModel(checkpoint);
-    const layer = mobilenet.getLayer('conv_pw_13_relu');
-    const truncatedModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
-    return truncatedModel;
+export async function loadTruncatedMobileNet(modelOptions?: ModelOptions) {
+    const checkpointUrl = parseModelOptions(modelOptions);
+    const mobilenet = await tf.loadLayersModel(checkpointUrl);
+    
+    // Add a Global Average Pooling 2D to mobilenet, to go from shape [7, 7, 1280] to [1280]
+    const model = tf.sequential();
+    model.add(mobilenet);
+    model.add(tf.layers.globalAveragePooling2d({}));
+    return model;
+    
 }
 
 export async function load(checkpoint: string, metadata?: string | Metadata ) {
