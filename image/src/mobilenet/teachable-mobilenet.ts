@@ -22,58 +22,86 @@ import { TensorContainer } from '@tensorflow/tfjs-core/dist/tensor_types';
 import { CustomCallbackArgs, equalStrict } from '@tensorflow/tfjs';
 import { CustomMobileNet, Metadata, loadTruncatedMobileNet, ClassifierInputSource, ModelOptions } 
     from './custom-mobilenet';
+import * as seedrandom from 'seedrandom';
 
+const VALIDATION_FRACTION = 0.15;
 
 export interface TrainingParameters {
     denseUnits: number;
     epochs: number;
     learningRate: number;
+    batchSizeFraction: number;
+}
+
+interface Sample {
+    data: Float32Array;
+    label: number[];
 }
 
 // tslint:disable-next-line:no-any
 const isTensor = (c: any): c is tf.Tensor =>
     typeof c.dataId === 'object' && c.shape === 'object';
 
-
 /**
  * Converts an integer into its one-hot representation and returns
  * the data as a JS Array.
  */
 function flatOneHot(label: number, numClasses: number) {
-    const labelOneHot = new Array(numClasses).fill(0);
+    const labelOneHot = new Array(numClasses).fill(0) as number[];
     labelOneHot[label] = 1;
 
     return labelOneHot;
 }
 
-function convertToTfDataset(xs: Float32Array[], ys: number[][]) {
-    const xTrain = tf.data.array(xs);
-    const yTrain = tf.data.array(ys);
-    
-    const trainDataset = tf.data.zip({ xs: xTrain,  ys: yTrain});
+/**
+ * Shuffle an array of Float32Array or Samples using Fisher-Yates algorithm
+ * Takes an optional seed value to make shuffling predictable
+ */
+function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
+    const length = array.length;
 
-    //TODO: ys.length might not always be best
-    const shuffled = trainDataset.shuffle(ys.length);
+    // need to clone array or we'd be editing original as we goo
+    let shuffled = array.slice();
 
+    for (let i = (length - 1); i > 0; i -= 1) {
+        let randomIndex ;
+        if (seed) {
+            randomIndex = Math.floor(seed() * (i + 1));
+        }
+        else {
+            randomIndex = Math.floor(Math.random() * (i + 1));
+        }
+        
+        [shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex],shuffled[i]];
+    }
+  
     return shuffled;
 }
 
 export class TeachableMobileNet extends CustomMobileNet {
-
     /**
      * the truncated mobilenet model we will train on top of
      */
     protected truncatedModel: tf.LayersModel;
 
+    /**
+     * Training and validation datasets
+     */
+    private trainDataset: tf.data.Dataset<TensorContainer>;
+    private validationDataset: tf.data.Dataset<TensorContainer>;
+
+    // Number of total samples
+    private totalSamples: number = 0;
+
+    // Array of all the examples collected
+    public examples: Array<Array<Float32Array>> = [];
+
+    // Optional seed to make shuffling of data predictable
+    private seed: seedrandom.prng;
+
     public get asSequentialModel() {
         return this.model as tf.Sequential;
     }
-
-
-    // Array<[className, activation]>
-    public examples: Array<[number, Float32Array]> = [];
-    private ys: number[][];
-    private dataset: tf.data.Dataset<TensorContainer>;
 
     /**
      * has the teachable model been trained?
@@ -86,15 +114,14 @@ export class TeachableMobileNet extends CustomMobileNet {
      * has the dataset been prepared with all labels and samples processed?
      */
     public get isPrepared() {
-        return !!this.dataset;
+        return !!this.trainDataset;
     }
 
     /**
      * how many classes are in the dataset?
      */
-    public get numClasses() {
-        // get the highest provided className
-        return Math.max(...this.examples.map(ex => ex[0])) + 1;
+    public get numClasses(): number {
+        return this._metadata.labels.length;
     }
 
     constructor(truncated: tf.LayersModel, metadata: Partial<Metadata>) {
@@ -115,10 +142,12 @@ export class TeachableMobileNet extends CustomMobileNet {
         
         const activation = example.dataSync() as Float32Array;
         cap.dispose();
-        this.examples.push([ className, activation ]);
 
-        // we dont have a dataset if we just changed the data examples
-        this.dataset = null;
+        // save samples of each class separately
+        this.examples[className].push(activation);
+
+        // increase our sample counter
+        this.totalSamples++;
     }
 
     /**
@@ -133,25 +162,75 @@ export class TeachableMobileNet extends CustomMobileNet {
         return super.predict(image, flipped, maxPredictions);
     }
 
-
     /**
      * process the current examples provided to calculate labels and format
      * into proper tf.data.Dataset
      */
     public prepare() {
-        const xs: Float32Array[] = this.examples.map(ex => ex[1]);
-        if (!xs.length) {
-            throw new Error('Add some examples before training');
-        }
-        const ys: number[][] = [];
-        const numClasses = this.numClasses;
-        for ( const [label] of this.examples) {
-            ys.push(flatOneHot(label, numClasses));
+        for (let classes in this.examples){
+            if (classes.length == 0) {
+                throw new Error('Add some examples before training');
+            }
         }
 
-        this.dataset = convertToTfDataset(xs, ys);
+        const datasets = this.convertToTfDataset();
+        this.trainDataset = datasets.trainDataset;
+        this.validationDataset = datasets.validationDataset;
     }
 
+    /**
+     * Process the examples by first shuffling randomly per class, then adding
+     * one-hot labels, then splitting into training/validation datsets, and finally
+     * sorting one last time
+     */
+    private convertToTfDataset() {
+        // first shuffle each class individually
+        // TODO: we could basically replicate this by insterting randomly
+        for (let i = 0; i < this.examples.length; i++) {
+            this.examples[i] = fisherYates(this.examples[i], this.seed) as Float32Array[];
+        }
+
+        // then break into validation and test datasets
+
+        let trainDataset: Array<Sample> = [];
+        let validationDataset: Array<Sample> = [];
+
+        // for each class, add samples to train and validation dataset
+        for (let i = 0; i < this.examples.length; i++) {
+            const y = flatOneHot(i, this.numClasses);
+
+            const classLength = this.examples[i].length;
+            const numValidation = Math.round(VALIDATION_FRACTION * classLength);
+            const numTrain = classLength - numValidation;
+
+            let classTrain = this.examples[i].slice(0, numTrain).map((dataArray) => {
+                return { data: dataArray, label: y };
+            });
+
+            let classValidation = this.examples[i].slice(numTrain).map((dataArray) => {
+                return { data: dataArray, label: y };
+            });
+
+            trainDataset = trainDataset.concat(classTrain);
+            validationDataset = validationDataset.concat(classValidation);
+        }
+
+        // finally shuffle both train and validation datasets
+        trainDataset = fisherYates(trainDataset, this.seed) as Sample[];
+        validationDataset = fisherYates(validationDataset, this.seed) as Sample[];
+
+        const trainX = tf.data.array(trainDataset.map(sample => sample.data));
+        const validationX = tf.data.array(validationDataset.map(sample => sample.data));
+        const trainY = tf.data.array(trainDataset.map(sample => sample.label));
+        const validationY = tf.data.array(validationDataset.map(sample => sample.label));
+    
+        // return tf.data dataset objects
+        return { 
+            trainDataset: tf.data.zip({ xs: trainX,  ys: trainY}), 
+            validationDataset: tf.data.zip({ xs: validationX,  ys: validationY})
+        }
+    }
+    
     /**
      * Train your data into a new model and join it with mobilenet
      * @param params the parameters for the model / training
@@ -197,9 +276,14 @@ export class TeachableMobileNet extends CustomMobileNet {
         });
 
         const optimizer = tf.train.adam(params.learningRate);
-        trainingModel.compile({ optimizer, loss: 'categoricalCrossentropy' });
-        //const batchSize = Math.floor(dataset.xs.shape[0] * trainParams.getBatchSizeFraction())
-        const batchSize = Math.min(16, this.examples.length);
+        trainingModel.compile({ 
+            optimizer, 
+            loss: 'categoricalCrossentropy',
+            metrics: ['accuracy'] 
+        });
+
+        const batchSize = Math.floor((this.totalSamples * (1 - VALIDATION_FRACTION)) * params.batchSizeFraction);
+        console.log("Batch size of ", batchSize);
 
         if (!(batchSize > 0)) {
             throw new Error(
@@ -207,7 +291,8 @@ export class TeachableMobileNet extends CustomMobileNet {
             );
         }
 
-        const trainDataset = this.dataset.batch(batchSize);
+        const trainData = this.trainDataset.batch(batchSize);
+        const validationData = this.validationDataset.batch(batchSize);
 
         // For debugging: check for shuffle or result from trainDataset
         /*
@@ -216,8 +301,9 @@ export class TeachableMobileNet extends CustomMobileNet {
         })
         */
 
-        const history = await trainingModel.fitDataset(trainDataset, {
+        const history = await trainingModel.fitDataset(trainData, {
             epochs: params.epochs,
+            validationData: validationData,
             callbacks
         });
 
@@ -229,6 +315,15 @@ export class TeachableMobileNet extends CustomMobileNet {
         this.model = jointModel;
 
         return this.model;
+    }
+
+    /*
+     * Setup the exampls array to hold samples per class
+     */
+    public prepareDataset() {
+        for (let i = 0; i < this.numClasses; i++) {
+            this.examples[i] = [];
+        }
     }
 
     public setLabel(index: number, label: string) {
@@ -253,6 +348,13 @@ export class TeachableMobileNet extends CustomMobileNet {
 
     public getName() {
         return this._metadata.modelName;
+    }
+
+    /* 
+     * optional seed for predictable shuffling of dataset
+     */
+    public setSeed(seed: string) {
+        this.seed = seedrandom(seed);
     }
 }
 
