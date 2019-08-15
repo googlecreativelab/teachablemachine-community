@@ -65,7 +65,7 @@ function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
     const length = array.length;
 
     // need to clone array or we'd be editing original as we goo
-    let shuffled = array.slice();
+    const shuffled = array.slice();
 
     for (let i = (length - 1); i > 0; i -= 1) {
         let randomIndex ;
@@ -95,10 +95,10 @@ export class TeachableMobileNet extends CustomMobileNet {
     private validationDataset: tf.data.Dataset<TensorContainer>;
 
     // Number of total samples
-    private totalSamples: number = 0;
+    private totalSamples = 0;
 
     // Array of all the examples collected
-    public examples: Array<Array<Float32Array>> = [];
+    public examples: Float32Array[][] = [];
 
     // Optional seed to make shuffling of data predictable
     private seed: seedrandom.prng;
@@ -173,8 +173,8 @@ export class TeachableMobileNet extends CustomMobileNet {
      * into proper tf.data.Dataset
      */
     public prepare() {
-        for (let classes in this.examples){
-            if (classes.length == 0) {
+        for (const classes in this.examples){
+            if (classes.length === 0) {
                 throw new Error('Add some examples before training');
             }
         }
@@ -198,8 +198,8 @@ export class TeachableMobileNet extends CustomMobileNet {
 
         // then break into validation and test datasets
 
-        let trainDataset: Array<Sample> = [];
-        let validationDataset: Array<Sample> = [];
+        let trainDataset: Sample[] = [];
+        let validationDataset: Sample[] = [];
 
         // for each class, add samples to train and validation dataset
         for (let i = 0; i < this.examples.length; i++) {
@@ -209,11 +209,11 @@ export class TeachableMobileNet extends CustomMobileNet {
             const numValidation = Math.round(VALIDATION_FRACTION * classLength);
             const numTrain = classLength - numValidation;
 
-            let classTrain = this.examples[i].slice(0, numTrain).map((dataArray) => {
+            const classTrain = this.examples[i].slice(0, numTrain).map((dataArray) => {
                 return { data: dataArray, label: y };
             });
 
-            let classValidation = this.examples[i].slice(numTrain).map((dataArray) => {
+            const classValidation = this.examples[i].slice(numTrain).map((dataArray) => {
                 return { data: dataArray, label: y };
             });
 
@@ -234,7 +234,7 @@ export class TeachableMobileNet extends CustomMobileNet {
         return {
             trainDataset: tf.data.zip({ xs: trainX,  ys: trainY}),
             validationDataset: tf.data.zip({ xs: validationX,  ys: validationY})
-        }
+        };
     }
 
     /**
@@ -309,7 +309,7 @@ export class TeachableMobileNet extends CustomMobileNet {
 
         const history = await trainingModel.fitDataset(trainData, {
             epochs: params.epochs,
-            validationData: validationData,
+            validationData,
             callbacks
         });
 
