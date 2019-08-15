@@ -2,7 +2,7 @@ process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function(config) {
   config.set({
-    frameworks: ['mocha', 'karma-typescript'],
+    frameworks: ['mocha', 'karma-typescript'],//, 'benchmark'],
     files: [
         {pattern: 'src/**/*.ts'},
         {pattern: 'test/**/*.ts'},
@@ -20,8 +20,8 @@ module.exports = function(config) {
       reports: {} // Do not produce coverage html.
     },
     //logLevel: config.LOG_DEBUG,
-    reporters: ['progress', 'karma-typescript'],
-    browsers: ['ChromeHeadless'], // ['Chrome'/*, 'Firefox'*/],
+    reporters: ['progress', 'karma-typescript'],//, 'benchmark'],
+    browsers: ['Chrome'], // ['ChromeHeadless'/*, 'Firefox'*/],
     reportSlowerThan: 500,
     browserNoActivityTimeout: 30000
   });
