@@ -22,8 +22,11 @@ import { capture } from './utils/tf';
 import { cropTo } from './utils/canvas';
 import { version } from './version';
 
+const DEFAULT_MOBILENET_VERSION = 2;
+const DEFAULT_TRAINING_LAYER_V1 = 'conv_pw_13_relu';
 const DEFAULT_TRAINING_LAYER_V2 = "out_relu"; 
-const DEFAULT_ALPHA_V2 = 1.0; 
+const DEFAULT_ALPHA_V1 = 0.25;
+const DEFAULT_ALPHA_V2 = 0.35; 
 export const IMAGE_SIZE = 224;
 
 /**
@@ -42,8 +45,10 @@ export interface Metadata {
 }
 
 export interface ModelOptions {
+    version?: number;
     checkpointUrl?: string;
     alpha?: number;
+    trainingLayer?: string;
 }
 
 /**
@@ -65,28 +70,64 @@ const isMetadata = (c: any): c is Metadata =>
     !!c && typeof c.tmVersion === 'string' &&
     typeof c.tmSupportVersion === 'string' && Array.isArray(c.labels);
 
+const isAlphaValid = (version: number, alpha: number) => {
+    if (version === 1) {
+        if (alpha !== 0.25 && alpha !== 0.5 && alpha !== 0.75 && alpha !== 1) {
+            console.warn("Invalid alpha. Options are: 0.25, 0.50, 0.75 or 1.00.");
+            console.log("Loading model with alpha: ", DEFAULT_ALPHA_V1.toFixed(2)); 
+            return DEFAULT_ALPHA_V1;
+        }
+    }
+    else {
+        if (alpha !== 0.35 && alpha !== 0.5 && alpha !== 0.75 && alpha !== 1) {
+            console.warn("Invalid alpha. Options are: 0.35, 0.50, 0.75 or 1.00.");
+            console.log("Loading model with alpha: ", DEFAULT_ALPHA_V2.toFixed(2)); 
+            return DEFAULT_ALPHA_V2;
+        }
+    }
+
+    return alpha;
+}
+
 const parseModelOptions = (options?: ModelOptions) => {
     options = options || {};
 
-    if (options.checkpointUrl){
-        if (options.alpha){
+    if (options.checkpointUrl && options.trainingLayer) {
+        if (options.alpha || options.version){
             console.warn("Checkpoint URL passed to modelOptions, alpha options are ignored");
         }        
-        return options.checkpointUrl;
+        return [options.checkpointUrl, options.trainingLayer];
     } else {
-        options.alpha = options.alpha || DEFAULT_ALPHA_V2;  
+        options.version = options.version || DEFAULT_MOBILENET_VERSION;
         
-        // check if alpha is valid 
-        if (options.alpha !== 0.35 && options.alpha !== 0.5 && options.alpha !== 0.75 && options.alpha !== 1) {
-            console.warn("Invalid alpha. Options are: 0.35, 0.50, 0.75 or 1.00. Will load default of 0.35");
-            options.alpha = DEFAULT_ALPHA_V2;
-        }
-        else {
-            console.log("Loading model with alpha: ", options.alpha.toFixed(2)); 
-        }
+        if(options.version === 1){
+            options.alpha = options.alpha || DEFAULT_ALPHA_V1;  
+            options.alpha = isAlphaValid(options.version, options.alpha);
 
-        // tslint:disable-next-line:max-line-length 
-        return `https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_${options.alpha.toFixed(2)}_${IMAGE_SIZE}_no_top/model.json`;
+            console.log(`Loading mobilenet ${options.version} and alpha ${options.alpha}`);
+            // exception is alpha of 1 can only be 1.0
+            let alphaString = options.alpha.toFixed(2);
+            if (alphaString === "1.00") { alphaString = "1.0" }
+
+            return [
+                // tslint:disable-next-line:max-line-length        
+                `https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_${alphaString}_${IMAGE_SIZE}/model.json`,
+                DEFAULT_TRAINING_LAYER_V1
+            ];
+        }
+        else if (options.version === 2){
+            options.alpha = options.alpha || DEFAULT_ALPHA_V2;  
+            options.alpha = isAlphaValid(options.version, options.alpha);
+
+            console.log(`Loading mobilenet ${options.version} and alpha ${options.alpha}`);
+            return [
+                // tslint:disable-next-line:max-line-length        
+                `https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_${options.alpha.toFixed(2)}_${IMAGE_SIZE}_no_top/model.json`,
+                DEFAULT_TRAINING_LAYER_V2
+            ];
+        } else {
+            throw new Error(`MobileNet V${options.version} doesn't exist`);
+        }   
     }
 };
 
@@ -213,16 +254,25 @@ export class CustomMobileNet {
  * @param modelOptions options determining what model to load
  */
 export async function loadTruncatedMobileNet(modelOptions?: ModelOptions) {
-    const checkpointUrl = parseModelOptions(modelOptions);
+    const [checkpointUrl, trainingLayer] = parseModelOptions(modelOptions);
     const mobilenet = await tf.loadLayersModel(checkpointUrl);
-    const layer = mobilenet.getLayer(DEFAULT_TRAINING_LAYER_V2);
-    const truncatedModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
 
-    const model = tf.sequential();
-    model.add(truncatedModel);
-    // Add a Global Average Pooling 2D to mobilenet, to go from shape [7, 7, 1280] to [1280]
-    model.add(tf.layers.globalAveragePooling2d({}));
-    return model;
+    if (modelOptions && modelOptions.version === 1){
+        const layer = mobilenet.getLayer(trainingLayer);
+        const truncatedModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
+        const model = tf.sequential();
+        model.add(truncatedModel);
+        model.add(tf.layers.flatten());
+        return model;
+    }
+    else {
+        const layer = mobilenet.getLayer(trainingLayer);
+        const truncatedModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
+        const model = tf.sequential();
+        model.add(truncatedModel);
+        model.add(tf.layers.globalAveragePooling2d({})); // go from shape [7, 7, 1280] to [1280]
+        return model;
+    }
 }
 
 export async function load(checkpoint: string, metadata?: string | Metadata ) {
