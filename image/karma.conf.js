@@ -19,10 +19,10 @@ module.exports = function(config) {
       include: [ 'test/**/*.ts'],
       reports: {} // Do not produce coverage html.
     },
-    //logLevel: config.LOG_DEBUG,
+    // logLevel: config.LOG_DEBUG,
     reporters: ['progress', 'karma-typescript'],//, 'benchmark'],
     browsers: ['Chrome'], // ['ChromeHeadless'/*, 'Firefox'*/],
     reportSlowerThan: 500,
-    browserNoActivityTimeout: 30000
+    browserNoActivityTimeout: 500000
   });
 };
