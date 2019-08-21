@@ -29,7 +29,7 @@ export interface TrainingParameters {
     denseUnits: number;
     epochs: number;
     learningRate: number;
-    batchSizeFraction: number;
+    batchSize: number;
 }
 
 interface Sample {
@@ -190,7 +190,7 @@ export class TeachablePoseNet extends CustomPoseNet {
             const y = flatOneHot(i, this.numClasses);
 
             const classLength = this.examples[i].length;
-            const numValidation = Math.round(VALIDATION_FRACTION * classLength);
+            const numValidation = Math.ceil(VALIDATION_FRACTION * classLength);
             const numTrain = classLength - numValidation;
 
             let classTrain = this.examples[i].slice(0, numTrain).map((dataArray) => {
@@ -236,16 +236,18 @@ export class TeachablePoseNet extends CustomPoseNet {
             numLabels === this.numClasses,
             () => `Can not train, has ${numLabels} labels and ${this.numClasses} classes`);
         
-        // Approach 1 in dataset.ts
-        // const inputShape = this.posenet.outputs[0].shape.slice(1); // [ 7 x 7 x 256]
-        // const inputSize = tf.util.sizeFromShape(inputShape);
-
         // Inputs for posenet
         const inputSize = this.examples[0][1].length;    
 
-        // Creates a 2-layer fully connected model. By creating a separate model,
-        // rather than adding layers to the mobilenet model, we "freeze" the weights
-        // of the mobilenet model, and only train weights from the new model.
+        // in case we need to use a seed for predictable training
+        let varianceScaling;
+        if (this.seed) {
+            varianceScaling = tf.initializers.varianceScaling({ seed: 3.14});
+        }
+        else {
+            varianceScaling = tf.initializers.varianceScaling({});
+        }
+
         const trainingModel = tf.sequential({
             layers: [
             // Layer 1.
@@ -253,14 +255,14 @@ export class TeachablePoseNet extends CustomPoseNet {
                 inputShape: [inputSize],
                 units: params.denseUnits,
                 activation: 'relu',
-                kernelInitializer: 'varianceScaling',
+                kernelInitializer: varianceScaling, // 'varianceScaling'
                 useBias: true
             }),
             // Layer 2. The number of units of the last layer should correspond
             // to the number of classes we want to predict.
             tf.layers.dense({
                 units: this.numClasses,
-                kernelInitializer: 'varianceScaling',
+                kernelInitializer: varianceScaling, // 'varianceScaling'
                 useBias: false,
                 activation: 'softmax'
             })
@@ -273,17 +275,14 @@ export class TeachablePoseNet extends CustomPoseNet {
             metrics: ['accuracy'] 
         });
 
-        const batchSize = Math.floor((this.totalSamples * (1 - VALIDATION_FRACTION)) * params.batchSizeFraction);
-        console.log("Batch size of ", batchSize);
-
-        if (!(batchSize > 0)) {
+        if (!(params.batchSize > 0)) {
             throw new Error(
             `Batch size is 0 or NaN. Please choose a non-zero fraction`
             );
         }
         
-        const trainData = this.trainDataset.batch(batchSize);
-        const validationData = this.validationDataset.batch(batchSize);
+        const trainData = this.trainDataset.batch(params.batchSize);
+        const validationData = this.validationDataset.batch(params.batchSize);
 
         // For debugging: check for shuffle or result from trainDataset
         /*
@@ -319,6 +318,7 @@ export class TeachablePoseNet extends CustomPoseNet {
 
     public setLabels(labels: string[]) {
         this._metadata.labels = labels;
+        this.prepareDataset();
     }
 
     public getLabel(index: number) {
