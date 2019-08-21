@@ -213,11 +213,6 @@ export class CustomPoseNet {
      * @param maxPredictions the maximum number of classification predictions
      */
     async predict(poseOutput: Float32Array, flipped = false, maxPredictions = MAX_PREDICTIONS) {
-        // // Convert logits to probabilities and class names.
-        // const classes = await getTopKClasses(this._metadata.labels, logits as tf.Tensor<tf.Rank>, maxPredictions);
-        // dispose(logits);
-        // return classes;
-
         // const embeddingsArray = await this.predictPosenet(image);
         // let embeddings = tf.tensor([embeddingsArray]);
         let embeddings = tf.tensor([poseOutput]);
