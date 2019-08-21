@@ -22,6 +22,7 @@ import * as tf from "@tensorflow/tfjs";
 import * as tm from "../src/index";
 import * as seedrandom from "seedrandom";
 import { TeachableMobileNet } from "../src/index";
+// @ts-ignore
 var Table = require("cli-table");
 
 const SEED_WORD = "testSuite";
@@ -236,7 +237,7 @@ describe("Train a custom model", () => {
 
 		// 1. Setup dataset parameters
 		const classLabels = metadata.classes as string[];
-		const TRAIN_VALIDATION_SIZE_PER_CLASS = 40; 
+		const TRAIN_VALIDATION_SIZE_PER_CLASS = 20; 
 		const TEST_SIZE_PER_CLASS = Math.ceil(
 			(TRAIN_VALIDATION_SIZE_PER_CLASS * 0.1) / 0.9
 		);
@@ -264,7 +265,7 @@ describe("Train a custom model", () => {
 		// NOTE: If testing time, test first model twice because it takes longer 
 		// to train the very first time tf.js is training 
 		const VALID_ALPHAS = [0.35, 0.35, 0.5, 0.75, 1];
-		const EPOCHS = 40;
+		const EPOCHS = 20;
 
 		for (let a of VALID_ALPHAS) {
 			const lineStart = "\n//====================================";
