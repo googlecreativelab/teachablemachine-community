@@ -16,10 +16,10 @@
  */
 
 import * as tf from '@tensorflow/tfjs';
-import { PoseNet } from '@tensorflow-models/posenet'
+import { PoseNet } from '@tensorflow-models/posenet';
 import { util } from '@tensorflow/tfjs';
 import { TensorContainer } from '@tensorflow/tfjs-core/dist/tensor_types';
-import { CustomCallbackArgs, equalStrict } from '@tensorflow/tfjs';
+import { CustomCallbackArgs } from '@tensorflow/tfjs';
 import { CustomPoseNet, Metadata, loadPoseNet } from './custom-posenet';
 import * as seedrandom from 'seedrandom';
 
@@ -38,8 +38,8 @@ interface Sample {
 }
 
 // tslint:disable-next-line:no-any
-const isTensor = (c: any): c is tf.Tensor =>
-    typeof c.dataId === 'object' && c.shape === 'object';
+// const isTensor = (c: any): c is tf.Tensor =>
+//     typeof c.dataId === 'object' && c.shape === 'object';
 
 /**
  * Converts an integer into its one-hot representation and returns
@@ -60,7 +60,7 @@ function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
     const length = array.length;
 
     // need to clone array or we'd be editing original as we goo
-    let shuffled = array.slice();
+    const shuffled = array.slice();
 
     for (let i = (length - 1); i > 0; i -= 1) {
         let randomIndex ;
@@ -85,10 +85,10 @@ export class TeachablePoseNet extends CustomPoseNet {
     private validationDataset: tf.data.Dataset<TensorContainer>;
 
     // Number of total samples
-    private totalSamples: number = 0;
+    // private totalSamples = 0;
 
     // Array of all the examples collected
-    public examples: Array<Array<Float32Array>> = [];
+    public examples: Float32Array[][] = [];
 
     // Optional seed to make shuffling of data predictable
     private seed: seedrandom.prng;
@@ -133,7 +133,7 @@ export class TeachablePoseNet extends CustomPoseNet {
         this.examples[className].push(sample);
 
         // increase our sample counter
-        this.totalSamples++;
+        // this.totalSamples++;
     }
 
     /**
@@ -157,8 +157,8 @@ export class TeachablePoseNet extends CustomPoseNet {
      * into proper tf.data.Dataset
      */
     public prepare() {
-        for (let classes in this.examples){
-            if (classes.length == 0) {
+        for (const classes in this.examples){
+            if (classes.length === 0) {
                 throw new Error('Add some examples before training');
             }
         }
@@ -182,8 +182,8 @@ export class TeachablePoseNet extends CustomPoseNet {
 
         // then break into validation and test datasets
 
-        let trainDataset: Array<Sample> = [];
-        let validationDataset: Array<Sample> = [];
+        let trainDataset: Sample[] = [];
+        let validationDataset: Sample[] = [];
 
         // for each class, add samples to train and validation dataset
         for (let i = 0; i < this.examples.length; i++) {
@@ -193,11 +193,11 @@ export class TeachablePoseNet extends CustomPoseNet {
             const numValidation = Math.ceil(VALIDATION_FRACTION * classLength);
             const numTrain = classLength - numValidation;
 
-            let classTrain = this.examples[i].slice(0, numTrain).map((dataArray) => {
+            const classTrain = this.examples[i].slice(0, numTrain).map((dataArray) => {
                 return { data: dataArray, label: y };
             });
 
-            let classValidation = this.examples[i].slice(numTrain).map((dataArray) => {
+            const classValidation = this.examples[i].slice(numTrain).map((dataArray) => {
                 return { data: dataArray, label: y };
             });
 
@@ -218,7 +218,7 @@ export class TeachablePoseNet extends CustomPoseNet {
         return { 
             trainDataset: tf.data.zip({ xs: trainX,  ys: trainY}), 
             validationDataset: tf.data.zip({ xs: validationX,  ys: validationY})
-        }
+        };
     }
 
     /**
@@ -293,9 +293,9 @@ export class TeachablePoseNet extends CustomPoseNet {
             console.log(data);
         });
         */
-        const history = await trainingModel.fitDataset(trainData, {
+        await trainingModel.fitDataset(trainData, {
             epochs: params.epochs,
-            validationData: validationData,
+            validationData,
             callbacks
         });
 
