@@ -47,10 +47,10 @@ const MAX_PREDICTIONS = 3;
  * @param data a Metadata object
  */
 const fillMetadata = (data: Partial<Metadata>) => {
-	util.assert(
-		typeof data.tfjsVersion === "string",
-		() => `metadata.tfjsVersion is invalid`
-	);
+	// util.assert(
+	// 	typeof data.tfjsVersion === "string",
+	// 	() => `metadata.tfjsVersion is invalid`
+	// );
 	data.tmSupportVersion = data.tmSupportVersion || version;
 	data.timeStamp = data.timeStamp || new Date().toISOString();
 	data.userMetadata = data.userMetadata || {};
