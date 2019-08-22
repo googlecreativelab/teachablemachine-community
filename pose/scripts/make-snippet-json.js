@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { resolve } = require('path');
+const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
 
 const startPattern = "{{[ ]{0,3}";
 const endPattern = "[ ]{0,3}}}";
@@ -18,13 +19,15 @@ exports.writeSync = (outputPath) => {
             }
             return mem;
         }, []);
+    
+    const codeWithVersion = code.replace(new RegExp(startPattern + 'version' + endPattern), 'v' + version);
 
     const json = {
         startPattern,
         endPattern,
         tagCapturePattern,
         tags,
-        code
+        codeWithVersion
     };
 
     const jsonStr = JSON.stringify(json, null, '    ');
