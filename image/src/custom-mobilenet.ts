@@ -22,8 +22,8 @@ import { capture } from './utils/tf';
 import { cropTo } from './utils/canvas';
 import { version } from './version';
 
-const DEFAULT_ALPHA_V2 = 0.35;
-
+const DEFAULT_TRAINING_LAYER_V2 = "out_relu"; 
+const DEFAULT_ALPHA_V2 = 1.0; 
 export const IMAGE_SIZE = 224;
 
 /**
@@ -67,15 +67,26 @@ const isMetadata = (c: any): c is Metadata =>
 
 const parseModelOptions = (options?: ModelOptions) => {
     options = options || {};
-    if(options.checkpointUrl){
-        if(options.alpha){
+
+    if (options.checkpointUrl){
+        if (options.alpha){
             console.warn("Checkpoint URL passed to modelOptions, alpha options are ignored");
         }        
         return options.checkpointUrl;
     } else {
-        options.alpha = options.alpha || DEFAULT_ALPHA_V2;                
-        // tslint:disable-next-line:max-line-length
-        return `https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_${options.alpha}_${IMAGE_SIZE}_no_top/model.json`;
+        options.alpha = options.alpha || DEFAULT_ALPHA_V2;  
+        
+        // check if alpha is valid 
+        if (options.alpha !== 0.35 && options.alpha !== 0.5 && options.alpha !== 0.75 && options.alpha !== 1) {
+            console.warn("Invalid alpha. Options are: 0.35, 0.50, 0.75 or 1.00. Will load default of 0.35");
+            options.alpha = DEFAULT_ALPHA_V2;
+        }
+        else {
+            console.log("Loading model with alpha: ", options.alpha.toFixed(2)); 
+        }
+
+        // tslint:disable-next-line:max-line-length 
+        return `https://storage.googleapis.com/teachable-machine-models/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_${options.alpha.toFixed(2)}_${IMAGE_SIZE}_no_top/model.json`;
     }
 };
 
@@ -99,7 +110,7 @@ const parseModelOptions = (options?: ModelOptions) => {
 const processMetadata = async (metadata: string | Metadata) => {
     let metadataJSON: Metadata;
     if (typeof metadata === 'string') {
-        util.assert(
+        util.assert(    
             metadata.indexOf('http') === 0,
             () => 'metadata is a string but not a valid url'
         );
@@ -197,7 +208,6 @@ export class CustomMobileNet {
     }
 }
 
-
 /**
  * load the base mobilenet model
  * @param modelOptions options determining what model to load
@@ -205,13 +215,14 @@ export class CustomMobileNet {
 export async function loadTruncatedMobileNet(modelOptions?: ModelOptions) {
     const checkpointUrl = parseModelOptions(modelOptions);
     const mobilenet = await tf.loadLayersModel(checkpointUrl);
-    
-    // Add a Global Average Pooling 2D to mobilenet, to go from shape [7, 7, 1280] to [1280]
+    const layer = mobilenet.getLayer(DEFAULT_TRAINING_LAYER_V2);
+    const truncatedModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
+
     const model = tf.sequential();
-    model.add(mobilenet);
+    model.add(truncatedModel);
+    // Add a Global Average Pooling 2D to mobilenet, to go from shape [7, 7, 1280] to [1280]
     model.add(tf.layers.globalAveragePooling2d({}));
     return model;
-    
 }
 
 export async function load(checkpoint: string, metadata?: string | Metadata ) {

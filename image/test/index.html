@@ -2,15 +2,18 @@
 <head>
     <meta charset="utf-8">
     <title>TESTS</title>
-    <script src="../node_modules/mocha/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.2.0/chai.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-    <script src="../bundles/v0.1.0/teachablemachine-image.min.js"></script>
+    <script src="../bundles/v0.4.0/teachablemachine-image.min.js"></script>
+    <script src="../node_modules/mocha/mocha.js"></script>
     <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
 </head>
-<body>
-    <div id="mocha"></div>
+<body>    
     <script type="text/javascript">
+        const mochaEl = document.createElement('div');
+        mochaEl.setAttribute("id", "mocha");
+        document.body.append(mochaEl);
+
         /**
          * The purpose of this test suite is only to test that the bundle loads
          * correctly. The rest of the test suite tests the local typescript files
