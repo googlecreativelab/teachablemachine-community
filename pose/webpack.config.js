@@ -92,7 +92,7 @@ const baseConfig = {
                     // copy bundle into latest
                     fs.copyFileSync(sourceBundle, destBundle);
                     // copy snippet.json into latest
-                    fs.copyFileSync(snippetJSONPath, join(latestBundleFolder, 'snippet.json'));
+                    fs.copyFileSync(snippetJSONPath, join(latestBundleFolder, 'snippet-pose.json'));
                     callback();
                 });
             });
