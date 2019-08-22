@@ -27,7 +27,7 @@ exports.writeSync = (outputPath) => {
         endPattern,
         tagCapturePattern,
         tags,
-        codeWithVersion
+        code: codeWithVersion
     };
 
     const jsonStr = JSON.stringify(json, null, '    ');
