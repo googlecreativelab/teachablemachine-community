@@ -74,7 +74,7 @@ const baseConfig = {
                     return;
                 }
 
-                const snippetJSONPath = join(outputOptions.path, 'snippet.json');
+                const snippetJSONPath = join(outputOptions.path, 'snippet-image.json');
                 snippetWriteSync(snippetJSONPath);
 
                 // the bundle in bundles/v<version>/<filename>js
