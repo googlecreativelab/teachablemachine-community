@@ -15,9 +15,14 @@
  * =============================================================================
  */
 
-import * as posenet from './posenet/index';
+export {
+    Metadata,
+    ClassifierInputSource,
+    CustomPoseNet,
+    load
+} from './custom-posenet';
 
-export { posenet };
+export { TeachablePoseNet, createTeachable } from './teachable-posenet';
 export { getWebcam } from './utils/webcam';
 export { createCanvas } from './utils/canvas';
 export { drawKeypoints, drawSkeleton, drawPoint, drawSegment } from './utils/pose-draw';

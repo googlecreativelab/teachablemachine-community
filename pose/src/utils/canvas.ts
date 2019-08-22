@@ -15,7 +15,7 @@
  * =============================================================================
  */
 
-export function createCanvas(width: number = 200, height: number = 200, flipHorizontal = false) {
+export function createCanvas(width = 200, height = 200, flipHorizontal = false) {
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
@@ -28,5 +28,3 @@ export function createCanvas(width: number = 200, height: number = 200, flipHori
 
     return canvas;
 }
-
-

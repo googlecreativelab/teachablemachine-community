@@ -24,7 +24,7 @@ import {
 	toTensorBuffers3D
 } from "@tensorflow-models/posenet/dist/util";
 import { util, SymbolicTensor } from "@tensorflow/tfjs";
-import { version } from "../version";
+import { version } from "./version";
 import { decodeMultiplePoses } from "@tensorflow-models/posenet";
 /**
  * the metadata to describe the model's creation,
