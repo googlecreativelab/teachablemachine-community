@@ -87,7 +87,7 @@ const isAlphaValid = (version: number, alpha: number) => {
     }
 
     return alpha;
-}
+};
 
 const parseModelOptions = (options?: ModelOptions) => {
     options = options || {};
@@ -107,7 +107,7 @@ const parseModelOptions = (options?: ModelOptions) => {
             console.log(`Loading mobilenet ${options.version} and alpha ${options.alpha}`);
             // exception is alpha of 1 can only be 1.0
             let alphaString = options.alpha.toFixed(2);
-            if (alphaString === "1.00") { alphaString = "1.0" }
+            if (alphaString === "1.00") { alphaString = "1.0"; }
 
             return [
                 // tslint:disable-next-line:max-line-length        
