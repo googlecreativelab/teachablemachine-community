@@ -19,7 +19,7 @@ There are two ways to easily use the model provided by Teachable Machine in your
 
 ```js
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://storage.googleapis.com/tm-pro/v0.2.0/teachablemachine-pose.min.js"></script>
+<script src="https://storage.googleapis.com/tm-pro/latest/teachablemachine-pose.min.js"></script>
 ```
 
 ### via NPM
@@ -30,7 +30,7 @@ Coming soon
 
 ```js
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://storage.googleapis.com/tm-pro/VERSION/teachablemachine-pose.min.js"></script>
+<script src="https://storage.googleapis.com/tm-pro/latest/teachablemachine-pose.min.js"></script>
 <script type="text/javascript">
     // the json file (model topology) has a reference to the bin file (model weights)
     const checkpointURL = 'https://storage.googleapis.com/tm-posenet/YOUR_MODEL_NAME/model.json';
@@ -41,7 +41,7 @@ Coming soon
        
     async function init() {
         // load the model and metadata
-        model = await tmPose.posenet.load(checkpointURL, metadataURL);
+        model = await tmPose.load(checkpointURL, metadataURL);
         maxPredictions = model.getTotalClasses();
 
         const width = 200; const height = 200;

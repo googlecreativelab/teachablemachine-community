@@ -19,7 +19,7 @@ There are two ways to easily use the model provided by Teachable Machine in your
 
 ```js
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://storage.googleapis.com/tm-pro/v0.2.0/teachablemachine-image.min.js"></script>
+<script src="https://storage.googleapis.com/tm-pro/latest/teachablemachine-image.min.js"></script>
 ```
 
 ### via NPM
@@ -30,7 +30,7 @@ Coming soon
 
 ```js
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://storage.googleapis.com/tm-pro/v0.2.0/teachablemachine-image.min.js"></script>
+<script src="https://storage.googleapis.com/tm-pro/latest/teachablemachine-image.min.js"></script>
 <script type="text/javascript">
     const checkpointURL = 'https://storage.googleapis.com/tm-mobilenet/YOUR_MODEL_NAME/model.json';
     const metadataURL = 'https://storage.googleapis.com/tm-mobilenet/YOUR_MODEL_NAME/metadata.json';
@@ -39,11 +39,12 @@ Coming soon
     let webcamEl;
 
     async function init() {
-        model = await tmImage.mobilenet.load(checkpointURL, metadataURL);
+        model = await tmImage.load(checkpointURL, metadataURL);
         const maxPredictions = model.getTotalClasses();
 
         // webcam has a square ratio and is flipped by default to match training
-        webcamEl = await tmImage.getWebcam(200, 200, ‘front’);
+        const webcamFlipped = true;
+        webcamEl = await tmImage.getWebcam(200, 200, 'front', webcamFlipped);
         webcamEl.play();
         document.body.appendChild(webcamEl);
 
