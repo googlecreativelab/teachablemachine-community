@@ -22,7 +22,7 @@ import { capture } from './utils/tf';
 import { cropTo } from './utils/canvas';
 import { version } from './version';
 
-const DEFAULT_MOBILENET_VERSION = 2;
+const DEFAULT_MOBILENET_VERSION = 1;
 const DEFAULT_TRAINING_LAYER_V1 = 'conv_pw_13_relu';
 const DEFAULT_TRAINING_LAYER_V2 = "out_relu"; 
 const DEFAULT_ALPHA_V1 = 0.25;
