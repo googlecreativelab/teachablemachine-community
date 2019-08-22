@@ -22,6 +22,7 @@ import * as tf from "@tensorflow/tfjs";
 import * as tm from "../src/index";
 import * as seedrandom from "seedrandom";
 import { TeachableMobileNet } from "../src/index";
+// @ts-ignore
 var Table = require("cli-table");
 
 const SEED_WORD = "testSuite";
@@ -140,7 +141,7 @@ async function testModel(
 	showEpochResults: boolean = false
 ) {
 	model.setLabels(classes);
-	// model.setSeed(SEED_WORD); // set a seed to shuffle predictably
+	model.setSeed(SEED_WORD); // set a seed to shuffle predictably
 
 	const logs: tf.Logs[] = [];
 	let time: number = 0;
@@ -224,9 +225,10 @@ describe("Train a custom model", () => {
 		const teachableMobileNet = await tm.createTeachable({
 			tfjsVersion: tf.version.tfjs
 			// tmVersion: version
-		});
+		});		
+
 		assert.exists(teachableMobileNet);
-	});
+	}).timeout(5000);
 
 	it("Train flower dataset on mobilenet v2", async () => {
 		// classes, samplesPerClass, url
@@ -236,7 +238,7 @@ describe("Train a custom model", () => {
 
 		// 1. Setup dataset parameters
 		const classLabels = metadata.classes as string[];
-		const TRAIN_VALIDATION_SIZE_PER_CLASS = 40; 
+		const TRAIN_VALIDATION_SIZE_PER_CLASS = 10; 
 		const TEST_SIZE_PER_CLASS = Math.ceil(
 			(TRAIN_VALIDATION_SIZE_PER_CLASS * 0.1) / 0.9
 		);
@@ -263,8 +265,11 @@ describe("Train a custom model", () => {
 
 		// NOTE: If testing time, test first model twice because it takes longer 
 		// to train the very first time tf.js is training 
-		const VALID_ALPHAS = [0.35, 0.35, 0.5, 0.75, 1];
-		const EPOCHS = 40;
+		const MOBILENET_VERSION = 1;
+		// const VALID_ALPHAS = [0.25];
+		const VALID_ALPHAS = [0.25, 0.5, 0.75, 1];
+		// const VALID_ALPHAS = [0.4];
+		const EPOCHS = 20;
 
 		for (let a of VALID_ALPHAS) {
 			const lineStart = "\n//====================================";
@@ -273,7 +278,7 @@ describe("Train a custom model", () => {
 			// 3. Test data on the model
 			const teachableMobileNetV2 = await tm.createTeachable(
 				{ tfjsVersion: tf.version.tfjs },
-				{ alpha: a }
+				{ version: MOBILENET_VERSION, alpha: a }
 			);
 
 			
