@@ -24,7 +24,15 @@ There are two ways to easily use the model provided by Teachable Machine in your
 
 ### via NPM
 
-Coming soon
+[NPM Package](https://www.npmjs.com/package/@teachablemachine/pose)
+
+`npm i @teachablemachine/pose`
+
+```js
+import * as tf from '@tensorflow/tfjs';
+import * as tmPose from '@teachablemachine/pose';
+
+```
 
 ### Sample snippet
 
@@ -95,10 +103,10 @@ Coming soon
 
 ### Loading the model - url checkpoints
 
-`tmPose.posenet` is the module name, which is automatically included when you use the `<script src>` method. When using ES6 imports, `posenet` is the module.
+`tmPose` is the module name, which is automatically included when you use the `<script src>` method. 
 
 ```ts
-tmPose.posenet.load(
+tmPose.load(
     checkpoint: string, 
     metadata?: string | Metadata
 )
@@ -113,14 +121,14 @@ Args:
 Usage:
 
 ```js
-await tmPose.posenet.load(checkpointURL, metadataURL);
+await tmPose.load(checkpointURL, metadataURL);
 ```
 
 ### Model - get total classes
 
 Once you have loaded a model, you can obtain the total number of classes in the model. 
 
-This method exists on the model that is loaded from `tmPose.posenet.load`.
+This method exists on the model that is loaded from `tmPose.load`.
 
 ```ts
 model.getTotalClasses()
@@ -132,7 +140,7 @@ Returns a number representing the total number of classes
 
 You'll have to run your input through two models to make a prediction: first through posenet and then through the classification model created via Teachable Machine.
 
-This method exists on the model that is loaded from `tmPose.posenet.load`.
+This method exists on the model that is loaded from `tmPose.load`.
 
 ```ts
 model.estimatePose(
@@ -160,7 +168,7 @@ The function returns `pose` an object with the keypoints data (for drawing) and 
 
 Once you have the output from posenet, you can make a classificaiton with the Teachable Machine model you trained.
 
-This method exists on the model that is loaded from `tmPose.posenet.load`.
+This method exists on the model that is loaded from `tmPose.load`.
 
 ```ts
 model.predict(

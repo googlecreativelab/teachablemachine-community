@@ -6,9 +6,9 @@ This repo contains support libraries for a new version of Teachable Machine (cur
 
 | Library | Based on model  | Details                                                 | Install |
 |---------|-----------------|---------------------------------------------------------|---------|
-| [Image](./image/) | [MobileNet](https://github.com/tensorflow/tfjs-models/tree/master/mobilenet)       | Use a model trained to classify your own images         | Coming soon    |
+| [Image](./image/) | [MobileNet](https://github.com/tensorflow/tfjs-models/tree/master/mobilenet)       | Use a model trained to classify your own images         | `npm i @teachablemachine/image`    |
 | [Audio](./audio/)   | [Speech Commands](https://github.com/tensorflow/tfjs-models/tree/master/speech-commands) | Use a model trained to classify your own audio snippets | Coming soon     |
-| [Pose](./pose/)   | [PoseNet](https://github.com/tensorflow/tfjs-models/tree/master/posenet) | Use a model trained to classify body poses | Coming soon     |
+| [Pose](./pose/)   | [PoseNet](https://github.com/tensorflow/tfjs-models/tree/master/posenet) | Use a model trained to classify body poses | `npm i @teachablemachine/pose`     |
 
 ## Development
 

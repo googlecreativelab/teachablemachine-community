@@ -24,7 +24,15 @@ There are two ways to easily use the model provided by Teachable Machine in your
 
 ### via NPM
 
-Coming soon
+[NPM Package](https://www.npmjs.com/package/@teachablemachine/image)
+
+`npm i @teachablemachine/image`
+
+```js
+import * as tf from '@tensorflow/tfjs';
+import * as tmImage from '@teachablemachine/image';
+
+```
 
 ### Sample snippet
 
@@ -64,10 +72,10 @@ Coming soon
 
 ### Loading the model - url checkpoints
 
-`tmImage.mobilenet` is the module name, which is automatically included when you use the `<script src>` method. When using ES6 imports, `mobilenet` is the module.
+`tmImage` is the module name, which is automatically included when you use the `<script src>` method. 
 
 ```ts
-tmImage.mobilenet.load(
+tmImage.load(
 	checkpoint: string, 
 	metadata?: string | Metadata
 )
@@ -82,7 +90,7 @@ Args:
 Usage:
 
 ```js
-await tmImage.mobilenet.load(checkpointURL, metadataURL);
+await tmImage.load(checkpointURL, metadataURL);
 ```
 
 
@@ -91,7 +99,7 @@ await tmImage.mobilenet.load(checkpointURL, metadataURL);
 You can upload your model files from a local hard drive by using a file picker and the File interface. 
 
 ```ts
-tmImage.mobilenet.loadFromFiles(
+tmImage.loadFromFiles(
 	model: File, 
 	weights: File, 
 	metadata?: string | Metadata
@@ -110,14 +118,14 @@ Usage:
 // you need to create File objects, like with file input elements (<input type="file" ...>)
 const uploadJSONInput = document.getElementById('upload-json');
 const uploadWeightsInput = document.getElementById('upload-weights');
-model = await tmImage.mobilenet.loadFromFiles(uploadJSONInput.files[0], uploadWeightsInput.files[0])
+model = await tmImage.loadFromFiles(uploadJSONInput.files[0], uploadWeightsInput.files[0])
 ```
 
 ### Model - get total classes
 
 Once you have loaded a model, you can obtain the total number of classes in the model. 
 
-This method exists on the model that is loaded from `tmImage.mobilenet.load`.
+This method exists on the model that is loaded from `tmImage.load`.
 
 ```ts
 model.getTotalClasses()
@@ -130,7 +138,7 @@ Returns a number representing the total number of classes
 
 Once you have loaded a model, you can make a classificaiton with a couple of different input options.
 
-This method exists on the model that is loaded from `tmImage.mobilenet.load`.
+This method exists on the model that is loaded from `tmImage.load`.
 
 ```ts
 model.predict(
