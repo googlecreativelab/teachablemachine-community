@@ -20,6 +20,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 const { write: versionModuleWrite } = require('./scripts/make-version');
 const { writeSync: snippetWriteSync } = require('./scripts/make-snippet-json');
+const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
 const outputPath = resolve('bundles');
 
@@ -61,7 +62,7 @@ const baseConfig = {
                     if (err) {
                         throw new Error('Failed generating version.ts module', err);
                     }
-                    console.log(`Generated version module`);
+                    console.log(`Generated version module for v${pkg.version}`);
                     callback();
                 });
             });
