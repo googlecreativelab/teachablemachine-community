@@ -6,7 +6,6 @@ node_modules/
 *.swp
 .idea/
 package-lock.json
-src/*
 bundles/*
 *.tgz
 webpack.config.js
