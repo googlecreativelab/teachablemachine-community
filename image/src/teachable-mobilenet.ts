@@ -316,6 +316,8 @@ export class TeachableMobileNet extends CustomMobileNet {
         jointModel.add(this.trainingModel);
         this.model = jointModel;
 
+        optimizer.dispose(); // cleanup of memory
+
         return this.model;
     }
 
