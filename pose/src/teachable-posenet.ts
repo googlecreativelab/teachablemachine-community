@@ -316,6 +316,11 @@ export class TeachablePoseNet extends CustomPoseNet {
         }
     }
 
+    public dispose() {
+        this.model.dispose();
+        super.dispose();
+    }
+
     public setLabel(index: number, label: string) {
         this._metadata.labels[index] = label;
     }

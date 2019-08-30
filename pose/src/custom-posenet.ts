@@ -277,7 +277,6 @@ export class CustomPoseNet {
 
 	public dispose() {
 		this.posenetModel.dispose();
-		this.model.dispose();
 	}
 }
 
