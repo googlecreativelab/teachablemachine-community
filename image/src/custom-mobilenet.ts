@@ -205,6 +205,15 @@ export async function getTopKClasses(labels: string[], logits: tf.Tensor<tf.Rank
 
 
 export class CustomMobileNet {
+    /**
+     * the truncated mobilenet model we will train on top of
+     */
+    protected truncatedModel: tf.LayersModel;
+    /**
+     * the training model for transfer learning
+     */
+    protected trainingModel: tf.LayersModel;
+
     static get EXPECTED_IMAGE_SIZE() {
         return IMAGE_SIZE;
     }
@@ -246,6 +255,11 @@ export class CustomMobileNet {
         dispose(logits);
 
         return classes;
+    }
+
+    public dispose() {
+        this.truncatedModel.dispose();
+        this.trainingModel.dispose();
     }
 }
 
