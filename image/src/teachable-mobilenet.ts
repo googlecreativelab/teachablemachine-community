@@ -147,7 +147,8 @@ export class TeachableMobileNet extends CustomMobileNet {
 
         const activation = example.dataSync() as Float32Array;
         cap.dispose();
-
+        example.dispose();
+        
         // save samples of each class separately
         this.examples[className].push(activation);
 
@@ -319,7 +320,7 @@ export class TeachableMobileNet extends CustomMobileNet {
         jointModel.add(trainingModel);
 
         this.model = jointModel;
-
+        
         return this.model;
     }
 
