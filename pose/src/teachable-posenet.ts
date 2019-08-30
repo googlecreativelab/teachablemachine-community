@@ -22,6 +22,7 @@ import { TensorContainer } from '@tensorflow/tfjs-core/dist/tensor_types';
 import { CustomCallbackArgs } from '@tensorflow/tfjs';
 import { CustomPoseNet, Metadata, loadPoseNet } from './custom-posenet';
 import * as seedrandom from 'seedrandom';
+import { Initializer } from '@tensorflow/tfjs-layers/dist/initializers';
 
 const VALIDATION_FRACTION = 0.15;
 
@@ -242,10 +243,10 @@ export class TeachablePoseNet extends CustomPoseNet {
         // in case we need to use a seed for predictable training
         let varianceScaling;
         if (this.seed) {
-            varianceScaling = tf.initializers.varianceScaling({ seed: 3.14});
+            varianceScaling = tf.initializers.varianceScaling({ seed: 3.14}) as Initializer;
         }
         else {
-            varianceScaling = tf.initializers.varianceScaling({});
+            varianceScaling = tf.initializers.varianceScaling({}) as Initializer;
         }
 
         const trainingModel = tf.sequential({
@@ -300,6 +301,9 @@ export class TeachablePoseNet extends CustomPoseNet {
         });
 
         this.model = trainingModel;
+
+        optimizer.dispose(); // cleanup
+
         return this.model;
     }
 
