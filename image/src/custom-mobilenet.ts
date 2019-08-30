@@ -209,10 +209,6 @@ export class CustomMobileNet {
      * the truncated mobilenet model we will train on top of
      */
     protected truncatedModel: tf.LayersModel;
-    /**
-     * the training model for transfer learning
-     */
-    protected trainingModel: tf.LayersModel;
 
     static get EXPECTED_IMAGE_SIZE() {
         return IMAGE_SIZE;
@@ -259,7 +255,6 @@ export class CustomMobileNet {
 
     public dispose() {
         this.truncatedModel.dispose();
-        this.trainingModel.dispose();
     }
 }
 

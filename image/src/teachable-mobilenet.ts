@@ -85,6 +85,11 @@ function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
 
 export class TeachableMobileNet extends CustomMobileNet {
     /**
+     * the training model for transfer learning
+     */
+    protected trainingModel: tf.LayersModel;
+
+    /**
      * Training and validation datasets
      */
     private trainDataset: tf.data.Dataset<TensorContainer>;
@@ -353,6 +358,11 @@ export class TeachableMobileNet extends CustomMobileNet {
 
     public getName() {
         return this._metadata.modelName;
+    }
+
+    public dispose() {
+        this.trainingModel.dispose();
+        super.dispose();
     }
 
     /*
