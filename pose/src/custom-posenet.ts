@@ -187,22 +187,12 @@ export class CustomPoseNet {
 			inputResolution
 		]);
 
-		const {
-			heatmapScores,
-			offsets,
-			displacementFwd,
-			displacementBwd
-		} = await this.posenetModel.baseModel.predict(resized);
+		const {heatmapScores, offsets, displacementFwd, displacementBwd} 
+			= await this.posenetModel.baseModel.predict(resized);
 
 		resized.dispose();
 
-		return {
-			heatmapScores,
-			offsets,
-			displacementFwd,
-			displacementBwd,
-			padding
-		};
+		return {heatmapScores, offsets, displacementFwd, displacementBwd, padding};
 	}
 
 	public poseOutputsToAray(
@@ -216,7 +206,7 @@ export class CustomPoseNet {
 		const concatArray = concat.dataSync() as Float32Array;
 
 		concat.dispose();
-
+		
 		return concatArray;
 	}
 
@@ -240,42 +230,20 @@ export class CustomPoseNet {
 		const outputStride = this.posenetModel.baseModel.outputStride;
 		const inputResolution = this.posenetModel.inputResolution;
 
-		const [
-			scoresBuffer,
-			offsetsBuffer,
-			displacementsFwdBuffer,
-			displacementsBwdBuffer
-		] = await toTensorBuffers3D([
-			heatmapScores,
-			offsets,
-			displacementFwd,
-			displacementBwd
-		]);
+		const [scoresBuffer, offsetsBuffer, displacementsFwdBuffer, displacementsBwdBuffer] 
+			= await toTensorBuffers3D([heatmapScores, offsets, displacementFwd, displacementBwd]);
 
-		const poses = await decodeMultiplePoses(
-			scoresBuffer,
-			offsetsBuffer,
-			displacementsFwdBuffer,
-			displacementsBwdBuffer,
-			outputStride,
-			config.maxDetections,
-			config.scoreThreshold,
-			config.nmsRadius
-		);
+		const poses = await decodeMultiplePoses(scoresBuffer, offsetsBuffer, displacementsFwdBuffer,
+			displacementsBwdBuffer, outputStride, config.maxDetections, config.scoreThreshold, config.nmsRadius);
 
-		const resultPoses = scaleAndFlipPoses(
-			poses,
-			[height, width],
-			[inputResolution, inputResolution],
-			padding,
-			flipHorizontal
-		);
+		const resultPoses = scaleAndFlipPoses(poses, [height, width], [inputResolution, inputResolution],
+			padding, flipHorizontal);
 
 		heatmapScores.dispose();
 		offsets.dispose();
 		displacementFwd.dispose();
 		displacementBwd.dispose();
-
+		
 		return resultPoses[0];
 	}
 
@@ -306,6 +274,10 @@ export class CustomPoseNet {
 
 		return topKClasses;
 	}
+
+	public dispose() {
+		this.posenetModel.dispose();
+	}
 }
 
 export async function loadPoseNet() {
@@ -315,7 +287,6 @@ export async function loadPoseNet() {
 		inputResolution: 257,
 		multiplier: 0.75
 	});
-
 	return posenetModel;
 }
 

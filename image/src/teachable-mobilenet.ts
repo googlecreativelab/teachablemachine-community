@@ -27,6 +27,7 @@ import { CustomMobileNet,
     ModelOptions
 } from './custom-mobilenet';
 import * as seedrandom from 'seedrandom';
+import { Initializer } from '@tensorflow/tfjs-layers/dist/initializers';
 
 const VALIDATION_FRACTION = 0.15;
 
@@ -84,9 +85,9 @@ function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
 
 export class TeachableMobileNet extends CustomMobileNet {
     /**
-     * the truncated mobilenet model we will train on top of
+     * the training model for transfer learning
      */
-    protected truncatedModel: tf.LayersModel;
+    protected trainingModel: tf.LayersModel;
 
     /**
      * Training and validation datasets
@@ -102,6 +103,12 @@ export class TeachableMobileNet extends CustomMobileNet {
 
     // Optional seed to make shuffling of data predictable
     private seed: seedrandom.prng;
+
+    constructor(truncated: tf.LayersModel, metadata: Partial<Metadata>) {
+        super(tf.sequential(), metadata);
+        // the provided model is the truncated mobilenet
+        this.truncatedModel = truncated;
+    }
 
     public get asSequentialModel() {
         return this.model as tf.Sequential;
@@ -127,12 +134,6 @@ export class TeachableMobileNet extends CustomMobileNet {
      */
     public get numClasses(): number {
         return this._metadata.labels.length;
-    }
-
-    constructor(truncated: tf.LayersModel, metadata: Partial<Metadata>) {
-        super(tf.sequential(), metadata);
-        // the provided model is the truncated mobilenet
-        this.truncatedModel = truncated;
     }
 
     /**
@@ -257,7 +258,7 @@ export class TeachableMobileNet extends CustomMobileNet {
         const inputSize = tf.util.sizeFromShape(inputShape);
 
         // in case we need to use a seed for predictable training
-        let varianceScaling;
+        let varianceScaling: Initializer;
         if (this.seed) {
             varianceScaling = tf.initializers.varianceScaling({ seed: 3.14});
         }
@@ -265,7 +266,7 @@ export class TeachableMobileNet extends CustomMobileNet {
             varianceScaling = tf.initializers.varianceScaling({});
         }
 
-        const trainingModel = tf.sequential({
+        this.trainingModel = tf.sequential({
             layers: [
                 tf.layers.dense({
                     inputShape: [inputSize],
@@ -286,7 +287,7 @@ export class TeachableMobileNet extends CustomMobileNet {
         const optimizer = tf.train.adam(params.learningRate);
         // const optimizer = tf.train.rmsprop(params.learningRate);
 
-        trainingModel.compile({
+        this.trainingModel.compile({
             optimizer,
             // loss: 'binaryCrossentropy',
             loss: 'categoricalCrossentropy',
@@ -309,7 +310,7 @@ export class TeachableMobileNet extends CustomMobileNet {
         })
         */
 
-        const history = await trainingModel.fitDataset(trainData, {
+        const history = await this.trainingModel.fitDataset(trainData, {
             epochs: params.epochs,
             validationData,
             callbacks
@@ -317,10 +318,11 @@ export class TeachableMobileNet extends CustomMobileNet {
 
         const jointModel = tf.sequential();
         jointModel.add(this.truncatedModel);
-        jointModel.add(trainingModel);
-
+        jointModel.add(this.trainingModel);
         this.model = jointModel;
-        
+
+        optimizer.dispose(); // cleanup of memory
+
         return this.model;
     }
 
@@ -356,6 +358,11 @@ export class TeachableMobileNet extends CustomMobileNet {
 
     public getName() {
         return this._metadata.modelName;
+    }
+
+    public dispose() {
+        this.trainingModel.dispose();
+        super.dispose();
     }
 
     /*
