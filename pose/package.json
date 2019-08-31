@@ -21,6 +21,11 @@
     "tsc": "tsc"
   },
   "license": "Apache-2.0",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/googlecreativelab/teachablemachine-libraries.git",
+    "directory": "pose"
+  },
   "dependencies": {
     "@tensorflow-models/posenet": "^2.1.0",
     "seedrandom": "^3.0.1"
