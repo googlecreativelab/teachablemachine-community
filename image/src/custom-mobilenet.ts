@@ -290,8 +290,9 @@ export async function load(checkpoint: string, metadata?: string | Metadata ) {
     return new CustomMobileNet(customModel, metadataJSON);
 }
 
-export async function loadFromFiles(json: File, weights: File, metadata?: string | Metadata) {
+export async function loadFromFiles(json: File, weights: File, metadata: File) {
     const customModel = await tf.loadLayersModel(tf.io.browserFiles([json, weights]));
-    const metadataJSON = metadata ? await processMetadata(metadata) : null;
+    const metadataFile = await new Response(metadata).json();
+    const metadataJSON = metadata ? await processMetadata(metadataFile) : null;
     return new CustomMobileNet(customModel, metadataJSON);
 }

@@ -102,7 +102,7 @@ You can upload your model files from a local hard drive by using a file picker a
 tmImage.loadFromFiles(
 	model: File, 
 	weights: File, 
-	metadata?: string | Metadata
+	metadata: File
 ) 
 ```
 
@@ -116,9 +116,10 @@ Usage:
 
 ```js
 // you need to create File objects, like with file input elements (<input type="file" ...>)
-const uploadJSONInput = document.getElementById('upload-json');
-const uploadWeightsInput = document.getElementById('upload-weights');
-model = await tmImage.loadFromFiles(uploadJSONInput.files[0], uploadWeightsInput.files[0])
+const uploadModel = document.getElementById('upload-model');
+const uploadWeights = document.getElementById('upload-weights');
+const uploadMetadata = document.getElementById('upload-metadata');
+model = await tmImage.loadFromFiles(uploadModel.files[0], uploadWeights.files[0], uploadMetadata.files[0])
 ```
 
 ### Model - get total classes
