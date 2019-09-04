@@ -298,10 +298,10 @@ export async function load(checkpoint: string, metadata?: string | Metadata) {
 }
 
 export async function loadFromFiles(json: File, weights: File, metadata: File) {
-    const customModel = await tf.loadLayersModel(tf.io.browserFiles([json, weights]));
-    const metadataFile = await new Response(metadata).json();
+	const customModel = await tf.loadLayersModel(tf.io.browserFiles([json, weights]));
+	const metadataFile = await new Response(metadata).json();
 	const metadataJSON = metadata ? await processMetadata(metadataFile) : null;
 	
 	const posenetModel = await loadPoseNet();
-    return new CustomPoseNet(customModel, posenetModel, metadataJSON);
+	return new CustomPoseNet(customModel, posenetModel, metadataJSON);
 }
