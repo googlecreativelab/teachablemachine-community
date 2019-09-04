@@ -27,16 +27,35 @@ var Table = require("cli-table");
 
 const SEED_WORD = "testSuite";
 const seed: seedrandom.prng = seedrandom(SEED_WORD);
-const DATASET_URL =
+const FLOWER_DATASET_URL =
 	"https://storage.googleapis.com/teachable-machine-models/test_data/image/flowers_all/";
+const ELMO_DATASET_URL =
+	"https://storage.googleapis.com/teachable-machine-models/test_data/image/elmo/";
+const BEAN_DATASET_URL =
+	"https://storage.googleapis.com/teachable-machine-models/test_data/image/beans/";
+const FACE_DATASET_URL =
+	"https://storage.googleapis.com/teachable-machine-models/test_data/image/face/";
 
 /**
  * Load a flower image from our storage bucket
  */
-function loadFlowerImage(c: string, i: number): Promise<HTMLImageElement> {
+function loadJpgImage(c: string, i: number, dataset_url: string): Promise<HTMLImageElement> {
 	// tslint:disable-next-line:max-line-length
-	const src = DATASET_URL + `${c}/${i}.jpg`;
-	// console.log(src);
+	const src = dataset_url + `${c}/${i}.jpg`;
+	return new Promise((resolve, reject) => {
+		const img = new Image();
+		img.onload = () => resolve(img);
+		img.onerror = reject;
+		img.crossOrigin = "anonymous";
+		img.src = src;
+	});
+}
+
+
+function loadPngImage(c: string, i: number, dataset_url: string): Promise<HTMLImageElement> {
+	// tslint:disable-next-line:max-line-length
+	const src = dataset_url + `${c}/${i}.png`;
+	// console.log(src)
 	return new Promise((resolve, reject) => {
 		const img = new Image();
 		img.onload = () => resolve(img);
@@ -72,10 +91,11 @@ function fisherYates(array: number[], seed?: seedrandom.prng) {
  * Create train/validation dataset and test dataset with unique images
  */
 async function createDatasets(
-	loadFunction: Function,
+	dataset_url: string,
 	classes: string[],
 	trainSize: number,
-	testSize: number
+	testSize: number,
+	loadFunction: Function
 ) {
 	// fill in an array with unique numbers
 	let listNumbers = [];
@@ -91,20 +111,20 @@ async function createDatasets(
 	for (const c of classes) {
 		let load: Array<Promise<HTMLImageElement>> = [];
 		for (const i of trainAndValidationIndeces) {
-			load.push(loadFunction(c, i));
+			load.push(loadFunction(c, i, dataset_url));
 		}
 		trainAndValidationImages.push(await Promise.all(load));
 
 		load = [];
 		for (const i of testIndices) {
-			load.push(loadFunction(c, i));
+			load.push(loadFunction(c, i, dataset_url));
 		}
 		testImages.push(await Promise.all(load));
 	}
 
 	return {
-		trainAndValidationImages: trainAndValidationImages,
-		testImages: testImages
+		trainAndValidationImages,
+		testImages
 	};
 }
 
@@ -115,7 +135,7 @@ async function createDatasets(
 function showMetrics(alpha: number, time: number, logs: tf.Logs[], testAccuracy?: number) {
 	const lastEpoch = logs[logs.length - 1];
 
-	const header = "α=" + alpha + ", t=" + (time/1000).toFixed(3) + "s";
+	const header = "α=" + alpha + ", t=" + (time/1000).toFixed(1) + "s";
 
 	const table = new Table({
 		head: [header, "Accuracy", "Loss"],
@@ -123,9 +143,8 @@ function showMetrics(alpha: number, time: number, logs: tf.Logs[], testAccuracy?
 	});
 
 	table.push(
-		[ "Train", lastEpoch.acc.toFixed(3), lastEpoch.loss.toFixed(3) ],
-		[ "Validation", lastEpoch.val_acc.toFixed(3), lastEpoch.val_loss.toFixed(3) ],
-		[ "Test", testAccuracy.toFixed(3), '']
+		[ "Train", lastEpoch.acc.toFixed(3), lastEpoch.loss.toFixed(5) ],
+		[ "Validation", lastEpoch.val_acc.toFixed(3), lastEpoch.val_loss.toFixed(5) ]
 	);
 	console.log("\n" + table.toString());
 }
@@ -138,6 +157,7 @@ async function testModel(
 	testImages: HTMLImageElement[][],
 	testSizePerClass: number,
 	epochs: number,
+	learningRate: number,
 	showEpochResults: boolean = false
 ) {
 	model.setLabels(classes);
@@ -159,7 +179,7 @@ async function testModel(
 			{
 				denseUnits: 100,
 				epochs,
-				learningRate: 0.0001,
+				learningRate,
 				batchSize: 16
 			},
 			{
@@ -180,24 +200,102 @@ async function testModel(
 		time = end - start;
 	});
 
-	// Analyze the test set (model has not seen for training)
-	let accuracy = 0;
-	for (let i = 0; i < classes.length; i++) {
-		const classImages = testImages[i];
+	// // Analyze the test set (model has not seen for training)
+	// let accuracy = 0;
+	// for (let i = 0; i < classes.length; i++) {
+	// 	const classImages = testImages[i];
 
-		for (const image of classImages) {
-			const scores = await model.predict(image, false);
-			// compare the label
-			if (scores[0].className === classes[i]) {
-				accuracy++;
-			}
-		}
+	// 	for (const image of classImages) {
+	// 		const scores = await model.predict(image, false);
+	// 		// compare the label
+	// 		if (scores[0].className === classes[i]) {
+	// 			accuracy++;
+	// 		}
+	// 	}
+	// }
+	// const testAccuracy = accuracy / (testSizePerClass * classes.length);
+
+	showMetrics(alpha, time, logs);
+
+}
+
+async function testMobilenet(dataset_url: string, version: number, loadFunction: Function){
+	// classes, samplesPerClass, url
+	const metadata = await (await fetch(
+		dataset_url + "metadata.json"
+	)).json();
+	// 1. Setup dataset parameters
+	const classLabels = metadata.classes as string[];
+
+	let NUM_IMAGE_PER_CLASS = Math.ceil(200 / classLabels.length); 
+
+	if(NUM_IMAGE_PER_CLASS > Math.min(...metadata.samplesPerClass)){
+		NUM_IMAGE_PER_CLASS = Math.min(...metadata.samplesPerClass);
 	}
-	const testAccuracy = accuracy / (testSizePerClass * classes.length);
+	const TRAIN_VALIDATION_SIZE_PER_CLASS =  NUM_IMAGE_PER_CLASS
 
-	showMetrics(alpha, time, logs, testAccuracy);
+	const table = new Table();
+	table.push(
+		{
+			"train/validation size":
+				TRAIN_VALIDATION_SIZE_PER_CLASS * classLabels.length
+		}
+	);
+	console.log("\n" + table.toString());
 
-	return testAccuracy;
+	// 2. Create our datasets once
+	const datasets = await createDatasets(
+		dataset_url,
+		classLabels,
+		TRAIN_VALIDATION_SIZE_PER_CLASS,
+		0,
+		loadFunction
+	);
+	const trainAndValidationImages = datasets.trainAndValidationImages;
+	const testImages = datasets.testImages;
+
+	// NOTE: If testing time, test first model twice because it takes longer 
+	// to train the very first time tf.js is training 
+
+
+	const MOBILENET_VERSION = version;
+	let VALID_ALPHAS = [0.35];
+	// const VALID_ALPHAS = [0.25, 0.5, 0.75, 1];
+	// const VALID_ALPHAS = [0.4];
+	let EPOCHS = 50;
+	let LEARNING_RATE = 0.001;
+	if(version === 1){
+		LEARNING_RATE = 0.0001;
+		VALID_ALPHAS = [0.25];
+		EPOCHS = 20;
+	}
+	
+	for (let a of VALID_ALPHAS) {
+		const lineStart = "\n//====================================";
+		const lineEnd = "====================================//\n\n";
+		console.log(lineStart);
+		// 3. Test data on the model
+		const teachableMobileNetV2 = await tm.createTeachable(
+			{ tfjsVersion: tf.version.tfjs },
+			{ version: MOBILENET_VERSION, alpha: a }
+		);
+
+		
+		const accuracyV2 = await testModel(
+			teachableMobileNetV2,
+			a,
+			classLabels,
+			trainAndValidationImages,
+			testImages,
+			0,
+			EPOCHS,
+			LEARNING_RATE,
+			false
+		);
+
+		// assert.isTrue(accuracyV2 > 0.7);
+		console.log(lineEnd);
+	}
 }
 
 // Weird workaround...
@@ -224,77 +322,49 @@ describe("Train a custom model", () => {
 	it("create a model", async () => {
 		const teachableMobileNet = await tm.createTeachable({
 			tfjsVersion: tf.version.tfjs
-			// tmVersion: version
 		});		
-
 		assert.exists(teachableMobileNet);
 	}).timeout(5000);
 
-	it("Train flower dataset on mobilenet v2", async () => {
-		// classes, samplesPerClass, url
-		const metadata = await (await fetch(
-			DATASET_URL + "metadata.json"
-		)).json();
-
-		// 1. Setup dataset parameters
-		const classLabels = metadata.classes as string[];
-		const TRAIN_VALIDATION_SIZE_PER_CLASS = 10; 
-		const TEST_SIZE_PER_CLASS = Math.ceil(
-			(TRAIN_VALIDATION_SIZE_PER_CLASS * 0.1) / 0.9
-		);
-
-		var table = new Table();
-		table.push(
-			{
-				"train/validation size":
-					TRAIN_VALIDATION_SIZE_PER_CLASS * classLabels.length
-			},
-			{ "test size": TEST_SIZE_PER_CLASS * classLabels.length }
-		);
-		console.log("\n" + table.toString());
-
-		// 2. Create our datasets once
-		const datasets = await createDatasets(
-			loadFlowerImage,
-			classLabels,
-			TRAIN_VALIDATION_SIZE_PER_CLASS,
-			TEST_SIZE_PER_CLASS
-		);
-		const trainAndValidationImages = datasets.trainAndValidationImages;
-		const testImages = datasets.testImages;
-
-		// NOTE: If testing time, test first model twice because it takes longer 
-		// to train the very first time tf.js is training 
-		const MOBILENET_VERSION = 1;
-		// const VALID_ALPHAS = [0.25];
-		const VALID_ALPHAS = [0.25, 0.5, 0.75, 1];
-		// const VALID_ALPHAS = [0.4];
-		const EPOCHS = 20;
-
-		for (let a of VALID_ALPHAS) {
-			const lineStart = "\n//====================================";
-			const lineEnd = "====================================//\n\n";
-			console.log(lineStart);
-			// 3. Test data on the model
-			const teachableMobileNetV2 = await tm.createTeachable(
-				{ tfjsVersion: tf.version.tfjs },
-				{ version: MOBILENET_VERSION, alpha: a }
-			);
-
-			
-			const accuracyV2 = await testModel(
-				teachableMobileNetV2,
-				a,
-				classLabels,
-				trainAndValidationImages,
-				testImages,
-				TEST_SIZE_PER_CLASS,
-				EPOCHS,
-				false
-			);
-
-			// assert.isTrue(accuracyV2 > 0.7);
-			console.log(lineEnd);
-		}
+	it("Train flower dataset on mobilenet v1", async () => {
+		console.log("Flower dataset mobilenet v1");
+		await testMobilenet(FLOWER_DATASET_URL, 1, loadJpgImage);
 	}).timeout(500000);
+
+	it("Train flower dataset on mobilenet v2", async () => {
+		console.log("Flower dataset mobilenet v2");
+		await testMobilenet(FLOWER_DATASET_URL, 2, loadJpgImage);
+	}).timeout(500000);
+
+	it("Train elmo dataset on mobilenet v1", async () => {
+		console.log("Elmo dataset mobilenet v1");
+		await testMobilenet(ELMO_DATASET_URL, 1, loadPngImage);
+	}).timeout(500000);
+
+	it("Train elmo dataset on mobilenet v2", async () => {
+		console.log("Elmo dataset mobilenet v2");
+		await testMobilenet(ELMO_DATASET_URL, 2, loadPngImage);
+	}).timeout(500000);
+
+	it("Train bean dataset on mobilenet v1", async () => {
+		console.log("Bean dataset mobilenet v1");
+		await testMobilenet(BEAN_DATASET_URL, 1, loadPngImage);
+	}).timeout(500000);
+
+	it("Train bean dataset on mobilenet v2", async () => {
+		console.log("Bean dataset mobilenet v2");
+		await testMobilenet(BEAN_DATASET_URL, 2, loadPngImage);
+	}).timeout(500000);
+
+	it("Train face dataset on mobilenet v1", async () => {
+		console.log("Face dataset mobilenet v1");
+		await testMobilenet(FACE_DATASET_URL, 1, loadPngImage);
+	}).timeout(500000);
+
+	it("Train face dataset on mobilenet v2", async () => {
+		console.log("Face dataset mobilenet v2");
+		await testMobilenet(FACE_DATASET_URL, 2, loadPngImage);
+	}).timeout(500000);
+
+
 });
