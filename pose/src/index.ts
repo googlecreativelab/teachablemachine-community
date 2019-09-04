@@ -19,7 +19,8 @@ export {
     Metadata,
     ClassifierInputSource,
     CustomPoseNet,
-    load
+    load,
+    loadFromFiles
 } from './custom-posenet';
 
 export { TeachablePoseNet, createTeachable } from './teachable-posenet';

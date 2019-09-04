@@ -124,6 +124,34 @@ Usage:
 await tmPose.load(checkpointURL, metadataURL);
 ```
 
+### Loading the model - browser files
+
+You can upload your model files from a local hard drive by using a file picker and the File interface. 
+
+```ts
+tmPose.loadFromFiles(
+	model: File, 
+	weights: File, 
+	metadata: File
+) 
+```
+
+Args:
+
+* **model**: a File object that contains the model topology (.json)
+* **weights**: a File object with the model weights (.bin)
+* **metadata**: a File object that contains the text labels of your model and additional information (.json)
+
+Usage:
+
+```js
+// you need to create File objects, like with file input elements (<input type="file" ...>)
+const uploadModel = document.getElementById('upload-model');
+const uploadWeights = document.getElementById('upload-weights');
+const uploadMetadata = document.getElementById('upload-metadata');
+model = await tmPose.loadFromFiles(uploadModel.files[0], uploadWeights.files[0], uploadMetadata.files[0])
+```
+
 ### Model - get total classes
 
 Once you have loaded a model, you can obtain the total number of classes in the model. 
