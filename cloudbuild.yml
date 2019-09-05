@@ -1,0 +1,13 @@
+steps:
+
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['install']
+  dir: 'image'
+
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['install']
+  dir: 'pose'
+
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['install']
+  dir: 'audio'
