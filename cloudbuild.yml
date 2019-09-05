@@ -3,18 +3,26 @@ steps:
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['install']
   dir: 'image'
-  id: 'image install'
+  id: 'image-install'
 
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['install']
   dir: 'pose'
-  id: 'pose install'
+  id: 'pose-install'
+  waitFor: ['-']
+
 
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['install']
   dir: 'audio'
-  id: 'audio install'
+  id: 'audio-install'
+  waitFor: ['-']
+
 
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['run', 'test']
   dir: 'image'
+  waitFor: ['image-install']
+
+options:
+  machineType: 'N1_HIGHCPU_8'

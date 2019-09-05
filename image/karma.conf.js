@@ -21,8 +21,10 @@ module.exports = function(config) {
     },
     // logLevel: config.LOG_DEBUG,
     reporters: ['progress', 'karma-typescript'],//, 'benchmark'],
-    browsers: ['Chrome'], // ['ChromeHeadless'/*, 'Firefox'*/],
+    browsers: ['ChromeHeadless'], // ['ChromeHeadless'/*, 'Firefox'*/],
     reportSlowerThan: 500,
-    browserNoActivityTimeout: 500000
+    browserNoActivityTimeout: 500000,
+    browserDisconnectTimeout: 300000,
+    pingTimeout: 1000000
   });
 };
