@@ -16,5 +16,5 @@ steps:
   id: 'audio install'
 
 - name: 'gcr.io/cloud-builders/yarn'
-  args: ['run test']
+  args: ['run', 'test']
   dir: 'image'
