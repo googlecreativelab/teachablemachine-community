@@ -3,11 +3,18 @@ steps:
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['install']
   dir: 'image'
+  id: 'image install'
 
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['install']
   dir: 'pose'
+  id: 'pose install'
 
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['install']
   dir: 'audio'
+  id: 'audio install'
+
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['run test']
+  dir: 'image'
