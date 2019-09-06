@@ -1,5 +1,8 @@
 steps:
-- name: 'gcr.io/cloud-builders/yarn'
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'custom-yarn', '.']
+
+- name: 'custom-yarn'
   args: ['install']
   dir: 'image'
   id: 'image-install'
@@ -17,11 +20,9 @@ steps:
 #   id: 'audio-install'
 #   waitFor: ['-']
 
-# - name: 'gcr.io/cloud-builders/docker'
-#   args: ['build', '-t', 'tester', '.']
 
 # - name: 'tester'
-- name: 'gcr.io/cloud-builders/yarn'
+- name: 'custom-yarn'
   args: ['run', 'test']
   dir: 'image'
   # waitFor: ['image-install']
