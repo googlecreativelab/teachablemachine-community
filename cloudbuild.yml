@@ -1,31 +1,32 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'custom-yarn', '.']
+  id: 'prepare'
 
 - name: 'custom-yarn'
   args: ['install']
   dir: 'image'
   id: 'image-install'
+  waitFor: ['prepare']
 
-# - name: 'gcr.io/cloud-builders/yarn'
-#   args: ['install']
-#   dir: 'pose'
-#   id: 'pose-install'
-#   waitFor: ['-']
+- name: 'custom-yarn'
+  args: ['install']
+  dir: 'pose'
+  id: 'pose-install'
+  waitFor: ['prepare']
+
+- name: 'custom-yarn'
+  args: ['install']
+  dir: 'audio'
+  id: 'audio-install'
+  waitFor: ['prepare']
 
 
-# - name: 'gcr.io/cloud-builders/yarn'
-#   args: ['install']
-#   dir: 'audio'
-#   id: 'audio-install'
-#   waitFor: ['-']
+- name: 'custom-yarn'
+  args: ['run', 'build']
+  dir: 'image'
 
-
-# - name: 'tester'
 - name: 'custom-yarn'
   args: ['run', 'test']
   dir: 'image'
-  # waitFor: ['image-install']
-
-# options:
-  # machineType: 'N1_HIGHCPU_8'
+  
