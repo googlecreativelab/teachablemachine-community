@@ -17,8 +17,10 @@ steps:
 #   id: 'audio-install'
 #   waitFor: ['-']
 
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'tester', '.']
 
-- name: 'huli/karma'
+- name: 'tester'
   args: ['npm', 'run', 'test']
   dir: 'image'
   waitFor: ['image-install']
