@@ -17,13 +17,14 @@ steps:
 #   id: 'audio-install'
 #   waitFor: ['-']
 
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'tester', '.']
+# - name: 'gcr.io/cloud-builders/docker'
+#   args: ['build', '-t', 'tester', '.']
 
-- name: 'tester'
-  args: ['npm', 'run', 'test']
+# - name: 'tester'
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['run', 'test']
   dir: 'image'
-  waitFor: ['image-install']
+  # waitFor: ['image-install']
 
 # options:
   # machineType: 'N1_HIGHCPU_8'
