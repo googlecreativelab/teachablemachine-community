@@ -21,8 +21,22 @@ module.exports = function(config) {
     },
     // logLevel: config.LOG_DEBUG,
     reporters: ['progress', 'karma-typescript'],//, 'benchmark'],
-    browsers: ['Chrome'], // ['ChromeHeadless'/*, 'Firefox'*/],
+    browsers: ['Chrome_no_sandbox'],
+    customLaunchers: {
+      Chrome_no_sandbox: {
+        base: 'Chrome',
+        flags: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--headless',
+          '--disable-gpu',
+          '--remote-debugging-port=9222',
+        ],
+      },
+    },
     reportSlowerThan: 500,
-    browserNoActivityTimeout: 500000
+    browserNoActivityTimeout: 500000,
+    browserDisconnectTimeout: 300000,
+    pingTimeout: 1000000
   });
 };

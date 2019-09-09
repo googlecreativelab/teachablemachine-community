@@ -22,6 +22,7 @@ import * as tf from "@tensorflow/tfjs";
 import * as tm from "../src/index";
 import * as seedrandom from "seedrandom";
 import { TeachableMobileNet } from "../src/index";
+
 // @ts-ignore
 var Table = require("cli-table");
 
@@ -216,10 +217,12 @@ async function testModel(
 	// const testAccuracy = accuracy / (testSizePerClass * classes.length);
 
 	showMetrics(alpha, time, logs);
+	return logs[logs.length - 1];
+
 
 }
 
-async function testMobilenet(dataset_url: string, version: number, loadFunction: Function){
+async function testMobilenet(dataset_url: string, version: number, loadFunction: Function, maxImages: number = 200){
 	// classes, samplesPerClass, url
 	const metadata = await (await fetch(
 		dataset_url + "metadata.json"
@@ -227,7 +230,7 @@ async function testMobilenet(dataset_url: string, version: number, loadFunction:
 	// 1. Setup dataset parameters
 	const classLabels = metadata.classes as string[];
 
-	let NUM_IMAGE_PER_CLASS = Math.ceil(200 / classLabels.length); 
+	let NUM_IMAGE_PER_CLASS = Math.ceil(maxImages / classLabels.length); 
 
 	if(NUM_IMAGE_PER_CLASS > Math.min(...metadata.samplesPerClass)){
 		NUM_IMAGE_PER_CLASS = Math.min(...metadata.samplesPerClass);
@@ -281,7 +284,7 @@ async function testMobilenet(dataset_url: string, version: number, loadFunction:
 		);
 
 		
-		const accuracyV2 = await testModel(
+		const lastEpoch = await testModel(
 			teachableMobileNetV2,
 			a,
 			classLabels,
@@ -295,6 +298,8 @@ async function testMobilenet(dataset_url: string, version: number, loadFunction:
 
 		// assert.isTrue(accuracyV2 > 0.7);
 		console.log(lineEnd);
+
+		return lastEpoch;
 	}
 }
 
@@ -318,7 +323,7 @@ describe("Module exports", () => {
 	});
 });
 
-describe("Train a custom model", () => {
+describe("CI Test", () => {
 	it("create a model", async () => {
 		const teachableMobileNet = await tm.createTeachable({
 			tfjsVersion: tf.version.tfjs
@@ -326,6 +331,15 @@ describe("Train a custom model", () => {
 		assert.exists(teachableMobileNet);
 	}).timeout(5000);
 
+	it("Test tiny model (for CI)", async () => {
+		const lastEpoch = await testMobilenet(BEAN_DATASET_URL, 2, loadPngImage, 10);
+		assert.isAbove(lastEpoch.val_acc, 0.8);
+		assert.isBelow(lastEpoch.val_loss, 0.1);
+	}).timeout(500000);
+});
+
+// These test compare multiple models. Needs to run in non-headless chrome
+describe.skip("Performance test", () => {
 	it("Train flower dataset on mobilenet v1", async () => {
 		console.log("Flower dataset mobilenet v1");
 		await testMobilenet(FLOWER_DATASET_URL, 1, loadJpgImage);
