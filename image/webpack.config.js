@@ -12,16 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-const fs = require('fs');
-const { join, resolve } = require('path')
+const { resolve } = require('path')
 const cloneDeep = require('lodash.clonedeep');
 const TerserPlugin = require('terser-webpack-plugin');
-
-const { write: versionModuleWrite } = require('./scripts/make-version');
-const { writeSync: snippetWriteSync } = require('./scripts/make-snippet-json');
-const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
-
 const outputPath = resolve('dist');
 
 /**
@@ -54,29 +47,6 @@ const baseConfig = {
             }
         ]
     },
-    plugins: [{
-        apply: (compiler) => {
-            // whenever the compiler runs, update the generated version module
-            compiler.hooks.beforeCompile.tapAsync('Generate Version Module', (params, callback) => {
-                versionModuleWrite((err) => {
-                    if (err) {
-                        throw new Error('Failed generating version.ts module', err);
-                    }
-                    console.log(`Generated version module for v${pkg.version}`);
-                    callback();
-                });
-            });
-
-            compiler.hooks.done.tapAsync('Copy bundle files to bundles/latest', (params, callback) => {
-                const { outputOptions } = params.compilation;
-                // If this isnt a production build do not perform copy
-                if (params.compilation.options.mode !== 'production') {
-                    callback();
-                    return;
-                }
-            });
-        }
-    }],
     resolve : {
         extensions : ['.tsx', '.ts', '.js']
     },
