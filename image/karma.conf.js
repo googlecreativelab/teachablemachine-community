@@ -7,7 +7,7 @@ module.exports = function(config) {
         {pattern: 'src/**/*.ts'},
         {pattern: 'test/**/*.ts'},
         {pattern: 'test/**/*.html'},
-        {pattern: 'bundles/**/*.js'}
+        {pattern: 'dist/**/*.min.js'}
     ],
     preprocessors: {
       '**/*.ts': ['karma-typescript'],  // *.tsx for React Jsx

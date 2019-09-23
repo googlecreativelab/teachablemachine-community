@@ -22,7 +22,7 @@ const { write: versionModuleWrite } = require('./scripts/make-version');
 const { writeSync: snippetWriteSync } = require('./scripts/make-snippet-json');
 const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
-const outputPath = resolve('bundles');
+const outputPath = resolve('dist');
 
 /**
  * This is the base Webpack Config
@@ -74,28 +74,6 @@ const baseConfig = {
                     callback();
                     return;
                 }
-
-                const snippetJSONPath = join(outputOptions.path, 'snippet-image.json');
-                snippetWriteSync(snippetJSONPath);
-
-                // the bundle in bundles/v<version>/<filename>js
-                const sourceBundle = resolve(outputOptions.path, outputOptions.filename);
-                const latestBundleFolder = join(outputPath, 'latest');
-                // the destination bundles/latest/<filename>.js
-                const destBundle = join(latestBundleFolder, outputOptions.filename);
-
-                // ensure the bundles/latest folder exists
-                fs.mkdir(latestBundleFolder, (err) => {
-                    // if the error is EEXIST it already existed, ignore error
-                    if (err && err.code !== 'EEXIST') {
-                        throw err;
-                    }
-                    // copy bundle into latest
-                    fs.copyFileSync(sourceBundle, destBundle);
-                    // copy snippet.json into latest
-                    fs.copyFileSync(snippetJSONPath, join(latestBundleFolder, 'snippet-image.json'));
-                    callback();
-                });
             });
         }
     }],
@@ -118,9 +96,7 @@ module.exports = function(opts, argv) {
     const config = cloneDeep(baseConfig);
 
     if (argv.mode === 'production'){
-        const version = JSON.parse(fs.readFileSync('package.json')).version;
-        config.output.path = resolve(`${outputPath}/v${version}`);
-        console.log(`${bold('Creating Production Bundle')} for ${bold(`v${version}`)} in ${green(config.output.path)}`);
+        config.output.path = resolve(`${outputPath}`);
         //turn off source maps
         config.devtool = 'none';
 

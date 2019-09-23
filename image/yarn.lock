@@ -64,6 +64,11 @@
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.2.2.tgz#6b825013863d04868c15624ec8b7fdced88a47c6"
   integrity sha512-8V2aCcPM3WLuJvJpF6N60uUvdZb7NHjpjQlLk1QmZbTP4XZET/FX0c3TJ3K7qt4L98FS1Pifa8BVofTVuJFWVA==
 
+"@types/cli-table@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@types/cli-table/-/cli-table-0.3.0.tgz#f1857156bf5fd115c6a2db260ba0be1f8fc5671c"
+  integrity sha512-QnZUISJJXyhyD6L1e5QwXDV/A5i2W1/gl6D6YMc8u0ncPepbv/B4w3S+izVvtAg60m6h+JP09+Y/0zF2mojlFQ==
+
 "@types/mocha@^5.2.7":
   version "5.2.7"
   resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-5.2.7.tgz#315d570ccb56c53452ff8638738df60726d5b6ea"
