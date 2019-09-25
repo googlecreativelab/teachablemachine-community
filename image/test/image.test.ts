@@ -321,7 +321,7 @@ describe("Module exports", () => {
 		assert.typeOf(tm.loadFromFiles, "function");
 		assert.equal(tm.IMAGE_SIZE, 224, "IMAGE_SIZE should be 224");
 		// tslint:disable-next-line: no-require-imports
-		assert.equal(tm.version, require('../package.json').version, "version does not match package.json.");                
+		assert.equal(tm.version, require('../package.json').version, "version does not match package.json.");
 	});
 });
 
