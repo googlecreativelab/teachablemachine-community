@@ -142,14 +142,14 @@ export class TeachableMobileNet extends CustomMobileNet {
      * @param sample the image / tensor that belongs in this classification
      */
     // public async addExample(className: number, sample: HTMLCanvasElement | tf.Tensor) {
-    public async addExample(className: number, sample: HTMLImageElement | HTMLCanvasElement | tf.Tensor) {        
+    public async addExample(className: number, sample: HTMLImageElement | HTMLCanvasElement | tf.Tensor) {
         const cap = isTensor(sample) ? sample : capture(sample);
         const example = this.truncatedModel.predict(cap) as tf.Tensor;
 
         const activation = example.dataSync() as Float32Array;
         cap.dispose();
         example.dispose();
-        
+
         // save samples of each class separately
         this.examples[className].push(activation);
 
@@ -237,6 +237,22 @@ export class TeachableMobileNet extends CustomMobileNet {
             trainDataset: tf.data.zip({ xs: trainX,  ys: trainY}),
             validationDataset: tf.data.zip({ xs: validationX,  ys: validationY})
         };
+    }
+
+    /**
+     * Saving `model`'s topology and weights as two files
+     * (`my-model-1.json` and `my-model-1.weights.bin`) as well as
+     * a `metadata.json` file containing metadata such as text labels to be
+     * downloaded from browser.
+     * @param handlerOrURL An instance of `IOHandler` or a URL-like,
+     * scheme-based string shortcut for `IOHandler`.
+     * @param config Options for saving the model.
+     * @returns A `Promise` of `SaveResult`, which summarizes the result of
+     * the saving, such as byte sizes of the saved artifacts for the model's
+     *   topology and weight values.
+     */
+    public async save(handlerOrURL: tf.io.IOHandler | string, config?: tf.io.SaveConfig): Promise<tf.io.SaveResult> {
+        return this.model.save(handlerOrURL, config);
     }
 
     /**
