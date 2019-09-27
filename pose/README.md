@@ -36,7 +36,7 @@ import * as tmPose from '@teachablemachine/pose';
 
 ### Sample snippet
 
-```js
+```html
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
 <script src="https://storage.googleapis.com/tm-pro/latest/teachablemachine-pose.min.js"></script>
 <script type="text/javascript">
