@@ -3,6 +3,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'custom-yarn', '.']
   id: 'prepare'
+  dir: 'libraries'
 
   # Run yarn install on all folders
 - name: 'custom-yarn'
