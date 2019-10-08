@@ -71,10 +71,10 @@ function fisherYates(array: Float32Array[] | Sample[], seed?: seedrandom.prng) {
         else {
             randomIndex = Math.floor(Math.random() * (i + 1));
         }
-        
+
         [shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex],shuffled[i]];
     }
-  
+
     return shuffled;
 }
 
@@ -143,8 +143,8 @@ export class TeachablePoseNet extends CustomPoseNet {
      * @param topK how many of the top results do you want? defautls to 3
      */
     public async predict(
-        poseOutput: Float32Array, 
-        flipped = false, 
+        poseOutput: Float32Array,
+        flipped = false,
         maxPredictions = 3) {
         if (!this.model) {
             throw new Error('Model has not been trained yet, called train() first');
@@ -214,12 +214,28 @@ export class TeachablePoseNet extends CustomPoseNet {
         const validationX = tf.data.array(validationDataset.map(sample => sample.data));
         const trainY = tf.data.array(trainDataset.map(sample => sample.label));
         const validationY = tf.data.array(validationDataset.map(sample => sample.label));
-    
+
         // return tf.data dataset objects
-        return { 
-            trainDataset: tf.data.zip({ xs: trainX,  ys: trainY}), 
+        return {
+            trainDataset: tf.data.zip({ xs: trainX,  ys: trainY}),
             validationDataset: tf.data.zip({ xs: validationX,  ys: validationY})
         };
+    }
+
+    /**
+     * Saving `model`'s topology and weights as two files
+     * (`my-model-1.json` and `my-model-1.weights.bin`) as well as
+     * a `metadata.json` file containing metadata such as text labels to be
+     * downloaded from browser.
+     * @param handlerOrURL An instance of `IOHandler` or a URL-like,
+     * scheme-based string shortcut for `IOHandler`.
+     * @param config Options for saving the model.
+     * @returns A `Promise` of `SaveResult`, which summarizes the result of
+     * the saving, such as byte sizes of the saved artifacts for the model's
+     *   topology and weight values.
+     */
+    public async save(handlerOrURL: tf.io.IOHandler | string, config?: tf.io.SaveConfig): Promise<tf.io.SaveResult> {
+        return this.model.save(handlerOrURL, config);
     }
 
     /**
@@ -236,9 +252,9 @@ export class TeachablePoseNet extends CustomPoseNet {
         util.assert(
             numLabels === this.numClasses,
             () => `Can not train, has ${numLabels} labels and ${this.numClasses} classes`);
-        
+
         // Inputs for posenet
-        const inputSize = this.examples[0][1].length;    
+        const inputSize = this.examples[0][1].length;
 
         // in case we need to use a seed for predictable training
         let varianceScaling;
@@ -270,10 +286,10 @@ export class TeachablePoseNet extends CustomPoseNet {
             ]
         });
         const optimizer = tf.train.adam(params.learningRate);
-        trainingModel.compile({ 
-            optimizer, 
-            loss: 'categoricalCrossentropy', 
-            metrics: ['accuracy'] 
+        trainingModel.compile({
+            optimizer,
+            loss: 'categoricalCrossentropy',
+            metrics: ['accuracy']
         });
 
         if (!(params.batchSize > 0)) {
@@ -281,7 +297,7 @@ export class TeachablePoseNet extends CustomPoseNet {
             `Batch size is 0 or NaN. Please choose a non-zero fraction`
             );
         }
-        
+
         const trainData = this.trainDataset.batch(params.batchSize);
         const validationData = this.validationDataset.batch(params.batchSize);
 
@@ -346,7 +362,7 @@ export class TeachablePoseNet extends CustomPoseNet {
         return this._metadata.modelName;
     }
 
-    /* 
+    /*
      * optional seed for predictable shuffling of dataset
      */
     public setSeed(seed: string) {

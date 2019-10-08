@@ -4,10 +4,10 @@ module.exports = function(config) {
   config.set({
     frameworks: ['mocha', 'karma-typescript'],
     files: [
-        {pattern: 'src/**/*.ts'},
-        {pattern: 'test/**/*.ts'},
-        {pattern: 'test/**/*.html'},
-        {pattern: 'bundles/**/*.js'}
+      {pattern: 'src/**/*.ts'},
+      {pattern: 'test/**/*.ts'},
+      {pattern: 'test/**/*.html'},
+      {pattern: 'dist/**/*.min.js'}
     ],
     preprocessors: {
       '**/*.ts': ['karma-typescript'],  // *.tsx for React Jsx
@@ -21,8 +21,22 @@ module.exports = function(config) {
     },
     //logLevel: config.LOG_DEBUG,
     reporters: ['progress', 'karma-typescript'],
-    browsers: ['ChromeHeadless'], // ['Chrome'/*, 'Firefox'*/],
+    browsers: ['Chrome_no_sandbox'],
+    customLaunchers: {
+      Chrome_no_sandbox: {
+        base: 'Chrome',
+        flags: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--headless',
+          '--disable-gpu',
+          '--remote-debugging-port=9222',
+        ],
+      },
+    },
     reportSlowerThan: 500,
-    browserNoActivityTimeout: 30000
+    browserNoActivityTimeout: 500000,
+    browserDisconnectTimeout: 300000,
+    pingTimeout: 1000000
   });
 };

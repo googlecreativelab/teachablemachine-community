@@ -5,7 +5,7 @@
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.2.0/chai.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-    <script src="../bundles/v0.5.0/teachablemachine-pose.min.js"></script>
+    <script src="../dist/teachablemachine-pose.min.js"></script>
     <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
 </head>
 <body>
@@ -24,7 +24,6 @@
             it('should be on window', () => {
                 assert.equal(typeof window.tmPose, 'object');
                 assert.equal(typeof tmPose.version, 'string');
-                assert.equal(typeof tmPose.posenet, 'object');
             });
         });
         setTimeout(() => {

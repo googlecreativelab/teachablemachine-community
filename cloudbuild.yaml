@@ -33,3 +33,14 @@ steps:
   args: ['run', 'test']
   dir: 'image'
   
+
+  # Build the pose bundle
+- name: 'custom-yarn'
+  args: ['run', 'build']
+  dir: 'pose'
+  
+  # Test the pose library
+- name: 'custom-yarn'
+  args: ['run', 'test']
+  dir: 'pose'
+  

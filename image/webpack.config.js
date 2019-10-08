@@ -12,17 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-const fs = require('fs');
-const { join, resolve } = require('path')
+const { resolve } = require('path')
 const cloneDeep = require('lodash.clonedeep');
 const TerserPlugin = require('terser-webpack-plugin');
-
-const { write: versionModuleWrite } = require('./scripts/make-version');
-const { writeSync: snippetWriteSync } = require('./scripts/make-snippet-json');
-const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
-
-const outputPath = resolve('bundles');
+const outputPath = resolve('dist');
 
 /**
  * This is the base Webpack Config
@@ -54,51 +47,6 @@ const baseConfig = {
             }
         ]
     },
-    plugins: [{
-        apply: (compiler) => {
-            // whenever the compiler runs, update the generated version module
-            compiler.hooks.beforeCompile.tapAsync('Generate Version Module', (params, callback) => {
-                versionModuleWrite((err) => {
-                    if (err) {
-                        throw new Error('Failed generating version.ts module', err);
-                    }
-                    console.log(`Generated version module for v${pkg.version}`);
-                    callback();
-                });
-            });
-
-            compiler.hooks.done.tapAsync('Copy bundle files to bundles/latest', (params, callback) => {
-                const { outputOptions } = params.compilation;
-                // If this isnt a production build do not perform copy
-                if (params.compilation.options.mode !== 'production') {
-                    callback();
-                    return;
-                }
-
-                const snippetJSONPath = join(outputOptions.path, 'snippet-image.json');
-                snippetWriteSync(snippetJSONPath);
-
-                // the bundle in bundles/v<version>/<filename>js
-                const sourceBundle = resolve(outputOptions.path, outputOptions.filename);
-                const latestBundleFolder = join(outputPath, 'latest');
-                // the destination bundles/latest/<filename>.js
-                const destBundle = join(latestBundleFolder, outputOptions.filename);
-
-                // ensure the bundles/latest folder exists
-                fs.mkdir(latestBundleFolder, (err) => {
-                    // if the error is EEXIST it already existed, ignore error
-                    if (err && err.code !== 'EEXIST') {
-                        throw err;
-                    }
-                    // copy bundle into latest
-                    fs.copyFileSync(sourceBundle, destBundle);
-                    // copy snippet.json into latest
-                    fs.copyFileSync(snippetJSONPath, join(latestBundleFolder, 'snippet-image.json'));
-                    callback();
-                });
-            });
-        }
-    }],
     resolve : {
         extensions : ['.tsx', '.ts', '.js']
     },
@@ -118,9 +66,7 @@ module.exports = function(opts, argv) {
     const config = cloneDeep(baseConfig);
 
     if (argv.mode === 'production'){
-        const version = JSON.parse(fs.readFileSync('package.json')).version;
-        config.output.path = resolve(`${outputPath}/v${version}`);
-        console.log(`${bold('Creating Production Bundle')} for ${bold(`v${version}`)} in ${green(config.output.path)}`);
+        config.output.path = resolve(`${outputPath}`);
         //turn off source maps
         config.devtool = 'none';
 
