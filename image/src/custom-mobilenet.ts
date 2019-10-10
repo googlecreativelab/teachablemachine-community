@@ -69,8 +69,7 @@ const fillMetadata = (data: Partial<Metadata>) => {
 
 // tslint:disable-next-line:no-any
 const isMetadata = (c: any): c is Metadata =>
-    !!c && typeof c.tmVersion === 'string' &&
-    typeof c.packageVersion === 'string' && Array.isArray(c.labels);
+    !!c && Array.isArray(c.labels);
 
 const isAlphaValid = (version: number, alpha: number) => {
     if (version === 1) {
