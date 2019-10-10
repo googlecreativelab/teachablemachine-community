@@ -37,7 +37,8 @@ export const IMAGE_SIZE = 224;
 export interface Metadata {
     tfjsVersion: string;
     tmVersion?: string;
-    tmSupportVersion: string;
+    packageVersion: string;
+    packageName: string;
     modelName?: string;
     timeStamp?: string;
     labels: string[];
@@ -57,7 +58,8 @@ export interface ModelOptions {
  */
 const fillMetadata = (data: Partial<Metadata>) => {
     // util.assert(typeof data.tfjsVersion === 'string', () => `metadata.tfjsVersion is invalid`);
-    data.tmSupportVersion = data.tmSupportVersion || version;
+    data.packageVersion = data.packageVersion || version;
+    data.packageName = data.packageName || '@teachablemachine/image';
     data.timeStamp = data.timeStamp || new Date().toISOString();
     data.userMetadata = data.userMetadata || {};
     data.modelName = data.modelName || 'untitled';
@@ -68,7 +70,7 @@ const fillMetadata = (data: Partial<Metadata>) => {
 // tslint:disable-next-line:no-any
 const isMetadata = (c: any): c is Metadata =>
     !!c && typeof c.tmVersion === 'string' &&
-    typeof c.tmSupportVersion === 'string' && Array.isArray(c.labels);
+    typeof c.packageVersion === 'string' && Array.isArray(c.labels);
 
 const isAlphaValid = (version: number, alpha: number) => {
     if (version === 1) {
@@ -137,7 +139,7 @@ const parseModelOptions = (options?: ModelOptions) => {
         // return {
         //     tfjsVersion,
         //     tmVersion,
-        //     tmSupportVersion: version,
+        //     packageVersion: version,
         //     modelName: name,
         //     timeStamp: new Date().toISOString(),
         //     labels: labels

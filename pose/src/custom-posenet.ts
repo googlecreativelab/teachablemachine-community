@@ -34,7 +34,7 @@ import { decodeMultiplePoses } from "@tensorflow-models/posenet";
 export interface Metadata {
 	tfjsVersion: string;
 	tmVersion?: string;
-	tmSupportVersion: string;
+	packageVersion: string;
 	modelName?: string;
 	timeStamp?: string;
 	labels: string[];
@@ -51,7 +51,7 @@ const fillMetadata = (data: Partial<Metadata>) => {
 	// 	typeof data.tfjsVersion === "string",
 	// 	() => `metadata.tfjsVersion is invalid`
 	// );
-	data.tmSupportVersion = data.tmSupportVersion || version;
+	data.packageVersion = data.packageVersion || version;
 	data.timeStamp = data.timeStamp || new Date().toISOString();
 	data.userMetadata = data.userMetadata || {};
 	data.modelName = data.modelName || "untitled";
@@ -62,7 +62,7 @@ const fillMetadata = (data: Partial<Metadata>) => {
 const isMetadata = (c: any): c is Metadata =>
 	!!c &&
 	typeof c.tmVersion === "string" &&
-	typeof c.tmSupportVersion === "string" &&
+	typeof c.packageVersion === "string" &&
 	Array.isArray(c.labels);
 
 /**
