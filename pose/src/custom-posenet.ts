@@ -35,6 +35,7 @@ export interface Metadata {
 	tfjsVersion: string;
 	tmVersion?: string;
 	packageVersion: string;
+	packageName: string;
 	modelName?: string;
 	timeStamp?: string;
 	labels: string[];
@@ -52,6 +53,7 @@ const fillMetadata = (data: Partial<Metadata>) => {
 	// 	() => `metadata.tfjsVersion is invalid`
 	// );
 	data.packageVersion = data.packageVersion || version;
+	data.packageName = '@teachablemachine/pose';
 	data.timeStamp = data.timeStamp || new Date().toISOString();
 	data.userMetadata = data.userMetadata || {};
 	data.modelName = data.modelName || "untitled";
