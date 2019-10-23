@@ -144,13 +144,12 @@ export class TeachablePoseNet extends CustomPoseNet {
      */
     public async predict(
         poseOutput: Float32Array,
-        flipped = false,
         maxPredictions = 3) {
         if (!this.model) {
             throw new Error('Model has not been trained yet, called train() first');
         }
 
-        return super.predict(poseOutput, flipped, maxPredictions);
+        return super.predict(poseOutput, maxPredictions);
     }
 
     /**
