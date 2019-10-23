@@ -56,6 +56,7 @@ function loadJpgImage(c: string, i: number, dataset_url: string): Promise<HTMLIm
 function loadPngImage(c: string, i: number, dataset_url: string): Promise<HTMLImageElement> {
 	// tslint:disable-next-line:max-line-length
 	const src = dataset_url + `${c}/${i}.png`;
+
 	// console.log(src)
 	return new Promise((resolve, reject) => {
 		const img = new Image();
@@ -295,7 +296,7 @@ async function testMobilenet(dataset_url: string, version: number, loadFunction:
 			LEARNING_RATE,
 			false
 		);
-
+			
 		// assert.isTrue(accuracyV2 > 0.7);
 		console.log(lineEnd);
 
@@ -327,9 +328,10 @@ describe("Module exports", () => {
 
 describe("CI Test", () => {
 	it("create a model", async () => {
-		const teachableMobileNet = await tm.createTeachable({
-			tfjsVersion: tf.version.tfjs
-		});		
+		const teachableMobileNet = await tm.createTeachable(
+			{ tfjsVersion: tf.version.tfjs },
+			{ version: 2 }
+		);
 		assert.exists(teachableMobileNet);
 	}).timeout(5000);
 
