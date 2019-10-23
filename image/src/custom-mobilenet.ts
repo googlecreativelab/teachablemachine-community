@@ -239,7 +239,7 @@ export class CustomMobileNet {
      * @param image the image to classify
      * @param maxPredictions the maximum number of classification predictions
      */
-    async predict( image: ClassifierInputSource, flipped = false, maxPredictions = 10) {
+    async predict(image: ClassifierInputSource, flipped = false, maxPredictions = 10) {
         const croppedImage = cropTo(image, IMAGE_SIZE, flipped);
 
         const logits = tf.tidy(() => {
@@ -249,6 +249,35 @@ export class CustomMobileNet {
 
         // Convert logits to probabilities and class names.
         const classes = await getTopKClasses(this._metadata.labels, logits as tf.Tensor<tf.Rank>, maxPredictions);
+        dispose(logits);
+
+        return classes;
+    }
+
+    /**
+     * Given an image element, makes a prediction through mobilenet returning the
+     * probabilities for ALL classes.
+     * @param image the image to classify
+     * @param flipped whether to flip the image on X
+     */
+    async predictUnordered(image: ClassifierInputSource, flipped = false) {
+        const croppedImage = cropTo(image, IMAGE_SIZE, flipped);
+
+        const logits = tf.tidy(() => {
+            const captured = capture(croppedImage);
+            return this.model.predict(captured);
+        });
+
+        const values = await (logits as tf.Tensor<tf.Rank>).data();
+
+        const classes = [];
+        for (let i = 0; i < values.length; i++) {
+            classes.push({
+                className: this._metadata.labels[i],
+                probability: values[i]
+            });
+        }
+
         dispose(logits);
 
         return classes;
