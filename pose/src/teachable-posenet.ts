@@ -265,7 +265,7 @@ export class TeachablePoseNet extends CustomPoseNet {
             varianceScaling = tf.initializers.varianceScaling({}) as Initializer;
         }
 
-        const trainingModel = tf.sequential({
+        this.model = tf.sequential({
             layers: [
             // Layer 1.
             tf.layers.dense({
@@ -286,7 +286,7 @@ export class TeachablePoseNet extends CustomPoseNet {
             ]
         });
         const optimizer = tf.train.adam(params.learningRate);
-        trainingModel.compile({
+        this.model.compile({
             optimizer,
             loss: 'categoricalCrossentropy',
             metrics: ['accuracy']
@@ -310,13 +310,11 @@ export class TeachablePoseNet extends CustomPoseNet {
             console.log(data);
         });
         */
-        await trainingModel.fitDataset(trainData, {
+        await this.model.fitDataset(trainData, {
             epochs: params.epochs,
             validationData,
             callbacks
         });
-
-        this.model = trainingModel;
 
         optimizer.dispose(); // cleanup
 
@@ -330,6 +328,10 @@ export class TeachablePoseNet extends CustomPoseNet {
         for (let i = 0; i < this.numClasses; i++) {
             this.examples[i] = [];
         }
+    }
+
+    public stopTraining() {
+        this.model.stopTraining = true;
     }
 
     public dispose() {

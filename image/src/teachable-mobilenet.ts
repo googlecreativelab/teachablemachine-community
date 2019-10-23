@@ -376,6 +376,10 @@ export class TeachableMobileNet extends CustomMobileNet {
         return this._metadata.modelName;
     }
 
+    public stopTraining() {
+        this.trainingModel.stopTraining = true;
+    }
+
     public dispose() {
         this.trainingModel.dispose();
         super.dispose();
