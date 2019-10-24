@@ -209,7 +209,6 @@ export class TeachableMobileNet extends CustomMobileNet {
 
             const classLength = this.examples[i].length;
             const numValidation = Math.ceil(VALIDATION_FRACTION * classLength);
-            console.log("num validation samples: ", numValidation);
             const numTrain = classLength - numValidation;
 
             const classTrain = this.examples[i].slice(0, numTrain).map((dataArray) => {
