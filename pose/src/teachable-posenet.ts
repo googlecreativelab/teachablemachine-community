@@ -362,6 +362,62 @@ export class TeachablePoseNet extends CustomPoseNet {
         return this._metadata.modelName;
     }
 
+    /* 
+     * Calculate each class accuracy using the validation dataset
+     */
+    public async calculateAccuracyPerClass() {
+        const validationXs = this.validationDataset.mapAsync(async (dataset: TensorContainer) => {
+            return (dataset as { xs: TensorContainer, ys: TensorContainer}).xs;
+        });
+        const validationYs = this.validationDataset.mapAsync(async (dataset: TensorContainer) => {
+            return (dataset as { xs: TensorContainer, ys: TensorContainer}).ys;
+        });
+
+        // we need to split our validation data into batches in case it is too large to fit in memory
+        const batchSize = Math.min(validationYs.size, 32);
+        const iterations = Math.ceil(validationYs.size / batchSize);
+
+        const batchesX = validationXs.batch(batchSize);
+        const batchesY = validationYs.batch(batchSize);
+        const itX = await batchesX.iterator();
+        const itY = await batchesY.iterator();
+        const allX = [];
+        const allY = [];
+
+        for (let i = 0; i < iterations; i++) {
+            // 1. get the prediction values in batches
+            const batchedXTensor = await itX.next();
+            const batchedXPredictionTensor = (this.model.predict(batchedXTensor.value as tf.Tensor)) as tf.Tensor;
+            const argMaxX = batchedXPredictionTensor.argMax(1); // Returns the indices of the max values along an axis
+            allX.push(argMaxX);
+
+            // 2. get the ground truth label values in batches
+            const batchedYTensor = await itY.next();
+            // Returns the indices of the max values along an axis
+            const argMaxY = (batchedYTensor.value as tf.Tensor).argMax(1);
+            allY.push(argMaxY);
+
+            // 3. dispose of all our tensors
+            (batchedXTensor.value as tf.Tensor).dispose();
+            batchedXPredictionTensor.dispose();
+            (batchedYTensor.value as tf.Tensor).dispose();
+        }
+
+        // concatenate all the results of the batches
+        const reference = tf.concat(allY); // this is the ground truth
+        const predictions = tf.concat(allX); // this is the prediction our model is guessing
+
+        // only if we concatenated more than one tensor for preference and reference
+        if (iterations !== 1) {
+            for (let i = 0; i < allX.length; i++) {
+                allX[i].dispose();
+                allY[i].dispose();
+            }
+        }
+
+        return { reference, predictions };
+    }
+
     /*
      * optional seed for predictable shuffling of dataset
      */
