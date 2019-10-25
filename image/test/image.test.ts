@@ -22,6 +22,7 @@ import * as tf from "@tensorflow/tfjs";
 import * as tm from "../src/index";
 import * as seedrandom from "seedrandom";
 import { TeachableMobileNet } from "../src/index";
+import { assertTypesMatch } from "@tensorflow/tfjs-core/dist/tensor_util";
 
 // @ts-ignore
 var Table = require("cli-table");
@@ -300,7 +301,7 @@ async function testMobilenet(dataset_url: string, version: number, loadFunction:
 		// assert.isTrue(accuracyV2 > 0.7);
 		console.log(lineEnd);
 
-		return lastEpoch;
+		return { model: teachableMobileNetV2, lastEpoch };
 	}
 }
 
@@ -335,10 +336,23 @@ describe("CI Test", () => {
 		assert.exists(teachableMobileNet);
 	}).timeout(5000);
 
+	let testModel: tm.TeachableMobileNet;
+
 	it("Test tiny model (for CI)", async () => {
-		const lastEpoch = await testMobilenet(BEAN_DATASET_URL, 2, loadPngImage, 10);
+		const { model, lastEpoch } = await testMobilenet(BEAN_DATASET_URL, 2, loadPngImage, 10);
+		testModel = model;
 		assert.isAbove(lastEpoch.val_acc, 0.8);
 		assert.isBelow(lastEpoch.val_loss, 0.1);
+	}).timeout(500000);
+
+	it("Test predict functions", async () => {
+		const testImage = await loadPngImage('bad_bean', 0, BEAN_DATASET_URL);
+
+		const prediction = await testModel.predict(testImage, false);
+		assert.isAbove(prediction[1].probability, 0.9);
+
+		const predictionTopK = await testModel.predictTopK(testImage, false, 3);
+		assert.isAbove(predictionTopK[0].probability, 0.9);
 	}).timeout(500000);
 });
 
