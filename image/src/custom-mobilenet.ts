@@ -239,7 +239,7 @@ export class CustomMobileNet {
      * @param image the image to classify
      * @param maxPredictions the maximum number of classification predictions
      */
-    async predict(image: ClassifierInputSource, flipped = false, maxPredictions = 10) {
+    async predictTopK(image: ClassifierInputSource, flipped = false, maxPredictions = 10) {
         const croppedImage = cropTo(image, IMAGE_SIZE, flipped);
 
         const logits = tf.tidy(() => {
@@ -260,7 +260,7 @@ export class CustomMobileNet {
      * @param image the image to classify
      * @param flipped whether to flip the image on X
      */
-    async predictUnordered(image: ClassifierInputSource, flipped = false) {
+    async predict(image: ClassifierInputSource, flipped = false) {
         const croppedImage = cropTo(image, IMAGE_SIZE, flipped);
 
         const logits = tf.tidy(() => {

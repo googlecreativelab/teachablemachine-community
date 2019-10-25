@@ -158,17 +158,29 @@ export class TeachableMobileNet extends CustomMobileNet {
     }
 
     /**
-     * Classify an input image / Tensor with your trained model
+     * Classify an input image / Tensor with your trained model. Return all results.
      * @param image the input image / Tensor to classify against your model
      * @param topK how many of the top results do you want? defautls to 3
      */
-    public async predict(image: ClassifierInputSource, flipped = false, maxPredictions = 3) {
+    public async predict(image: ClassifierInputSource, flipped = false) {
         if (!this.model) {
             throw new Error('Model has not been trained yet, called train() first');
         }
-        return super.predict(image, flipped, maxPredictions);
+        return super.predict(image, flipped);
     }
 
+    /**
+     * Classify an input image / Tensor with your trained model. Return topK results
+     * @param image the input image / Tensor to classify against your model
+     * @param maxPredictions how many of the top results do you want? defautls to 3
+     * @param flipped whether to flip an image
+     */
+    public async predictTopK(image: ClassifierInputSource, flipped = false, maxPredictions = 10) {
+        if (!this.model) {
+            throw new Error('Model has not been trained yet, called train() first');
+        }
+        return super.predictTopK(image, flipped, maxPredictions);
+    }
 
     /**
      * process the current examples provided to calculate labels and format
