@@ -138,19 +138,28 @@ export class TeachablePoseNet extends CustomPoseNet {
     }
 
     /**
-     * Classify an input image / Tensor with your trained model
+     * Classify a pose output with your trained model. Return all results
      * @param image the input image / Tensor to classify against your model
-     * @param topK how many of the top results do you want? defautls to 3
      */
-    public async predict(
-        poseOutput: Float32Array,
-        flipped = false,
-        maxPredictions = 3) {
+    public async predict(poseOutput: Float32Array) {
         if (!this.model) {
             throw new Error('Model has not been trained yet, called train() first');
         }
 
-        return super.predict(poseOutput, flipped, maxPredictions);
+        return super.predict(poseOutput);
+    }
+
+    /**
+     * Classify a pose output with your trained model. Return topK results
+     * @param image the input image / Tensor to classify against your model
+     * @param maxPredictions how many of the top results do you want? defautls to 3
+     */
+    public async predictTopK(poseOutput: Float32Array, maxPredictions = 3) {
+        if (!this.model) {
+            throw new Error('Model has not been trained yet, called train() first');
+        }
+
+        return super.predictTopK(poseOutput, maxPredictions);
     }
 
     /**
