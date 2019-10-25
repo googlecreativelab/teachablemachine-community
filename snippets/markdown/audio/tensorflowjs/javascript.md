@@ -5,7 +5,7 @@
 <script type="text/javascript">
     // more documentation available at
     // https://github.com/tensorflow/tfjs-models/tree/master/speech-commands
-
+    
     // the json file (model topology) has a reference to the bin file (model weights)
     const checkpointURL = '{{MODEL_URL}}';
     // the metatadata json file contains the text labels of your model and additional information

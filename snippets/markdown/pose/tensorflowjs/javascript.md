@@ -10,34 +10,34 @@
     const metadataURL = '{{METADATA_URL}}';
 
     let model; let webcamEl; let ctx; let maxPredictions;
-
+       
     async function init() {
         // load the model and metadata
         model = await tmPose.load(checkpointURL, metadataURL);
         maxPredictions = model.getTotalClasses();
 
-        const width = 200; const height = 200;
+		const width = 200; const height = 200;
 
         // optional function for creating a webcam
         // webcam has a square ratio and is flipped by default to match training
         webcamEl = await tmPose.getWebcam(width, height);
         webcamEl.play();
         // document.body.appendChild(webcamEl);
-
+        
         // optional function for creating a canvas to draw the webcam + keypoints to
         const flip = true;
         const canvas = tmPose.createCanvas(width, height, flip);
         ctx = canvas.getContext('2d');
         document.body.appendChild(canvas);
-
+        
         window.requestAnimationFrame(loop); // kick of pose prediction loop
     }
-
-    async function loop(timestamp) {
+    
+   	async function loop(timestamp) {
         await predict();
         window.requestAnimationFrame(loop);
     }
-
+    
     async function predict() {
         // Prediction #1: run input through posenet
         // estimatePose can take in an image, video or canvas html element
@@ -54,7 +54,7 @@
             tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
         }
 
-        console.log(prediction);
+        console.log(prediction);      
     }
 
     init();

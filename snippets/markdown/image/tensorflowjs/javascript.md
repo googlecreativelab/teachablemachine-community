@@ -1,5 +1,3 @@
-Use this code snippet to use this model:
-
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.6/dist/teachablemachine-image.min.js"></script>
