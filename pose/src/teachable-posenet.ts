@@ -330,9 +330,17 @@ export class TeachablePoseNet extends CustomPoseNet {
         }
     }
 
+    /*
     public stopTraining() {
-        this.model.stopTraining = true;
+        const promise = new Promise((resolve, reject) => {
+            this.model.stopTraining = true;
+            this.__stopTrainingResolve = resolve;
+            // this.__stopTrainingReject = reject;
+        });
+        
+        return promise;
     }
+    */
 
     public dispose() {
         this.model.dispose();
