@@ -16,7 +16,7 @@
  */
 
 import * as tf from '@tensorflow/tfjs';
-import { util } from '@tensorflow/tfjs';
+import { util, Rank } from '@tensorflow/tfjs';
 import { capture } from './utils/tf';
 import { TensorContainer } from '@tensorflow/tfjs-core/dist/tensor_types';
 import { CustomCallbackArgs } from '@tensorflow/tfjs';
@@ -391,6 +391,61 @@ export class TeachableMobileNet extends CustomMobileNet {
     public dispose() {
         this.trainingModel.dispose();
         super.dispose();
+    }
+
+    /* 
+     * Calculate each class accuracy using the validation dataset
+     */
+    public async calculateAccuracyPerClass() {
+        const validationXs = this.validationDataset.mapAsync(async (dataset: TensorContainer) => {
+            return (dataset as { xs: TensorContainer, ys: TensorContainer}).xs;
+        });
+        const validationYs = this.validationDataset.mapAsync(async (dataset: TensorContainer) => {
+            return (dataset as { xs: TensorContainer, ys: TensorContainer}).ys;
+        });
+
+        // we need to split our validation data into batches in case it is too large to fit in memory
+        const batchSize = Math.min(validationYs.size, 32);
+        const iterations = Math.ceil(validationYs.size / batchSize);
+
+        const batchesX = validationXs.batch(batchSize);
+        const batchesY = validationYs.batch(batchSize);
+        const itX = await batchesX.iterator();
+        const itY = await batchesY.iterator();
+        const allX = [];
+        const allY = [];
+
+        for (let i = 0; i < iterations; i++) {
+            // 1. get the prediction values in batches
+            const batchedXTensor = await itX.next();
+            const batchedXPredictionTensor = this.trainingModel.predict(batchedXTensor.value) as tf.Tensor;
+            const argMaxX = batchedXPredictionTensor.argMax(1); // Returns the indices of the max values along an axis
+            allX.push(argMaxX);
+
+            // 2. get the ground truth label values in batches
+            const batchedYTensor = await itY.next();
+            const argMaxY = batchedYTensor.value.argMax(1); // Returns the indices of the max values along an axis
+            allY.push(argMaxY);
+
+            // 3. dispose of all our tensors
+            batchedXTensor.value.dispose();
+            batchedXPredictionTensor.dispose();
+            batchedYTensor.value.dispose();
+        }
+
+        // concatenate all the results of the batches
+        const reference = tf.concat(allY); // this is the ground truth
+        const predictions = tf.concat(allX); // this is the prediction our model is guessing
+
+        // only if we concatenated more than one tensor for preference and reference
+        if (iterations !== 1) {
+            for (let i = 0; i < allX.length; i++) {
+                allX[i].dispose();
+                allY[i].dispose();
+            }
+        }
+
+        return { reference, predictions };
     }
 
     /*
