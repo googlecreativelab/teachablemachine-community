@@ -249,38 +249,11 @@ export class CustomPoseNet {
 
 	/**
 	 * Given an image element, makes a prediction through posenet returning the
-	 * probabilities of the top K classes.
+	 * probabilities for ALL classes.
 	 * @param image the image to classify
-	 * @param maxPredictions the maximum number of classification predictions
+	 * @param flipped whether to flip the image on X
 	 */
-	async predict(
-		poseOutput: Float32Array,
-		maxPredictions = MAX_PREDICTIONS
-	) {
-		// const embeddingsArray = await this.predictPosenet(image);
-		// let embeddings = tf.tensor([embeddingsArray]);
-	    const embeddings = tf.tensor([poseOutput]);
-		const logits = this.model.predict(embeddings) as tf.Tensor;
-
-		const topKClasses = await getTopKClasses(
-			this._metadata.labels,
-			logits,
-			maxPredictions
-		);
-
-		embeddings.dispose();
-		logits.dispose();
-
-		return topKClasses;
-	}
-
-	/**
-     * Given an image element, makes a prediction through posenet returning the
-     * probabilities for ALL classes.
-     * @param image the image to classify
-     * @param flipped whether to flip the image on X
-     */
-    async predictUnordered(poseOutput: Float32Array) {
+    async predict(poseOutput: Float32Array) {
 		const embeddings = tf.tensor([poseOutput]);
 		const logits = this.model.predict(embeddings) as tf.Tensor;
 
@@ -299,6 +272,30 @@ export class CustomPoseNet {
 
         return classes;
     }
+
+	/**
+	 * Given an image element, makes a prediction through posenet returning the
+	 * probabilities of the top K classes.
+	 * @param image the image to classify
+	 * @param maxPredictions the maximum number of classification predictions
+	 */
+	async predictTopK(poseOutput: Float32Array, maxPredictions = MAX_PREDICTIONS) {
+		// const embeddingsArray = await this.predictPosenet(image);
+		// let embeddings = tf.tensor([embeddingsArray]);
+	    const embeddings = tf.tensor([poseOutput]);
+		const logits = this.model.predict(embeddings) as tf.Tensor;
+
+		const topKClasses = await getTopKClasses(
+			this._metadata.labels,
+			logits,
+			maxPredictions
+		);
+
+		embeddings.dispose();
+		logits.dispose();
+
+		return topKClasses;
+	}
 
 	public dispose() {
 		this.posenetModel.dispose();
