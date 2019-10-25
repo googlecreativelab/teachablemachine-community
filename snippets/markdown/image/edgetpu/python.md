@@ -2,14 +2,13 @@ To Use with [Edge TPU](https://coral.withgoogle.com/):
 
 1. Install the edgetpu library following [Coral's official instructions](https://coral.withgoogle.com/docs/edgetpu/api-intro/#install-the-library)
 
-
 2. pip install the following packages like so:
 
         pip3 install PIL opencv
 3. Download model from TM2
 4. Use this code snippet to run this model on Edge TPU:
 
-    ```python
+```python
     from edgetpu.classification.engine import ClassificationEngine
     from PIL import Image
     import cv2
@@ -72,6 +71,6 @@ To Use with [Edge TPU](https://coral.withgoogle.com/):
     if __name__ == '__main__':
         main()
 
-    ```
+```
 
 Learn more about how to use the code snippet on [github](https://github.com/google-coral/examples-camera)
