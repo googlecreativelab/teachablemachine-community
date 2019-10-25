@@ -59,7 +59,7 @@ import * as tmImage from '@teachablemachine/image';
         // predict can take in an image, video or canvas html element
         // we set flip to true since the webcam was only flipped in CSS
         const flip = true;
-        const prediction = await model.predict(webcamEl, flip, maxPredictions);
+        const prediction = await model.predict(webcamEl, flip);
         console.log(prediction);
     }
 
@@ -134,7 +134,6 @@ model.getTotalClasses()
 
 Returns a number representing the total number of classes
 
-
 ### Model - predict
 
 Once you have loaded a model, you can make a classificaiton with a couple of different input options.
@@ -143,6 +142,37 @@ This method exists on the model that is loaded from `tmImage.load`.
 
 ```ts
 model.predict(
+  image: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap,
+  flipped = false
+)
+```
+
+Args:
+
+* **image**: an image, canvas, or video element to make a classification on
+* **flipped**: a boolean to trigger whether to flip on X or not the image input
+
+Usage:
+
+```js
+// predict can take in an image, video or canvas html element
+// if using the webcam utility, we set flip to true since the webcam was only 
+// flipped in CSS
+const flip = true;
+const allPredictions = await model.predict(webcamElement, flip);
+```
+
+
+
+
+### Model - predictTopK
+
+This is an alternative function to `predict()` which returns the probability for all classes. 
+
+This method exists on the model that is loaded from `tmImage.load`.
+
+```ts
+model.predictTopK(
   image: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap,
   flipped = false,
   maxPredictions = 10
@@ -158,42 +188,13 @@ Args:
 Usage:
 
 ```js
-// predict can take in an image, video or canvas html element
+// predictTopK can take in an image, video or canvas html element
 // if using the webcam utility, we set flip to true since the webcam was only 
 // flipped in CSS
 const flip = true;
 const maxPredictions = model.getTotalClasses();
-const prediction = await model.predict(webcamElement, flip, maxPredictions);
+const prediction = await model.predictTopK(webcamElement, flip, maxPredictions);
 ```
-
-### Model - predictUnordered
-
-This is an alternative function to `predict()` which returns the probability for all classes. 
-
-This method exists on the model that is loaded from `tmImage.load`.
-
-```ts
-model.predictUnordered(
-  image: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap,
-  flipped = false
-)
-```
-
-Args:
-
-* **image**: an image, canvas, or video element to make a classification on
-* **flipped**: a boolean to trigger whether to flip on X or not the image input
-
-Usage:
-
-```js
-// predictUnordered can take in an image, video or canvas html element
-// if using the webcam utility, we set flip to true since the webcam was only 
-// flipped in CSS
-const flip = true;
-const allPredictions = await model.predictUnordered(webcamElement, flip);
-```
-
 
 ### Webcam
 
