@@ -1,0 +1,6 @@
+steps:
+- name: 'gcr.io/cloud-builders/yarn'
+  dir: 'snippets'
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['lint']
+  dir: 'snippets'

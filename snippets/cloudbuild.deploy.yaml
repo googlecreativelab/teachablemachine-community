@@ -1,0 +1,5 @@
+steps:
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', 'rm', '-f', 'gs://teachable-machine-snippets/github/*']
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', 'cp', '-r', 'markdown/*', 'gs://teachable-machine-snippets/github/']
