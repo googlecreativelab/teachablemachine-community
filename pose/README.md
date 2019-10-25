@@ -80,7 +80,7 @@ import * as tmPose from '@teachablemachine/pose';
         const flipHorizontal = false;
         const { pose, posenetOutput } = await model.estimatePose(webcamEl, flipHorizontal);
         // Prediction 2: run input through teachable machine classification model
-        const prediction = await model.predict(posenetOutput, maxPredictions);
+        const prediction = await model.predict(posenetOutput);
 
         ctx.drawImage(webcamEl, 0, 0);
         // draw the keypoints and skeleton
@@ -191,7 +191,6 @@ const { pose, posenetOutput } = await model.estimatePose(webcamElement, flipHori
 
 The function returns `pose` an object with the keypoints data (for drawing) and `posenetOutput` a Float32Array of concatenated posenet output data (for the classification prediction). 
 
-
 ### Teachable Machine model - predict
 
 Once you have the output from posenet, you can make a classificaiton with the Teachable Machine model you trained.
@@ -200,37 +199,6 @@ This method exists on the model that is loaded from `tmPose.load`.
 
 ```ts
 model.predict(
-    poseOutput: Float32Array,
-    maxPredictions = 10
-)
-```
-
-Args:
-
-* **poseOutput**: an array representing the output of posenet from the `mode.estimatePose` function
-* **maxPredictions**: total number of predictions to return
-
-Usage:
-
-```js
-// predict can take in an image, video or canvas html element
-// if using the webcam utility, we set flip to true since the webcam was only 
-// flipped in CSS
-const maxPredictions = model.getTotalClasses();
-const flipHorizontal = false;
-
-const { pose, posenetOutput } = await model.estimatePose(webcamElement, flipHorizontal);
-const prediction = await model.predict(posenetOutput, maxPredictions);
-```
-
-### Teachable Machine model - predictUnordered
-
-An alternative function to `predict()` which returns probabilities for all classes.
-
-This method exists on the model that is loaded from `tmPose.load`.
-
-```ts
-model.predictUnordered(
     poseOutput: Float32Array
 )
 ```
@@ -248,7 +216,40 @@ Usage:
 const flipHorizontal = false;
 
 const { pose, posenetOutput } = await model.estimatePose(webcamElement, flipHorizontal);
-const prediction = await model.predictUnordered(posenetOutput);
+const prediction = await model.predict(posenetOutput);
+```
+
+
+
+### Teachable Machine model - predictTopK
+
+An alternative function to `predict()` which returns probabilities for all classes.
+
+This method exists on the model that is loaded from `tmPose.load`.
+
+```ts
+model.predictTopK(
+    poseOutput: Float32Array,
+    maxPredictions = 10
+)
+```
+
+Args:
+
+* **poseOutput**: an array representing the output of posenet from the `mode.estimatePose` function
+* **maxPredictions**: total number of predictions to return
+
+Usage:
+
+```js
+// predictTopK can take in an image, video or canvas html element
+// if using the webcam utility, we set flip to true since the webcam was only 
+// flipped in CSS
+const maxPredictions = model.getTotalClasses();
+const flipHorizontal = false;
+
+const { pose, posenetOutput } = await model.estimatePose(webcamElement, flipHorizontal);
+const prediction = await model.predictTopK(posenetOutput, maxPredictions);
 ```
 
 ### Webcam
