@@ -239,7 +239,7 @@ export class CustomMobileNet {
      * @param image the image to classify
      * @param maxPredictions the maximum number of classification predictions
      */
-    async predictTopK(image: ClassifierInputSource, flipped = false, maxPredictions = 10) {
+    async predictTopK(image: ClassifierInputSource, maxPredictions = 10, flipped = false) {
         const croppedImage = cropTo(image, IMAGE_SIZE, flipped);
 
         const logits = tf.tidy(() => {

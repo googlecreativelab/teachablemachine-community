@@ -175,11 +175,11 @@ export class TeachableMobileNet extends CustomMobileNet {
      * @param maxPredictions how many of the top results do you want? defautls to 3
      * @param flipped whether to flip an image
      */
-    public async predictTopK(image: ClassifierInputSource, flipped = false, maxPredictions = 10) {
+    public async predictTopK(image: ClassifierInputSource, maxPredictions = 10, flipped = false, ) {
         if (!this.model) {
             throw new Error('Model has not been trained yet, called train() first');
         }
-        return super.predictTopK(image, flipped, maxPredictions);
+        return super.predictTopK(image, maxPredictions, flipped);
     }
 
     /**

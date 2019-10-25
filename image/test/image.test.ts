@@ -351,7 +351,7 @@ describe("CI Test", () => {
 		const prediction = await testModel.predict(testImage, false);
 		assert.isAbove(prediction[1].probability, 0.9);
 
-		const predictionTopK = await testModel.predictTopK(testImage, false, 3);
+		const predictionTopK = await testModel.predictTopK(testImage, 3, false);
 		assert.isAbove(predictionTopK[0].probability, 0.9);
 	}).timeout(500000);
 });

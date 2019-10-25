@@ -174,8 +174,8 @@ This method exists on the model that is loaded from `tmImage.load`.
 ```ts
 model.predictTopK(
   image: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap,
-  flipped = false,
-  maxPredictions = 10
+  maxPredictions = 10,
+  flipped = false
 )
 ```
 
@@ -193,7 +193,7 @@ Usage:
 // flipped in CSS
 const flip = true;
 const maxPredictions = model.getTotalClasses();
-const prediction = await model.predictTopK(webcamElement, flip, maxPredictions);
+const prediction = await model.predictTopK(webcamElement, maxPredictions, flip);
 ```
 
 ### Webcam
