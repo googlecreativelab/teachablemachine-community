@@ -37,7 +37,8 @@ export const IMAGE_SIZE = 224;
 export interface Metadata {
     tfjsVersion: string;
     tmVersion?: string;
-    tmSupportVersion: string;
+    packageVersion: string;
+    packageName: string;
     modelName?: string;
     timeStamp?: string;
     labels: string[];
@@ -57,7 +58,8 @@ export interface ModelOptions {
  */
 const fillMetadata = (data: Partial<Metadata>) => {
     // util.assert(typeof data.tfjsVersion === 'string', () => `metadata.tfjsVersion is invalid`);
-    data.tmSupportVersion = data.tmSupportVersion || version;
+    data.packageVersion = data.packageVersion || version;
+    data.packageName = data.packageName || '@teachablemachine/image';
     data.timeStamp = data.timeStamp || new Date().toISOString();
     data.userMetadata = data.userMetadata || {};
     data.modelName = data.modelName || 'untitled';
@@ -67,8 +69,7 @@ const fillMetadata = (data: Partial<Metadata>) => {
 
 // tslint:disable-next-line:no-any
 const isMetadata = (c: any): c is Metadata =>
-    !!c && typeof c.tmVersion === 'string' &&
-    typeof c.tmSupportVersion === 'string' && Array.isArray(c.labels);
+    !!c && Array.isArray(c.labels);
 
 const isAlphaValid = (version: number, alpha: number) => {
     if (version === 1) {
@@ -137,7 +138,7 @@ const parseModelOptions = (options?: ModelOptions) => {
         // return {
         //     tfjsVersion,
         //     tmVersion,
-        //     tmSupportVersion: version,
+        //     packageVersion: version,
         //     modelName: name,
         //     timeStamp: new Date().toISOString(),
         //     labels: labels
@@ -238,7 +239,7 @@ export class CustomMobileNet {
      * @param image the image to classify
      * @param maxPredictions the maximum number of classification predictions
      */
-    async predict( image: ClassifierInputSource, flipped = false, maxPredictions = 10) {
+    async predictTopK(image: ClassifierInputSource, maxPredictions = 10, flipped = false) {
         const croppedImage = cropTo(image, IMAGE_SIZE, flipped);
 
         const logits = tf.tidy(() => {
@@ -248,6 +249,35 @@ export class CustomMobileNet {
 
         // Convert logits to probabilities and class names.
         const classes = await getTopKClasses(this._metadata.labels, logits as tf.Tensor<tf.Rank>, maxPredictions);
+        dispose(logits);
+
+        return classes;
+    }
+
+    /**
+     * Given an image element, makes a prediction through mobilenet returning the
+     * probabilities for ALL classes.
+     * @param image the image to classify
+     * @param flipped whether to flip the image on X
+     */
+    async predict(image: ClassifierInputSource, flipped = false) {
+        const croppedImage = cropTo(image, IMAGE_SIZE, flipped);
+
+        const logits = tf.tidy(() => {
+            const captured = capture(croppedImage);
+            return this.model.predict(captured);
+        });
+
+        const values = await (logits as tf.Tensor<tf.Rank>).data();
+
+        const classes = [];
+        for (let i = 0; i < values.length; i++) {
+            classes.push({
+                className: this._metadata.labels[i],
+                probability: values[i]
+            });
+        }
+
         dispose(logits);
 
         return classes;

@@ -26,6 +26,19 @@ const dataset_url =
 // Weird workaround...
 tf.util.fetch = (a, b) => window.fetch(a, b);
 
+function loadPngImage(c: string, i: number, dataset_url: string): Promise<HTMLImageElement> {
+	// tslint:disable-next-line:max-line-length
+    const src = dataset_url + `${c}/${i}.png`;
+
+	// console.log(src)
+	return new Promise((resolve, reject) => {
+		const img = new Image();
+		img.onload = () => resolve(img);
+		img.onerror = reject;
+		img.crossOrigin = "anonymous";
+		img.src = src;
+	});
+}
 
 describe('Test pose library', () => {
     it('constants are set correctly', () => {
@@ -35,12 +48,14 @@ describe('Test pose library', () => {
         assert.equal(tm.version, require('../package.json').version, "version does not match package.json.");
     });
 
+    let poseModel: tm.TeachablePoseNet;
+
     it('can train pose model', async () => {
-        const pose = await tm.createTeachable({
+        poseModel = await tm.createTeachable({
             tfjsVersion: tf.version.tfjs,
             tmVersion: tm.version
 		});		
-        assert.exists(pose);
+        assert.exists(poseModel);
         
         const metadata = await (await fetch(
             dataset_url + "metadata.json"
@@ -58,7 +73,6 @@ describe('Test pose library', () => {
             const load: Array<Promise<any>> = [];
             for (let i = 0; i < trainingSize; i++) {
                 const src = dataset_url + `${c}/${i}.png`;
-                // console.log(src)
                 const l = new Promise((resolve, reject) => {
                     const img = new Image();
                     img.onload = () => resolve(img);
@@ -66,7 +80,7 @@ describe('Test pose library', () => {
                     img.crossOrigin = "anonymous";
                     img.src = src;
                 }).then(img  => {
-                    return pose.estimatePose(img as HTMLImageElement);
+                    return poseModel.estimatePose(img as HTMLImageElement);
                 }).then( output => output.posenetOutput);
                 
                 load.push(l);
@@ -74,14 +88,13 @@ describe('Test pose library', () => {
             trainAndValidationImages.push(await Promise.all(load));
         }
 
-      
         assert.equal( trainAndValidationImages[0].length, trainingSize);
 
         let EPOCHS = 10;
         let LEARNING_RATE = 0.0001;        
         
-        pose.setLabels(metadata.classes);
-        pose.setSeed('testSuite'); // set a seed to shuffle predictably
+        poseModel.setLabels(metadata.classes);
+        poseModel.setSeed('testSuite'); // set a seed to shuffle predictably
     
         const logs: tf.Logs[] = [];
     
@@ -89,11 +102,11 @@ describe('Test pose library', () => {
             let index = 0;
             for (const imgSet of trainAndValidationImages) {
                 for (const img of imgSet) {
-                    await pose.addExample(index, img);
+                    await poseModel.addExample(index, img);
                 }
                 index++;
             }
-            await pose.train(
+            await poseModel.train(
                 {
                     denseUnits: 100,
                     epochs: EPOCHS,
@@ -120,5 +133,16 @@ describe('Test pose library', () => {
         assert.isBelow(lastLog.loss, 0.001);
 
     }).timeout(100000);
+
+    it("Test predict functions", async () => {
+        const testImage = await loadPngImage('arms', 0, dataset_url);
+        const { pose, posenetOutput } = await poseModel.estimatePose(testImage, false);
+
+        const prediction = await poseModel.predict(posenetOutput);
+		assert.isAbove(prediction[0].probability, 0.9);
+
+        const predictionTopK = await poseModel.predictTopK(posenetOutput, 3);
+		assert.isAbove(predictionTopK[0].probability, 0.9);
+	}).timeout(500000);
 
 });

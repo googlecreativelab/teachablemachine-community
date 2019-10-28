@@ -1,0 +1,12 @@
+{
+    "dependencies": {
+        "http-server": "^0.11.1"
+    },
+    "scripts": {
+        "start": "http-server --cors snippets",
+        "lint": "markdownlint ./markdown"
+    },
+    "devDependencies": {
+        "markdownlint-cli": "^0.18.0"
+    }
+}

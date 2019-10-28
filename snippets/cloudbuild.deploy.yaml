@@ -1,0 +1,4 @@
+steps:
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', 'rsync', '-d', '-r', './markdown', 'gs://teachable-machine-snippets/github']
+  dir: 'snippets'
