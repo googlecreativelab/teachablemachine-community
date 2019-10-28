@@ -248,16 +248,38 @@ export class CustomPoseNet {
 	}
 
 	/**
-	 * Given an image element, makes a prediction through mobilenet returning the
+	 * Given an image element, makes a prediction through posenet returning the
+	 * probabilities for ALL classes.
+	 * @param image the image to classify
+	 * @param flipped whether to flip the image on X
+	 */
+    async predict(poseOutput: Float32Array) {
+		const embeddings = tf.tensor([poseOutput]);
+		const logits = this.model.predict(embeddings) as tf.Tensor;
+
+        const values = await (logits as tf.Tensor<tf.Rank>).data();
+
+        const classes = [];
+        for (let i = 0; i < values.length; i++) {
+            classes.push({
+                className: this._metadata.labels[i],
+                probability: values[i]
+            });
+		}
+	
+		embeddings.dispose();
+		logits.dispose();
+
+        return classes;
+    }
+
+	/**
+	 * Given an image element, makes a prediction through posenet returning the
 	 * probabilities of the top K classes.
 	 * @param image the image to classify
 	 * @param maxPredictions the maximum number of classification predictions
 	 */
-	async predict(
-		poseOutput: Float32Array,
-		flipped = false,
-		maxPredictions = MAX_PREDICTIONS
-	) {
+	async predictTopK(poseOutput: Float32Array, maxPredictions = MAX_PREDICTIONS) {
 		// const embeddingsArray = await this.predictPosenet(image);
 		// let embeddings = tf.tensor([embeddingsArray]);
 	    const embeddings = tf.tensor([poseOutput]);
