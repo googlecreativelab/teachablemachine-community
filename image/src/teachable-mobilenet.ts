@@ -95,6 +95,9 @@ export class TeachableMobileNet extends CustomMobileNet {
     private trainDataset: tf.data.Dataset<TensorContainer>;
     private validationDataset: tf.data.Dataset<TensorContainer>;
 
+    private __stopTrainingResolve: () => void;
+    private __stopTrainingReject: (error: Error) => void;
+
     // Number of total samples
     private totalSamples = 0;
 
@@ -261,6 +264,17 @@ export class TeachableMobileNet extends CustomMobileNet {
      * @param callbacks provide callbacks to receive training events
      */
     public async train(params: TrainingParameters, callbacks: CustomCallbackArgs = {}) {
+        // Add callback for onTrainEnd in case of early stop
+        const originalOnTrainEnd = callbacks.onTrainEnd || (() => {});
+        callbacks.onTrainEnd = (logs: tf.Logs) => {
+            if (this.__stopTrainingResolve) {
+                this.__stopTrainingResolve();
+                this.__stopTrainingResolve = null;
+            }
+            originalOnTrainEnd(logs);
+        }
+        
+        // Rest of trian function
         if (!this.isPrepared) {
             this.prepare();
         }
@@ -376,8 +390,14 @@ export class TeachableMobileNet extends CustomMobileNet {
         return this._metadata.modelName;
     }
 
-    public stopTraining() {
-        this.trainingModel.stopTraining = true;
+    public stopTraining() {  
+        const promise = new Promise((resolve, reject) => {
+            this.trainingModel.stopTraining = true;
+            this.__stopTrainingResolve = resolve;
+            this.__stopTrainingReject = reject;
+        });
+        
+        return promise;
     }
 
     public dispose() {
