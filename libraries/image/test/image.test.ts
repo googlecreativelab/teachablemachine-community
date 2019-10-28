@@ -161,7 +161,8 @@ async function testModel(
 	testSizePerClass: number,
 	epochs: number,
 	learningRate: number,
-	showEpochResults: boolean = false
+	showEpochResults: boolean = false,
+	earlyStopEpoch: number = epochs
 ) {
 	model.setLabels(classes);
 	model.setSeed(SEED_WORD); // set a seed to shuffle predictably
@@ -195,6 +196,11 @@ async function testModel(
 					if (showEpochResults) {
 						console.log(log);
 					}
+					if (earlyStopEpoch !== epochs && earlyStopEpoch === epoch) {
+						model.stopTraining().then(() => {
+							console.log("Stopped training early");
+						});
+					}
 					logs.push(log);
 				}
 			}
@@ -224,7 +230,7 @@ async function testModel(
 
 }
 
-async function testMobilenet(dataset_url: string, version: number, loadFunction: Function, maxImages: number = 200){
+async function testMobilenet(dataset_url: string, version: number, loadFunction: Function, maxImages: number = 200, earlyStop: boolean = false){
 	// classes, samplesPerClass, url
 	const metadata = await (await fetch(
 		dataset_url + "metadata.json"
@@ -274,7 +280,9 @@ async function testMobilenet(dataset_url: string, version: number, loadFunction:
 		VALID_ALPHAS = [0.25];
 		EPOCHS = 20;
 	}
-	
+
+	const earlyStopEpochs = earlyStop ? 5 : EPOCHS;
+
 	for (let a of VALID_ALPHAS) {
 		const lineStart = "\n//====================================";
 		const lineEnd = "====================================//\n\n";
@@ -295,7 +303,8 @@ async function testMobilenet(dataset_url: string, version: number, loadFunction:
 			0,
 			EPOCHS,
 			LEARNING_RATE,
-			false
+			false,
+			earlyStopEpochs
 		);
 			
 		// assert.isTrue(accuracyV2 > 0.7);
@@ -341,6 +350,12 @@ describe("CI Test", () => {
 	it("Test tiny model (for CI)", async () => {
 		const { model, lastEpoch } = await testMobilenet(BEAN_DATASET_URL, 2, loadPngImage, 10);
 		testModel = model;
+		assert.isAbove(lastEpoch.val_acc, 0.8);
+		assert.isBelow(lastEpoch.val_loss, 0.1);
+	}).timeout(500000);
+
+	it("Test early stop", async () => {
+		const { model, lastEpoch } = await testMobilenet(BEAN_DATASET_URL, 2, loadPngImage, 10, true);
 		assert.isAbove(lastEpoch.val_acc, 0.8);
 		assert.isBelow(lastEpoch.val_loss, 0.1);
 	}).timeout(500000);

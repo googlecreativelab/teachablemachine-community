@@ -40,6 +40,95 @@ function loadPngImage(c: string, i: number, dataset_url: string): Promise<HTMLIm
 	});
 }
 
+async function testPosenet(
+    epochs: number,
+	learningRate: number,
+	showEpochResults: boolean = false,
+	earlyStopEpoch: number = epochs
+) {
+    const poseModel = await tm.createTeachable({
+        tfjsVersion: tf.version.tfjs,
+        tmVersion: tm.version
+    });		
+    assert.exists(poseModel);
+    
+    const metadata = await (await fetch(
+        dataset_url + "metadata.json"
+    )).json();
+
+    const classLabels = metadata.classes as string[];
+
+    assert.equal(classLabels.length, 2);
+
+    const trainAndValidationImages: any[][] = [];
+    
+    // const trainingSize = Math.min(...metadata.samplesPerClass);
+    const trainingSize = 10;
+    for (const c of classLabels) {
+        const load: Array<Promise<any>> = [];
+        for (let i = 0; i < trainingSize; i++) {
+            const src = dataset_url + `${c}/${i}.png`;
+            const l = new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.crossOrigin = "anonymous";
+                img.src = src;
+            }).then(img  => {
+                return poseModel.estimatePose(img as HTMLImageElement);
+            }).then( output => output.posenetOutput);
+            
+            load.push(l);
+        }
+        trainAndValidationImages.push(await Promise.all(load));
+    }
+
+    assert.equal( trainAndValidationImages[0].length, trainingSize);    
+    
+    poseModel.setLabels(metadata.classes);
+    poseModel.setSeed('testSuite'); // set a seed to shuffle predictably
+
+    const logs: tf.Logs[] = [];
+
+    await tf.nextFrame().then(async () => {
+        let index = 0;
+        for (const imgSet of trainAndValidationImages) {
+            for (const img of imgSet) {
+                await poseModel.addExample(index, img);
+            }
+            index++;
+        }
+        await poseModel.train(
+            {
+                denseUnits: 100,
+                epochs: epochs,
+                learningRate: learningRate,
+                batchSize: 16
+            },
+            {
+                onEpochBegin: async (epoch: number, logs: tf.Logs) => {
+                    if (showEpochResults) {
+                        console.log("Epoch: ", epoch);
+                    }
+                },
+                onEpochEnd: async (epoch: number, log: tf.Logs) => {
+                    logs.push(log);
+
+                    if (earlyStopEpoch !== epochs && earlyStopEpoch === epoch) {
+						poseModel.stopTraining().then(() => {
+							console.log("Stopped training early");
+						});
+					}
+                }
+            }
+        ); 
+    });
+
+    const lastLog = logs[logs.length-1];
+
+    return { model: poseModel, lastEpoch: lastLog }
+}
+
 describe('Test pose library', () => {
     it('constants are set correctly', () => {
         assert.equal(typeof tm, 'object', 'tm should be an object');
@@ -51,88 +140,19 @@ describe('Test pose library', () => {
     let poseModel: tm.TeachablePoseNet;
 
     it('can train pose model', async () => {
-        poseModel = await tm.createTeachable({
-            tfjsVersion: tf.version.tfjs,
-            tmVersion: tm.version
-		});		
-        assert.exists(poseModel);
-        
-        const metadata = await (await fetch(
-            dataset_url + "metadata.json"
-        )).json();
-
-        const classLabels = metadata.classes as string[];
-
-        assert.equal(classLabels.length, 2);
-
-        const trainAndValidationImages: any[][] = [];
-        
-        // const trainingSize = Math.min(...metadata.samplesPerClass);
-        const trainingSize = 10;
-        for (const c of classLabels) {
-            const load: Array<Promise<any>> = [];
-            for (let i = 0; i < trainingSize; i++) {
-                const src = dataset_url + `${c}/${i}.png`;
-                const l = new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => resolve(img);
-                    img.onerror = reject;
-                    img.crossOrigin = "anonymous";
-                    img.src = src;
-                }).then(img  => {
-                    return poseModel.estimatePose(img as HTMLImageElement);
-                }).then( output => output.posenetOutput);
-                
-                load.push(l);
-            }
-            trainAndValidationImages.push(await Promise.all(load));
-        }
-
-        assert.equal( trainAndValidationImages[0].length, trainingSize);
-
-        let EPOCHS = 10;
-        let LEARNING_RATE = 0.0001;        
-        
-        poseModel.setLabels(metadata.classes);
-        poseModel.setSeed('testSuite'); // set a seed to shuffle predictably
-    
-        const logs: tf.Logs[] = [];
-    
-        await tf.nextFrame().then(async () => {
-            let index = 0;
-            for (const imgSet of trainAndValidationImages) {
-                for (const img of imgSet) {
-                    await poseModel.addExample(index, img);
-                }
-                index++;
-            }
-            await poseModel.train(
-                {
-                    denseUnits: 100,
-                    epochs: EPOCHS,
-                    learningRate: LEARNING_RATE,
-                    batchSize: 16
-                },
-                {
-                    onEpochBegin: async (epoch: number, logs: tf.Logs) => {
-                        // if (showEpochResults) {
-                            console.log("Epoch: ", epoch);
-                        // }
-                    },
-                    onEpochEnd: async (epoch: number, log: tf.Logs) => {
-                        // console.log(log);
-                        logs.push(log);
-                    }
-                }
-            );
-            
-        });
-
-        const lastLog = logs[logs.length-1];
-        assert.isAbove(lastLog.acc, 0.9);
-        assert.isBelow(lastLog.loss, 0.001);
-
+        const { model, lastEpoch } = await testPosenet(10, 0.0001);
+        poseModel = model;
+        assert.isAbove(lastEpoch.acc, 0.9);
+        assert.isBelow(lastEpoch.loss, 0.001);
     }).timeout(100000);
+
+    it('test early stop', async () => {
+        const { model, lastEpoch } = await testPosenet(10, 0.0001, false, 5);
+        console.log(lastEpoch);
+        // assert.isAbove(lastEpoch.acc, 0.9);
+        // assert.isBelow(lastEpoch.loss, 0.001);
+    }).timeout(100000);
+
 
     it("Test predict functions", async () => {
         const testImage = await loadPngImage('arms', 0, dataset_url);
