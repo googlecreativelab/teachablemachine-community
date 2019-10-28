@@ -96,7 +96,7 @@ export class TeachableMobileNet extends CustomMobileNet {
     private validationDataset: tf.data.Dataset<TensorContainer>;
 
     private __stopTrainingResolve: () => void;
-    private __stopTrainingReject: (error: Error) => void;
+    // private __stopTrainingReject: (error: Error) => void;
 
     // Number of total samples
     private totalSamples = 0;
@@ -284,7 +284,7 @@ export class TeachableMobileNet extends CustomMobileNet {
                 this.__stopTrainingResolve = null;
             }
             originalOnTrainEnd(logs);
-        }
+        };
         
         // Rest of trian function
         if (!this.isPrepared) {
@@ -406,7 +406,7 @@ export class TeachableMobileNet extends CustomMobileNet {
         const promise = new Promise((resolve, reject) => {
             this.trainingModel.stopTraining = true;
             this.__stopTrainingResolve = resolve;
-            this.__stopTrainingReject = reject;
+            // this.__stopTrainingReject = reject;
         });
         
         return promise;

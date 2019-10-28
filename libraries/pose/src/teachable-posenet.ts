@@ -86,7 +86,7 @@ export class TeachablePoseNet extends CustomPoseNet {
     private validationDataset: tf.data.Dataset<TensorContainer>;
 
     private __stopTrainingResolve: () => void;
-    private __stopTrainingReject: (error: Error) => void;
+    // private __stopTrainingReject: (error: Error) => void;
 
     // Number of total samples
     // private totalSamples = 0;
@@ -264,7 +264,7 @@ export class TeachablePoseNet extends CustomPoseNet {
                 this.__stopTrainingResolve = null;
             }
             originalOnTrainEnd(logs);
-        }
+        };
 
         // Rest of train function
         if (!this.isPrepared) {
@@ -357,7 +357,7 @@ export class TeachablePoseNet extends CustomPoseNet {
         const promise = new Promise((resolve, reject) => {
             this.model.stopTraining = true;
             this.__stopTrainingResolve = resolve;
-            this.__stopTrainingReject = reject;
+            // this.__stopTrainingReject = reject;
         });
         
         return promise;
