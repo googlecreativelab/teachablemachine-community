@@ -361,12 +361,20 @@ describe("CI Test", () => {
 	}).timeout(500000);
 
 	it("Test predict functions", async () => {
-		const testImage = await loadPngImage('bad_bean', 0, BEAN_DATASET_URL);
+		let testImage, prediction, predictionTopK;
 
-		const prediction = await testModel.predict(testImage, false);
+		testImage = await loadPngImage('bad_bean', 0, BEAN_DATASET_URL);
+		prediction = await testModel.predict(testImage, false);
 		assert.isAbove(prediction[1].probability, 0.9);
+		predictionTopK = await testModel.predictTopK(testImage, 3, false);
+		assert.equal(predictionTopK[0].className, 'bad_bean');
+		assert.isAbove(predictionTopK[0].probability, 0.9);
 
-		const predictionTopK = await testModel.predictTopK(testImage, 3, false);
+		testImage = await loadPngImage('good_bean', 0, BEAN_DATASET_URL);
+		prediction = await testModel.predict(testImage, false);
+		assert.isAbove(prediction[0].probability, 0.9);
+		predictionTopK = await testModel.predictTopK(testImage, 3, false);
+		assert.equal(predictionTopK[0].className, 'good_bean');
 		assert.isAbove(predictionTopK[0].probability, 0.9);
 	}).timeout(500000);
 });

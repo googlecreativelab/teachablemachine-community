@@ -140,7 +140,7 @@ describe('Test pose library', () => {
     let poseModel: tm.TeachablePoseNet;
 
     it('can train pose model', async () => {
-        const { model, lastEpoch } = await testPosenet(10, 0.0001);
+        const { model, lastEpoch } = await testPosenet(10, 0.0001, false);
         poseModel = model;
         assert.isAbove(lastEpoch.acc, 0.9);
         assert.isBelow(lastEpoch.loss, 0.001);
@@ -148,21 +148,34 @@ describe('Test pose library', () => {
 
     it('test early stop', async () => {
         const { model, lastEpoch } = await testPosenet(10, 0.0001, false, 5);
-        console.log(lastEpoch);
-        // assert.isAbove(lastEpoch.acc, 0.9);
-        // assert.isBelow(lastEpoch.loss, 0.001);
+        assert.isAbove(lastEpoch.acc, 0.9);
+        assert.isBelow(lastEpoch.loss, 0.001);
     }).timeout(100000);
 
-
     it("Test predict functions", async () => {
-        const testImage = await loadPngImage('arms', 0, dataset_url);
-        const { pose, posenetOutput } = await poseModel.estimatePose(testImage, false);
+        let testImage, prediction, poseResult, predictionTopK;
 
-        const prediction = await poseModel.predict(posenetOutput);
+        // test image 1
+        testImage = await loadPngImage('arms', 0, dataset_url);
+        poseResult = await poseModel.estimatePose(testImage, false);
+
+        prediction = await poseModel.predict(poseResult.posenetOutput);
 		assert.isAbove(prediction[0].probability, 0.9);
 
-        const predictionTopK = await poseModel.predictTopK(posenetOutput, 3);
-		assert.isAbove(predictionTopK[0].probability, 0.9);
+        predictionTopK = await poseModel.predictTopK(poseResult.posenetOutput, 3);
+        assert.equal(predictionTopK[0].className, 'arms');
+        assert.isAbove(predictionTopK[0].probability, 0.9);
+        
+         // test image 2
+         testImage = await loadPngImage('no_arms', 0, dataset_url);
+         poseResult = await poseModel.estimatePose(testImage, false);
+ 
+         prediction = await poseModel.predict(poseResult.posenetOutput);
+         assert.isAbove(prediction[1].probability, 0.9);
+ 
+         predictionTopK = await poseModel.predictTopK(poseResult.posenetOutput, 3);
+         assert.equal(predictionTopK[0].className, 'no_arms');
+         assert.isAbove(predictionTopK[0].probability, 0.9);
 	}).timeout(500000);
 
 });
