@@ -182,10 +182,7 @@ export class CustomPoseNet {
 	public async estimatePoseOutputs(sample: PosenetInput) {
 		const inputResolution = this.posenetModel.inputResolution;
 
-		const { resized, padding } = padAndResizeTo(sample, [
-			inputResolution,
-			inputResolution
-		]);
+		const { resized, padding } = padAndResizeTo(sample, inputResolution);
 
 		const {heatmapScores, offsets, displacementFwd, displacementBwd} 
 			= await this.posenetModel.baseModel.predict(resized);
@@ -236,7 +233,7 @@ export class CustomPoseNet {
 		const poses = await decodeMultiplePoses(scoresBuffer, offsetsBuffer, displacementsFwdBuffer,
 			displacementsBwdBuffer, outputStride, config.maxDetections, config.scoreThreshold, config.nmsRadius);
 
-		const resultPoses = scaleAndFlipPoses(poses, [height, width], [inputResolution, inputResolution],
+		const resultPoses = scaleAndFlipPoses(poses, [height, width], inputResolution,
 			padding, flipHorizontal);
 
 		heatmapScores.dispose();
