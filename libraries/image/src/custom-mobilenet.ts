@@ -217,6 +217,13 @@ export class CustomMobileNet {
     }
 
     /**
+     * get the model labels
+     */
+    getClassLabels() {
+        return this._metadata.labels;
+    }
+
+    /**
      * Given an image element, makes a prediction through mobilenet returning the
      * probabilities of the top K classes.
      * @param image the image to classify
