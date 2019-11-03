@@ -17,9 +17,9 @@
         const checkpointURL = modelURL + delimiter + 'model.json'; // model topology
         const metadataURL = modelURL + delimiter + 'metadata.json'; // model metadata
 
-        const recognizer = speechCommands.create('BROWSER_FFT', undefined, 
+        const recognizer = speechCommands.create('BROWSER_FFT', undefined,
             checkpointURL, metadataURL);
-        
+
         // check that model and metadata are loaded via HTTPS requests.
         await recognizer.ensureModelLoaded();
 
@@ -42,7 +42,7 @@
             // render the probability scores per class
             for (let i = 0; i < classLabels.length; i++) {
                 const classPrediction = classLabels[i] + ': ' + result.scores[i].toFixed(2);
-                labelContainer.childNodes[i].innerHTML = classPrediction; 
+                labelContainer.childNodes[i].innerHTML = classPrediction;
             }
         }, {
             includeSpectrogram: true, // in case listen should return result.spectrogram
