@@ -23,39 +23,40 @@ const defaultVideoOptions: MediaTrackConstraints = {
     aspectRatio: 1
 };
 
+const fillConstraints = (options: Partial<MediaTrackConstraints>) => {
+    options.facingMode = options.facingMode || defaultVideoOptions.facingMode;
+    options.frameRate = options.frameRate || defaultVideoOptions.frameRate;
+    options.aspectRatio = options.aspectRatio || defaultVideoOptions.aspectRatio;
+    return options as MediaTrackConstraints;
+};
+
 export class Webcam  {
     public flip: boolean;
     public width: number;
     public height: number;
     public webcam: HTMLVideoElement;
     public canvas: HTMLCanvasElement;
-    public fps: number;
+    public mediaConstraints: MediaTrackConstraints;
 
-    constructor(width = 400, height = 400, flip = false, fps = 30) {
+    constructor(width = 400, height = 400, flip = false, options: MediaTrackConstraints = {}) {
         this.width = width;
         this.height = height;
         this.flip = flip;
-        this.fps = fps;
+        this.mediaConstraints = options;
     }
 
-    // TODO: fix user and back webcam defaults
     @autobind
-    public getWebcam(
-        facingMode = 'user',
-        options: MediaTrackConstraints = defaultVideoOptions ) {
+    public getWebcam() {
         if (!window.navigator.mediaDevices || !window.navigator.mediaDevices.getUserMedia) {
             return Promise.reject('Your browser does not support WebRTC. Please try another one.');
         }
     
-        defaultVideoOptions.width = this.width;
-        defaultVideoOptions.height = this.height;
-    
-        if (facingMode.toLowerCase() === 'back') {
-            defaultVideoOptions.facingMode = 'environment';
-        }
-    
+        this.mediaConstraints.width = this.width;
+        this.mediaConstraints.height = this.height;
+        const videoOptions = fillConstraints(this.mediaConstraints);
+
         const video = document.createElement('video');
-        return window.navigator.mediaDevices.getUserMedia({ video: options })
+        return window.navigator.mediaDevices.getUserMedia({ video: videoOptions })
             .then((mediaStream) => {
                 video.srcObject = mediaStream;
                 video.width = this.width;
@@ -84,16 +85,6 @@ export class Webcam  {
     public play() {
         const promise = this.webcam.play();
         return promise;
-
-        // // In browsers that don’t yet support this functionality,
-        // // playPromise won’t be defined.
-        // if (playPromise !== undefined) {
-        //     playPromise.then(() => {
-        //         window.requestAnimationFrame(this.renderCameraToCanvas);
-        //     }).catch((error) => {
-        //         console.error(error);
-        //     });
-        // }
     }
 
     @autobind
@@ -136,9 +127,6 @@ export class Webcam  {
             } else {
                 ctx.drawImage(this.webcam, 0, 0);
             }
-            // window.requestAnimationFrame(this.renderCameraToCanvas);
-
-
         }
     }
 }
