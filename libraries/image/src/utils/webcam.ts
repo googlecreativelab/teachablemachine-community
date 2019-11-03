@@ -15,49 +15,130 @@
  * =============================================================================
  */
 
+import autobind from 'autobind-decorator';
+
 const defaultVideoOptions: MediaTrackConstraints = {
     facingMode: 'user',
     frameRate: 30,
     aspectRatio: 1
 };
 
-/**
- * utility to get a webcam feed in a video element
- * @returns Promise<HTMLVideoElement>
- */
-export function getWebcam(
-    width = 400,
-    height = 400,
-    facingMode = 'user',
-    flipped = true,
-    video: HTMLVideoElement= document.createElement('video'),
-    options: MediaTrackConstraints= defaultVideoOptions ) {
-    if (!window.navigator.mediaDevices || !window.navigator.mediaDevices.getUserMedia) {
-        return Promise.reject('Your browser does not support WebRTC. Please try another one.');
+export class Webcam  {
+    public flip: boolean;
+    public width: number;
+    public height: number;
+    public webcam: HTMLVideoElement;
+    public canvas: HTMLCanvasElement;
+    public fps: number;
+
+    constructor(width = 400, height = 400, flip = false, fps = 30) {
+        this.width = width;
+        this.height = height;
+        this.flip = flip;
+        this.fps = fps;
     }
 
-    defaultVideoOptions.width = width;
-    defaultVideoOptions.height = height;
-
-    if (facingMode.toLowerCase() === 'back') {
-        defaultVideoOptions.facingMode = 'environment';
+    // TODO: fix user and back webcam defaults
+    @autobind
+    public getWebcam(
+        facingMode = 'user',
+        options: MediaTrackConstraints = defaultVideoOptions ) {
+        if (!window.navigator.mediaDevices || !window.navigator.mediaDevices.getUserMedia) {
+            return Promise.reject('Your browser does not support WebRTC. Please try another one.');
+        }
+    
+        defaultVideoOptions.width = this.width;
+        defaultVideoOptions.height = this.height;
+    
+        if (facingMode.toLowerCase() === 'back') {
+            defaultVideoOptions.facingMode = 'environment';
+        }
+    
+        const video = document.createElement('video');
+        return window.navigator.mediaDevices.getUserMedia({ video: options })
+            .then((mediaStream) => {
+                video.srcObject = mediaStream;
+                video.width = this.width;
+                video.height = this.height;
+                return video;
+            }, () => {
+                return Promise.reject('Could not open your camera. You may have denied access.');
+            });
     }
 
-    // should be flipped since we trained with flipped webcam
-    // but user can still change
-    if (flipped) {
-        const rotate = (value: string) =>
-            `rotateY(${value}); -webkit-transform:rotateY(${value}); -moz-transform:rotateY(${value})`;
-        video.setAttribute('style', `transform: ${rotate('180deg')}`);
+    // setup or setupWebcam
+    @autobind
+    public async setup() {
+        if (!this.webcam) {
+            this.webcam = await this.getWebcam();
+
+            if (!this.canvas) {
+                this.canvas = document.createElement('canvas');
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+            }
+        }
     }
 
-    return window.navigator.mediaDevices.getUserMedia({ video: options })
-        .then((mediaStream) => {
-            video.srcObject = mediaStream;
-            video.width = width;
-            video.height = height;
-            return video;
-        }, () => {
-            return Promise.reject('Could not open your camera. You may have denied access.');
+    @autobind
+    public play() {
+        const promise = this.webcam.play();
+        return promise;
+
+        // // In browsers that don’t yet support this functionality,
+        // // playPromise won’t be defined.
+        // if (playPromise !== undefined) {
+        //     playPromise.then(() => {
+        //         window.requestAnimationFrame(this.renderCameraToCanvas);
+        //     }).catch((error) => {
+        //         console.error(error);
+        //     });
+        // }
+    }
+
+    @autobind
+    public pause() {
+        this.webcam.pause();
+    }
+
+    @autobind
+    public stop() {
+        this.stopStreamedVideo(this.webcam);
+    }
+
+    @autobind
+    public update() {
+        this.renderCameraToCanvas();
+    }
+
+    @autobind
+    public stopStreamedVideo(videoEl: HTMLVideoElement) {
+        const stream = videoEl.srcObject as MediaStream;
+        const tracks = stream.getTracks();
+
+        tracks.forEach((track) => {
+            track.stop();
         });
+
+        videoEl.srcObject = null;
+    }
+
+    @autobind
+    public renderCameraToCanvas() {
+        if (this.canvas && this.webcam) {
+            const ctx = this.canvas.getContext('2d');
+
+            if (this.flip) {
+                ctx.save();
+                ctx.scale(-1, 1);
+                ctx.drawImage(this.webcam, -this.webcam.width, 0);
+                ctx.restore();
+            } else {
+                ctx.drawImage(this.webcam, 0, 0);
+            }
+            // window.requestAnimationFrame(this.renderCameraToCanvas);
+
+
+        }
+    }
 }
