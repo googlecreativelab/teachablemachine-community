@@ -1,43 +1,41 @@
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.6/dist/teachablemachine-image.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.3/dist/teachablemachine-image.min.js"></script>
 <script type="text/javascript">
-    // The json file defining the weights of the model
-    const checkpointURL = '{{MODEL_URL}}';
+    // the link to your model provided by Teachable Machine export panel
+    const modelURL = '{{MODEL_URL}}';
 
-    // The metatadata json file contains the text labels of your model
-    // and additional information
-    const metadataURL = '{{METADATA_URL}}';
+    let model, webcam, maxPredictions;
 
-    let model, webcamEl, maxPredictions;
-
+    // Load the image model and setup the webcam
     async function init() {
         // load the model and metadata
         // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
         // or files from your local hard drive
-        model = await tmImage.load(checkpointURL, metadataURL);
+        model = await tmImage.load(modelURL);
         maxPredictions = model.getTotalClasses();
 
-        // optional function for creating a webcam
-        // webcam has a square ratio and is flipped by default to match training
-        const webcamFlipped = true;
-        webcamEl = await tmImage.getWebcam(200, 200, 'front', webcamFlipped);
-        webcamEl.play();
-        document.body.appendChild(webcamEl);
+        // Convenience function to setup a webcam
+        const flip = true; // whether to flip the webcam
+        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        webcam.play();
+    
+        document.body.appendChild(webcam.canvas);
 
-        window.requestAnimationFrame(loop); // kick of pose prediction loop
+        window.requestAnimationFrame(loop);
     }
 
-    async function loop(timestamp) {
+    async function loop() {
+        webcam.update(); // update the webcam frame
         await predict();
         window.requestAnimationFrame(loop);
     }
 
+    // run the webcam image through the image model
     async function predict() {
         // predict can take in an image, video or canvas html element
-        // we set flip to true since the webcam was only flipped in CSS
-        const flip = true;
-        const prediction = await model.predict(webcamEl, flip, maxPredictions);
+        const prediction = await model.predict(webcam.canvas);
         console.log(prediction);
     }
 
