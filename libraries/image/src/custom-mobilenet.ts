@@ -314,8 +314,12 @@ export async function loadTruncatedMobileNet(modelOptions?: ModelOptions) {
     }
 }
 
-export async function load(checkpoint: string, metadata?: string | Metadata ) {
-    const customModel = await tf.loadLayersModel(checkpoint);
+export async function load(url: string) {
+    const delimiter = (url.charAt(url.length - 1) !== '/') ? '/' : '';
+    const model = url + delimiter + 'model.json';
+    const metadata = url + delimiter + 'metadata.json';
+
+    const customModel = await tf.loadLayersModel(model);
     const metadataJSON = metadata ? await processMetadata(metadata) : null;
     return new CustomMobileNet(customModel, metadataJSON);
 }
