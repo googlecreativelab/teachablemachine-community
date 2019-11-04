@@ -1,3 +1,5 @@
+Learn more about how to use the code snippet on [github](https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/audio).
+
 ```html
 <div>Teachable Machine Audio Model</div>
 <button type='button' onclick='init()'>Start</button>
