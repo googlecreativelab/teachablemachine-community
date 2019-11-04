@@ -139,7 +139,8 @@ const parseModelOptions = (options?: ModelOptions) => {
 const processMetadata = async (metadata: string | Metadata) => {
     let metadataJSON: Metadata;
     if (typeof metadata === 'string') {
-        metadataJSON = await (await fetch(metadata)).json();
+        const metadataResponse = await fetch(metadata);
+        metadataJSON = await metadataResponse.json();
     } else if (isMetadata(metadata)) {
         metadataJSON = metadata;
     } else {
