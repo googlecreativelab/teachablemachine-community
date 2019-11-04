@@ -36,24 +36,22 @@ export class Webcam  {
     public height: number;
     public webcam: HTMLVideoElement;
     public canvas: HTMLCanvasElement;
-    public mediaConstraints: MediaTrackConstraints;
 
-    constructor(width = 400, height = 400, flip = false, options: MediaTrackConstraints = {}) {
+    constructor(width = 400, height = 400, flip = false) {
         this.width = width;
         this.height = height;
         this.flip = flip;
-        this.mediaConstraints = options;
     }
 
     @autobind
-    public getWebcam() {
+    public getWebcam(options: MediaTrackConstraints = {}) {
         if (!window.navigator.mediaDevices || !window.navigator.mediaDevices.getUserMedia) {
             return Promise.reject('Your browser does not support WebRTC. Please try another one.');
         }
     
-        this.mediaConstraints.width = this.width;
-        this.mediaConstraints.height = this.height;
-        const videoOptions = fillConstraints(this.mediaConstraints);
+        options.width = this.width;
+        options.height = this.height;
+        const videoOptions = fillConstraints(options);
 
         const video = document.createElement('video');
         return window.navigator.mediaDevices.getUserMedia({ video: videoOptions })
@@ -69,9 +67,9 @@ export class Webcam  {
 
     // setup or setupWebcam
     @autobind
-    public async setup() {
+    public async setup(options: MediaTrackConstraints) {
         if (!this.webcam) {
-            this.webcam = await this.getWebcam();
+            this.webcam = await this.getWebcam(options);
 
             if (!this.canvas) {
                 this.canvas = document.createElement('canvas');
