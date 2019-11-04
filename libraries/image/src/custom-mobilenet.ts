@@ -304,24 +304,9 @@ export async function loadTruncatedMobileNet(modelOptions?: ModelOptions) {
     }
 }
 
-export async function load(model: string, metadata?: string | Metadata) {
-    let customModel, metadataJSON;
-
-    // loading from model and metadata urls
-    if (metadata) {
-        customModel = await tf.loadLayersModel(model);
-        metadataJSON = metadata ? await processMetadata(metadata) : null;
-    }
-    // loading just the main url provided by Teachable Machine
-    else {
-        const delimiter = (model.charAt(model.length - 1) !== '/') ? '/' : '';
-        const modelURL = model + delimiter + 'model.json';
-        const metadataURL = model + delimiter + 'metadata.json';
-
-        customModel = await tf.loadLayersModel(modelURL);
-        metadataJSON = await processMetadata(metadataURL);
-    }
-
+export async function load(model: string, metadata?: string | Metadata ) {
+    const customModel = await tf.loadLayersModel(model);
+    const metadataJSON = metadata ? await processMetadata(metadata) : null;
     return new CustomMobileNet(customModel, metadataJSON);
 }
 
