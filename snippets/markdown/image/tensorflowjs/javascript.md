@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.3/dist/teachablemachine-image.min.js"></script>
 <script type="text/javascript">
     // the link to your model provided by Teachable Machine export panel
-    const modelURL = '{{MODEL_URL}}';
+    const URL = '{{MODEL_URL}}';
 
     let model, webcam, labelContainer, maxPredictions;
 
@@ -16,7 +16,7 @@
         // load the model and metadata
         // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
         // or files from your local hard drive
-        model = await tmImage.load(modelURL);
+        model = await tmImage.load(URL);
         maxPredictions = model.getTotalClasses();
 
         // Convenience function to setup a webcam
