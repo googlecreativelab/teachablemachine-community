@@ -18,8 +18,11 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         const checkpointURL = URL + 'model.json'; // model topology
         const metadataURL = URL + 'metadata.json'; // model metadata
 
-        const recognizer = speechCommands.create('BROWSER_FFT', undefined,
-            checkpointURL, metadataURL);
+        const recognizer = speechCommands.create(
+            'BROWSER_FFT', // fourier transform type, not useful to change
+            undefined, // speech commands vocabulary feature, not useful for your models
+            checkpointURL,
+            metadataURL);
 
         // check that model and metadata are loaded via HTTPS requests.
         await recognizer.ensureModelLoaded();
