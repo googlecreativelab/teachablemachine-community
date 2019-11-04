@@ -10,12 +10,11 @@
     // https://github.com/tensorflow/tfjs-models/tree/master/speech-commands
 
     // the link to your model provided by Teachable Machine export panel
-    const modelURL = '{{MODEL_URL}}';
+    const URL = '{{MODEL_URL}}';
 
     async function createModel() {
-        const delimiter = (modelURL.charAt(modelURL.length - 1) !== '/') ? '/' : '';
-        const checkpointURL = modelURL + delimiter + 'model.json'; // model topology
-        const metadataURL = modelURL + delimiter + 'metadata.json'; // model metadata
+        const checkpointURL = URL + 'model.json'; // model topology
+        const metadataURL = URL + 'metadata.json'; // model metadata
 
         const recognizer = speechCommands.create('BROWSER_FFT', undefined,
             checkpointURL, metadataURL);
