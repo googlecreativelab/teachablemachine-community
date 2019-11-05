@@ -1,53 +1,62 @@
+Learn more about how to use the code snippet on [github](https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/audio).
+
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.3.8/dist/speech-commands.min.js"></script>
+<div>Teachable Machine Audio Model</div>
+<button type='button' onclick='init()'>Start</button>
+<div id='label-container'></div>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
 
 <script type="text/javascript">
     // more documentation available at
     // https://github.com/tensorflow/tfjs-models/tree/master/speech-commands
 
-    // the json file (model topology) has a reference to the bin file (model weights)
-    const checkpointURL = '{{MODEL_URL}}';
-    // the metatadata json file contains the text labels of your model and additional information
-    const metadataURL = '{{METADATA_URL}}';
+    // the link to your model provided by Teachable Machine export panel
+    const URL = '{{URL}}';
 
-    const recognizer = speechCommands.create(
-        'BROWSER_FFT',
-        undefined,
-        checkpointURL,
-        metadataURL);
+    async function createModel() {
+        const checkpointURL = URL + 'model.json'; // model topology
+        const metadataURL = URL + 'metadata.json'; // model metadata
 
+        const recognizer = speechCommands.create(
+            'BROWSER_FFT', // fourier transform type, not useful to change
+            undefined, // speech commands vocabulary feature, not useful for your models
+            checkpointURL,
+            metadataURL);
 
-    async function setup() {
-        // Make sure that the underlying model and metadata are loaded via HTTPS
-        // requests.
+        // check that model and metadata are loaded via HTTPS requests.
         await recognizer.ensureModelLoaded();
 
-        // See the array of words that the recognizer is trained to recognize.
-        console.log(recognizer.wordLabels());
+        return recognizer;
+    }
+
+    async function init() {
+        const recognizer = await createModel();
+        const classLabels = recognizer.wordLabels(); // get class labels
+        const labelContainer = document.getElementById('label-container');
+        for (let i = 0; i < classLabels.length; i++) {
+            labelContainer.appendChild(document.createElement('div'));
+        }
 
         // listen() takes two arguments:
         // 1. A callback function that is invoked anytime a word is recognized.
-        // 2. A configuration object with adjustable fields such a
-        //    - includeSpectrogram
-        //    - probabilityThreshold
-        //    - includeEmbedding
+        // 2. A configuration object with adjustable fields
         recognizer.listen(result => {
-        // - result.scores contains the probability scores that correspond to
-        //   recognizer.wordLabels().
-        // - result.spectrogram contains the spectrogram of the recognized word.
-            console.log(result);
+            const scores = result.scores; // probability of prediction for each class
+            // render the probability scores per class
+            for (let i = 0; i < classLabels.length; i++) {
+                const classPrediction = classLabels[i] + ': ' + result.scores[i].toFixed(2);
+                labelContainer.childNodes[i].innerHTML = classPrediction;
+            }
         }, {
-            includeSpectrogram: true,
+            includeSpectrogram: true, // in case listen should return result.spectrogram
             probabilityThreshold: 0.75,
             invokeCallbackOnNoiseAndUnknown: true,
             overlapFactor: 0.50 // probably want between 0.5 and 0.75. More info in README
         });
 
-        // Stop the recognition in 10 seconds.
-        // setTimeout(() => recognizer.stopListening(), 10e3);
+        // Stop the recognition in 5 seconds.
+        // setTimeout(() => recognizer.stopListening(), 5000);
     }
-
-    setup();
 </script>
 ```

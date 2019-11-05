@@ -4,11 +4,14 @@ Library for using audio models created with Teachable Machine.
 
 ### Model checkpoints
 
-There are two links related to your model that will be provided by Teachable Machine:
+There is one link related to your model that will be provided by Teachable Machine
 
-1) The model topology: `https://storage.googleapis.com/tm-speech-commands/YOUR_MODEL_NAME/model.json`
+`https://teachablemachine.withgoogle.com/models/MODEL_ID/`
 
-2) and a metadata JSON file: `https://storage.googleapis.com/tm-speech-commands/YOUR_MODEL_NAME/metadata.json`
+Which you can use to access:
+
+* The model topology: `https://teachablemachine.withgoogle.com/models/MODEL_ID/model.json`
+* The model metadata: `https://teachablemachine.withgoogle.com/models/MODEL_ID/metadata.json`
 
 
 
@@ -20,52 +23,83 @@ There are two ways to easily use the model provided by Teachable Machine in your
 ### via Script Tag
 
 ```js
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js">
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.3.8/dist/speech-commands.min.js">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js">
 ```
 
 ### via NPM
 
-Coming soon
+```
+npm i @tensorflow/tfjs
+npm i @tensorflow-models/speech-commands
+```
+
+```js
+import * as tf from '@tensorflow/tfjs';
+import * as speechCommands from '@tensorflow-models/speech-commands';
+```
+
 
 ### Sample snippet
 
 ```js
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js">
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.3.8/dist/speech-commands.min.js">
+<div>Teachable Machine Audio Model</div>
+<button type='button' onclick='init()'>Start</button>
+<div id='label-container'></div>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
 
 <script type="text/javascript">
-    const modelJson = 'https://storage.googleapis.com/tm-speech-commands/YOUR_MODEL_NAME/model.json';
-    const metadataJson = 'https://storage.googleapis.com/tm-speech-commands/YOUR_MODEL_NAME/metadata.json';
+    // more documentation available at
+    // https://github.com/tensorflow/tfjs-models/tree/master/speech-commands
 
-    const recognizer = speechCommands.create(
-        'BROWSER_FFT',
-        undefined,
-        modelJson,
-        metaDataJson);
+    // the link to your model provided by Teachable Machine export panel
+    const URL = '{{URL}}';
 
-    await recognizer.ensureModelLoaded();
+    async function createModel() {
+        const checkpointURL = URL + 'model.json'; // model topology
+        const metadataURL = URL + 'metadata.json'; // model metadata
 
-    // See the array of words that the recognizer is trained to recognize.
-    console.log(recognizer.wordLabels());
+        const recognizer = speechCommands.create(
+            'BROWSER_FFT', // fourier transform type, not useful to change
+            undefined, // speech commands vocabulary feature, not useful for your models
+            checkpointURL,
+            metadataURL);
 
-    // listen() takes two arguments:
-    // 1. A callback function that is invoked anytime a word is recognized.
-    // 2. A configuration object with adjustable fields such a
-    //    - includeSpectrogram
-    //    - probabilityThreshold
-    //    - includeEmbedding
-    recognizer.listen(result => {
-    // - result.scores contains the probability scores that correspond to recognizer.wordLabels().
-    // - result.spectrogram contains the spectrogram of the recognized word.
-    }, {
-    	includeSpectrogram: true,
-    	probabilityThreshold: 0.75,
-    	overlapFactor: 0.5
-    });
+        // check that model and metadata are loaded via HTTPS requests.
+        await recognizer.ensureModelLoaded();
 
-    // Stop the recognition in 10 seconds.
-    setTimeout(() => recognizer.stopListening(), 10e3);
+        return recognizer;
+    }
+
+    async function init() {
+        const recognizer = await createModel();
+        const classLabels = recognizer.wordLabels(); // get class labels
+        const labelContainer = document.getElementById('label-container');
+        for (let i = 0; i < classLabels.length; i++) {
+            labelContainer.appendChild(document.createElement('div'));
+        }
+
+        // listen() takes two arguments:
+        // 1. A callback function that is invoked anytime a word is recognized.
+        // 2. A configuration object with adjustable fields
+        recognizer.listen(result => {
+            const scores = result.scores; // probability of prediction for each class
+            // render the probability scores per class
+            for (let i = 0; i < classLabels.length; i++) {
+                const classPrediction = classLabels[i] + ': ' + result.scores[i].toFixed(2);
+                labelContainer.childNodes[i].innerHTML = classPrediction;
+            }
+        }, {
+            includeSpectrogram: true, // in case listen should return result.spectrogram
+            probabilityThreshold: 0.75,
+            invokeCallbackOnNoiseAndUnknown: true,
+            overlapFactor: 0.50 // probably want between 0.5 and 0.75. More info in README
+        });
+
+        // Stop the recognition in 5 seconds.
+        // setTimeout(() => recognizer.stopListening(), 5000);
+    }
 </script>
 ```
 
