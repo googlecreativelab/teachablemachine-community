@@ -24,7 +24,7 @@ export {
 } from './custom-posenet';
 
 export { TeachablePoseNet, createTeachable } from './teachable-posenet';
-export { getWebcam } from './utils/webcam';
+export { Webcam } from './utils/webcam';
 export { createCanvas } from './utils/canvas';
 export { drawKeypoints, drawSkeleton, drawPoint, drawSegment } from './utils/pose-draw';
 export { version } from './version';

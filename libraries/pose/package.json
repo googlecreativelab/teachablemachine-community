@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@tensorflow-models/posenet": "^2.2.0",
+    "autobind-decorator": "^2.4.0",
     "seedrandom": "^3.0.1"
   },
   "peerDependencies": {
