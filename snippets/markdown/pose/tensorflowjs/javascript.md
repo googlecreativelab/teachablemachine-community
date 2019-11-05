@@ -21,6 +21,7 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
 
         // load the model and metadata
         // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // Note: the pose library adds 'tmPose' object to your window (window.tmPose)
         model = await tmPose.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
 

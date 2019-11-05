@@ -108,7 +108,7 @@ import * as tmImage from '@teachablemachine/image';
 
 ### Loading the model - url checkpoints
 
-`tmImage` is the module name, which is automatically included when you use the `<script src>` method. 
+`tmImage` is the module name, which is automatically included when you use the `<script src>` method. It gets added as an object to your window so you can access via `window.tmImage` or simply `tmImage`.
 
 ```ts
 tmImage.load(

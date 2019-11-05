@@ -123,7 +123,7 @@ import * as tmPose from '@teachablemachine/pose';
 
 ### Loading the model - url checkpoints
 
-`tmPose` is the module name, which is automatically included when you use the `<script src>` method. 
+`tmPose` is the module name, which is automatically included when you use the `<script src>` method. It gets added as an object to your window so you can access via `window.tmPose` or simply `tmPose`.
 
 ```ts
 tmPose.load(
