@@ -24,6 +24,9 @@
             it('should be on window', () => {
                 assert.equal(typeof window.tmPose, 'object');
                 assert.equal(typeof tmPose.version, 'string');
+                assert.typeOf(tmPose.Webcam, "function");
+                assert.typeOf(tmPose.CustomPoseNet, "function");
+                assert.typeOf(tmPose.TeachablePoseNet, "function");
             });
         });
         setTimeout(() => {
