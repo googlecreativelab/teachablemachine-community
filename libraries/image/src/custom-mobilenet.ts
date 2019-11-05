@@ -132,19 +132,6 @@ const parseModelOptions = (options?: ModelOptions) => {
     }
 };
 
-// export const toMetadata = (
-//    tfjsVersion: string,
-//    tmVersion: string, labels: string[], name = 'tm-pro') => {
-        // return {
-        //     tfjsVersion,
-        //     tmVersion,
-        //     packageVersion: version,
-        //     modelName: name,
-        //     timeStamp: new Date().toISOString(),
-        //     labels: labels
-        // };
-// };
-
 /**
  * process either a URL string or a Metadata object
  * @param metadata a url to load metadata or a Metadata object
@@ -152,11 +139,8 @@ const parseModelOptions = (options?: ModelOptions) => {
 const processMetadata = async (metadata: string | Metadata) => {
     let metadataJSON: Metadata;
     if (typeof metadata === 'string') {
-        util.assert(    
-            metadata.indexOf('http') === 0,
-            () => 'metadata is a string but not a valid url'
-        );
-        metadataJSON = await (await fetch(metadata)).json();
+        const metadataResponse = await fetch(metadata);
+        metadataJSON = await metadataResponse.json();
     } else if (isMetadata(metadata)) {
         metadataJSON = metadata;
     } else {
@@ -231,6 +215,13 @@ export class CustomMobileNet {
         const output = this.model.output as SymbolicTensor;
         const totalClasses = output.shape[1];
         return totalClasses;
+    }
+
+    /**
+     * get the model labels
+     */
+    getClassLabels() {
+        return this._metadata.labels;
     }
 
     /**
@@ -314,14 +305,14 @@ export async function loadTruncatedMobileNet(modelOptions?: ModelOptions) {
     }
 }
 
-export async function load(checkpoint: string, metadata?: string | Metadata ) {
-    const customModel = await tf.loadLayersModel(checkpoint);
+export async function load(model: string, metadata?: string | Metadata ) {
+    const customModel = await tf.loadLayersModel(model);
     const metadataJSON = metadata ? await processMetadata(metadata) : null;
     return new CustomMobileNet(customModel, metadataJSON);
 }
 
-export async function loadFromFiles(json: File, weights: File, metadata: File) {
-    const customModel = await tf.loadLayersModel(tf.io.browserFiles([json, weights]));
+export async function loadFromFiles(model: File, weights: File, metadata: File) {
+    const customModel = await tf.loadLayersModel(tf.io.browserFiles([model, weights]));
     const metadataFile = await new Response(metadata).json();
     const metadataJSON = metadata ? await processMetadata(metadataFile) : null;
     return new CustomMobileNet(customModel, metadataJSON);
