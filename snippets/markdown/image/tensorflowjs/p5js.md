@@ -11,10 +11,11 @@
 
   // Video
   let video;
+  let flipVideo;
 
   // To store the classification
   let label = "";
-  
+
   const size = 240;
 
   // Load the model first
@@ -29,12 +30,14 @@
         aspectRatio: 1
       }
     };
-  
+
     createCanvas(size, size);
     // Create the video
     video = createCapture(constraints);
     video.size(size, size);
     video.hide();
+    // Flip the video to match TM
+    flipVideo = ml5.flipImage(video);
 
     // Start classifying
     classifyVideo();
@@ -54,7 +57,9 @@
 
   // Get a prediction for the current video frame
   function classifyVideo() {
-    classifier.classify(video, gotResult);
+    // Flip the video to match TM
+    flipVideo = ml5.flipImage(video);
+    classifier.classify(flipVideo, gotResult);
   }
 
   // When we get a result
