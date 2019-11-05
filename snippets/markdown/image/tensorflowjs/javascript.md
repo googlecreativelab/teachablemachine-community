@@ -12,7 +12,7 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
     // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
 
     // the link to your model provided by Teachable Machine export panel
-    const URL = '{{MODEL_URL}}';
+    const URL = '{{URL}}';
 
     let model, webcam, labelContainer, maxPredictions;
 
