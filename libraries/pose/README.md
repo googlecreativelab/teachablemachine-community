@@ -42,7 +42,7 @@ import * as tmPose from '@teachablemachine/pose';
 
 ### Sample snippet
 
-```
+```js
 <div>Teachable Machine Pose Model</div>
 <button type='button' onclick='init()'>Start</button>
 <div><canvas id='canvas'></canvas></div>
@@ -62,7 +62,7 @@ import * as tmPose from '@teachablemachine/pose';
         const metadataURL = URL + 'metadata.json';
 
         // load the model and metadata
-        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // Refer to tmPose.loadFromFiles() in the API to support files from a file picker
         model = await tmPose.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
 
@@ -274,12 +274,12 @@ const prediction = await model.predictTopK(posenetOutput, maxPredictions);
 
 ### Webcam
 
-You can optionally use a webcam class that comes with the library, or spin up your own webcam. This class exists on the `tmImage` module.
+You can optionally use a webcam class that comes with the library, or spin up your own webcam. This class exists on the `tmPose` module.
 
 Please note that the default webcam used in Teachable Machine was flipped on X - so you should probably set `flip = true` if creating your own webcam unless you flipped it manually in Teachable Machine.
 
 ```ts
-new tmImage.Webcam(
+new tmPose.Webcam(
     width = 400,
     height = 400,
     flip = false,
@@ -296,7 +296,7 @@ Usage:
 
 ```js
 // webcam has a square ratio and is flipped by default to match training
-const webcam = new tmImage.Webcam(200, 200, true);
+const webcam = new tmPose.Webcam(200, 200, true);
 await webcam.setup();
 webcam.play();
 document.body.appendChild(webcam.canvas);
