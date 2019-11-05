@@ -1,3 +1,5 @@
+Open up the code snippet below directly in the [p5.js Web Editor](https://editor.p5js.org/ml5/sketches/ImageModel_TM).
+
 ```html
 <div>Teachable Machine Image Model - p5.js and ml5.js</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
