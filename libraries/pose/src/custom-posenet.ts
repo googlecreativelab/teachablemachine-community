@@ -23,7 +23,7 @@ import {
 	getInputTensorDimensions,
 	toTensorBuffers3D
 } from "@tensorflow-models/posenet/dist/util";
-import { util, SymbolicTensor } from "@tensorflow/tfjs";
+import { SymbolicTensor } from "@tensorflow/tfjs";
 import { version } from "./version";
 import { decodeMultiplePoses } from "@tensorflow-models/posenet";
 /**
@@ -72,11 +72,8 @@ const isMetadata = (c: any): c is Metadata =>
 const processMetadata = async (metadata: string | Metadata) => {
 	let metadataJSON: Metadata;
 	if (typeof metadata === "string") {
-		util.assert(
-			metadata.indexOf("http") === 0,
-			() => "metadata is a string but not a valid url"
-		);
-		metadataJSON = await (await fetch(metadata)).json();
+		const metadataResponse = await fetch(metadata);
+        metadataJSON = await metadataResponse.json();
 	} else if (isMetadata(metadata)) {
 		metadataJSON = metadata;
 	} else {
@@ -139,6 +136,14 @@ export class CustomPoseNet {
 	) {
 		this._metadata = fillMetadata(metadata);
 	}
+
+	/**
+	 * get the model labels
+	 */
+    getClassLabels() {
+        return this._metadata.labels;
+    }
+
 	/**
 	 * get the total number of classes existing within model
 	 */
