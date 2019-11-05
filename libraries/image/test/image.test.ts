@@ -320,11 +320,7 @@ tf.util.fetch = (a, b) => window.fetch(a, b);
 describe("Module exports", () => {
 	it("should contain ", () => {
 		assert.typeOf(tm, "object", "tm should be an object");
-		assert.typeOf(
-			tm.getWebcam,
-			"function",
-			"tm.getWebcam should be a function"
-		);
+		assert.typeOf(tm.Webcam, "function");
 		assert.typeOf(tm.version, "string", "tm.version should be a string");
 		assert.typeOf(tm.CustomMobileNet, "function");
 		assert.typeOf(tm.TeachableMobileNet, "function");

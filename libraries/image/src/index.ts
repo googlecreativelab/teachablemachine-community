@@ -26,5 +26,5 @@ export {
 } from './custom-mobilenet';
 
 export { TeachableMobileNet, createTeachable } from './teachable-mobilenet';
-export { getWebcam } from './utils/webcam';
+export { Webcam } from './utils/webcam';
 export { version } from './version';

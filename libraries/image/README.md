@@ -4,11 +4,14 @@ Library for using image models created with Teachable Machine.
 
 ### Model checkpoints
 
-There are two links related to your model that will be provided by Teachable Machine:
+There is one link related to your model that will be provided by Teachable Machine
 
-1) The model topology: `https://storage.googleapis.com/tm-mobilenet/YOUR_MODEL_NAME/model.json`
+`https://teachablemachine.withgoogle.com/models/MODEL_ID/`
 
-2) and a metadata JSON file: `https://storage.googleapis.com/tm-mobilenet/YOUR_MODEL_NAME/metadata.json`
+Which you can use to access:
+
+* The model topology: `https://teachablemachine.withgoogle.com/models/MODEL_ID/model.json`
+* The model metadata: `https://teachablemachine.withgoogle.com/models/MODEL_ID/metadata.json`
 
 
 ## Usage
@@ -18,15 +21,18 @@ There are two ways to easily use the model provided by Teachable Machine in your
 ### via Script Tag
 
 ```js
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://storage.googleapis.com/tm-pro/latest/teachablemachine-image.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.3/dist/teachablemachine-image.min.js"></script>
 ```
 
 ### via NPM
 
 [NPM Package](https://www.npmjs.com/package/@teachablemachine/image)
 
-`npm i @teachablemachine/image`
+```
+npm i @tensorflow/tfjs
+npm i @teachablemachine/image
+```
 
 ```js
 import * as tf from '@tensorflow/tfjs';
@@ -37,33 +43,63 @@ import * as tmImage from '@teachablemachine/image';
 ### Sample snippet
 
 ```js
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.1.2/dist/tf.min.js"></script>
-<script src="https://storage.googleapis.com/tm-pro/latest/teachablemachine-image.min.js"></script>
+<div>Teachable Machine Image Model</div>
+<button type='button' onclick='init()'>Start</button>
+<div id='webcam-container'></div>
+<div id='label-container'></div>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.3/dist/teachablemachine-image.min.js"></script>
 <script type="text/javascript">
-    const checkpointURL = 'https://storage.googleapis.com/tm-mobilenet/YOUR_MODEL_NAME/model.json';
-    const metadataURL = 'https://storage.googleapis.com/tm-mobilenet/YOUR_MODEL_NAME/metadata.json';
+    // More API functions here:
+    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
 
-    let model;
-    let webcamEl;
+    // the link to your model provided by Teachable Machine export panel
+    const URL = '{{URL}}';
 
+    let model, webcam, labelContainer, maxPredictions;
+
+    // Load the image model and setup the webcam
     async function init() {
-        model = await tmImage.load(checkpointURL, metadataURL);
-        const maxPredictions = model.getTotalClasses();
+        const modelURL = URL + 'model.json';
+        const metadataURL = URL + 'metadata.json';
 
-        // webcam has a square ratio and is flipped by default to match training
-        const webcamFlipped = true;
-        webcamEl = await tmImage.getWebcam(200, 200, 'front', webcamFlipped);
-        webcamEl.play();
-        document.body.appendChild(webcamEl);
+        // load the model and metadata
+        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // or files from your local hard drive
+        model = await tmImage.load(URL);
+        maxPredictions = model.getTotalClasses();
 
-        // predict can take in an image, video or canvas html element
-        // we set flip to true since the webcam was only flipped in CSS
-        const flip = true;
-        const prediction = await model.predict(webcamEl, flip);
-        console.log(prediction);
+        // Convenience function to setup a webcam
+        const flip = true; // whether to flip the webcam
+        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append elements to the DOM
+        document.getElementById('webcam-container').appendChild(webcam.canvas);
+        labelContainer = document.getElementById('label-container');
+        for (let i = 0; i < maxPredictions; i++) { // and class labels
+            labelContainer.appendChild(document.createElement('div'));
+        }
     }
 
-    init();
+    async function loop() {
+        webcam.update(); // update the webcam frame
+        await predict();
+        window.requestAnimationFrame(loop);
+    }
+
+    // run the webcam image through the image model
+    async function predict() {
+        // predict can take in an image, video or canvas html element
+        const prediction = await model.predict(webcam.canvas);
+        for (let i = 0; i < maxPredictions; i++) {
+            const classPrediction =
+                prediction[i].className + ': ' + prediction[i].probability.toFixed(2);
+            labelContainer.childNodes[i].innerHTML = classPrediction;
+        }
+    }
 </script>
 ```
 
@@ -134,6 +170,19 @@ model.getTotalClasses()
 
 Returns a number representing the total number of classes
 
+### Model - get class labels
+
+Once you have loaded a model, you can obtain the class labels (i.e. the name of each category the model was trained on). 
+
+This method exists on the model that is loaded from `tmImage.getClassLabels`.
+
+```ts
+model.getClassLabels()
+```
+
+Returns an array with class names as strings.
+
+
 ### Model - predict
 
 Once you have loaded a model, you can make a classificaiton with a couple of different input options.
@@ -198,18 +247,15 @@ const prediction = await model.predictTopK(webcamElement, maxPredictions, flip);
 
 ### Webcam
 
-You can optionally use a webcam utility that comes with the library, or spin up your own webcam. This method exists on the `tmImage` module.
+You can optionally use a webcam class that comes with the library, or spin up your own webcam. This class exists on the `tmImage` module.
 
-Please note that the webcam used in Teachable Machine was flipped on X - so you should probably do the same if creating your own webcam.
+Please note that the default webcam used in Teachable Machine was flipped on X - so you should probably set `flip = true` if creating your own webcam unless you flipped it manually in Teachable Machine.
 
 ```ts
-tmImage.getWebcam(
+new tmImage.Webcam(
     width = 400,
     height = 400,
-    facingMode = 'front',
-    flipped = true,
-    video: HTMLVideoElement = document.createElement('video'),
-    options: MediaTrackConstraints = defaultConstraints
+    flip = false,
 )
 ```
 
@@ -217,27 +263,53 @@ Args:
 
 * **width**: width of the webcam. It should ideally be square since that's how the model was trained with Teachable Machine.
 * **height**: height of the webcam. It should ideally be square since that's how the model was trained with Teachable Machine.
-* **facingMode**: 'front' or 'back'. Whether to use the front or back facing camera.
-* **flipped**: boolean to signal whether webcam should be flipped on X. Please note this is only flipping on CSS.
-* **video**: video element for the webcam
-* **options**: video constraints
+* **flip**: boolean to signal whether webcam should be flipped on X. Please note this is only flipping on CSS.
 
 Usage:
 
 ```js
 // webcam has a square ratio and is flipped by default to match training
-const webcamEl = await tmImage.getWebcam(200, 200);
-webcamEl.play();
-document.body.appendChild(webcamEl);
+const webcam = new tmImage.Webcam(200, 200, true);
+await webcam.setup();
+webcam.play();
+document.body.appendChild(webcam.canvas);
 ```
 
-or
+### Webcam - setup
+
+After creating a Webcam object you need to call setup just once to set it up.
+
+```ts
+webcam.setup(
+	options: MediaTrackConstraints = {}
+)
+```
+
+Args:
+
+* **options**: optional media track contraints for the webcam
+
+Usage:
 
 ```js
-const webcamEl = await tmImage.getWebcam(200, 200, 'front');
-const webcamEl = await tmImage.getWebcam(200, 200, 'back');
-const webcamEl = await tmImage.getWebcam(200, 200, 'front', false);
+await webcam.setup();
 ```
 
+### Webcam - play, pause, stop
 
+```ts
+webcam.play();
+webcam.pause();
+webcam.stop();
+```
+
+Webcam play loads and starts playback of a media resource. Returns a promise.
+
+### Webcam - update
+
+Call on update to update the webcam frame.
+
+```ts
+webcam.update();
+```
 
