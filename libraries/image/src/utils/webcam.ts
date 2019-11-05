@@ -67,7 +67,7 @@ export class Webcam  {
 
     // setup or setupWebcam
     @autobind
-    public async setup(options: MediaTrackConstraints) {
+    public async setup(options: MediaTrackConstraints = {}) {
         if (!this.webcam) {
             this.webcam = await this.getWebcam(options);
 
