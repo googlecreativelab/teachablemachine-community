@@ -26,15 +26,16 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         maxPredictions = model.getTotalClasses();
 
         // Convenience function to setup a webcam
+        const size = 200;
         const flip = true; // whether to flip the webcam
-        webcam = new tmPose.Webcam(200, 200, flip); // width, height, flip
+        webcam = new tmPose.Webcam(size, size, flip); // width, height, flip
         await webcam.setup(); // request access to the webcam
         webcam.play();
         window.requestAnimationFrame(loop);
 
         // append/get elements to the DOM
         const canvas = document.getElementById('canvas');
-        canvas.width = 200; canvas.height = 200;
+        canvas.width = size; canvas.height = size;
         ctx = canvas.getContext('2d');
         labelContainer = document.getElementById('label-container');
         for (let i = 0; i < maxPredictions; i++) { // and class labels
@@ -66,12 +67,14 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
     }
 
     function drawPose(pose) {
-        ctx.drawImage(webcam.canvas, 0, 0);
-        // draw the keypoints and skeleton
-        if (pose) {
-            const minPartConfidence = 0.5;
-            tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
-            tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+        if (webcam.canvas) {
+            ctx.drawImage(webcam.canvas, 0, 0);
+            // draw the keypoints and skeleton
+            if (pose) {
+                const minPartConfidence = 0.5;
+                tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
+                tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+            }
         }
     }
 </script>
