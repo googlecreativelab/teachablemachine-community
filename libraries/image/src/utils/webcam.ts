@@ -16,11 +16,11 @@
  */
 
 import autobind from 'autobind-decorator';
+import { cropTo } from './canvas';
 
 const defaultVideoOptions: MediaTrackConstraints = {
     facingMode: 'user',
-    frameRate: 30,
-    aspectRatio: 1
+    frameRate: 24
 };
 
 const fillConstraints = (options: Partial<MediaTrackConstraints>) => {
@@ -49,16 +49,21 @@ export class Webcam  {
             return Promise.reject('Your browser does not support WebRTC. Please try another one.');
         }
     
-        options.width = this.width;
-        options.height = this.height;
+        options.width = { min: this.width, max: 640 };
+        options.height = { min: this.width, max: 640 };
         const videoOptions = fillConstraints(options);
 
         const video = document.createElement('video');
         return window.navigator.mediaDevices.getUserMedia({ video: videoOptions })
             .then((mediaStream) => {
                 video.srcObject = mediaStream;
-                video.width = this.width;
-                video.height = this.height;
+
+                video.addEventListener('loadedmetadata', (event: Event) => {
+                    const { videoWidth: vw, videoHeight: vh } = video;
+                    video.width = vw;
+                    video.height = vh;
+                });
+
                 return video;
             }, () => {
                 return Promise.reject('Could not open your camera. You may have denied access.');
@@ -117,14 +122,10 @@ export class Webcam  {
         if (this.canvas && this.webcam) {
             const ctx = this.canvas.getContext('2d');
 
-            if (this.flip) {
-                ctx.save();
-                ctx.scale(-1, 1);
-                ctx.drawImage(this.webcam, -this.webcam.width, 0);
-                ctx.restore();
-            } else {
-                ctx.drawImage(this.webcam, 0, 0);
-            }
+           if (this.webcam.videoWidth !== 0) {
+               const croppedCanvas = cropTo(this.webcam, this.width, this.flip);
+               ctx.drawImage(croppedCanvas, 0, 0);
+           }
         }
     }
 }
