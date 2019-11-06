@@ -49,8 +49,7 @@ export class Webcam  {
             return Promise.reject('Your browser does not support WebRTC. Please try another one.');
         }
     
-        options.width = { min: this.width, max: 640 };
-        options.height = { min: this.width, max: 640 };
+        options.width = 640;
         const videoOptions = fillConstraints(options);
 
         const video = document.createElement('video');
