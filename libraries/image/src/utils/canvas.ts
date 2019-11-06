@@ -62,9 +62,10 @@ export function cropTo( image: Drawable, size: number,
     const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
     ctx.drawImage(image, ~~(dx / 2) * -1, ~~(dy / 2) * -1, scaledW, scaledH);
 
+    // canvas is already sized and cropped to center correctly
     if (flipped) {
         ctx.scale(-1, 1);
-        ctx.drawImage(canvas, scaledW * -1, 0);
+        ctx.drawImage(canvas, size * -1, 0);
     }
 
     return canvas;

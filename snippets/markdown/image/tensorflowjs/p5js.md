@@ -4,7 +4,7 @@ Open up the code snippet below directly in the [p5.js Web Editor](https://editor
 <div>Teachable Machine Image Model - p5.js and ml5.js</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script>
-<script src="https://unpkg.com/ml5@0.4.1/dist/ml5.min.js"></script>
+<script src="https://unpkg.com/ml5@0.4.2/dist/ml5.min.js"></script>
 <script type="text/javascript">
   // Classifier Variable
   let classifier;
@@ -26,16 +26,9 @@ Open up the code snippet below directly in the [p5.js Web Editor](https://editor
   }
 
   function setup() {
-    const constraints = {
-      audio: false,
-      video: {
-        aspectRatio: 1
-      }
-    };
-
     createCanvas(size, size);
     // Create the video
-    video = createCapture(constraints);
+    video = createCapture(VIDEO);
     video.size(size, size);
     video.hide();
     // Flip the video to match TM

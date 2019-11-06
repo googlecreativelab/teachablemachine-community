@@ -6,7 +6,7 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
 <div><canvas id='canvas'></canvas></div>
 <div id='label-container'></div>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8.3/dist/teachablemachine-pose.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js"></script>
 <script type="text/javascript">
     // More API functions here:
     // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/pose
@@ -26,15 +26,16 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         maxPredictions = model.getTotalClasses();
 
         // Convenience function to setup a webcam
+        const size = 200;
         const flip = true; // whether to flip the webcam
-        webcam = new tmPose.Webcam(200, 200, flip); // width, height, flip
+        webcam = new tmPose.Webcam(size, size, flip); // width, height, flip
         await webcam.setup(); // request access to the webcam
-        webcam.play();
+        await webcam.play();
         window.requestAnimationFrame(loop);
 
         // append/get elements to the DOM
         const canvas = document.getElementById('canvas');
-        canvas.width = 200; canvas.height = 200;
+        canvas.width = size; canvas.height = size;
         ctx = canvas.getContext('2d');
         labelContainer = document.getElementById('label-container');
         for (let i = 0; i < maxPredictions; i++) { // and class labels
@@ -66,12 +67,14 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
     }
 
     function drawPose(pose) {
-        ctx.drawImage(webcam.canvas, 0, 0);
-        // draw the keypoints and skeleton
-        if (pose) {
-            const minPartConfidence = 0.5;
-            tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
-            tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+        if (webcam.canvas) {
+            ctx.drawImage(webcam.canvas, 0, 0);
+            // draw the keypoints and skeleton
+            if (pose) {
+                const minPartConfidence = 0.5;
+                tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
+                tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+            }
         }
     }
 </script>
