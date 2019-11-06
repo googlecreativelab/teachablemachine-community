@@ -1,3 +1,5 @@
+Open up the code snippet below directly in the [p5.js Web Editor](https://editor.p5js.org/ml5/sketches/ImageModel_TM).
+
 ```html
 <div>Teachable Machine Image Model - p5.js and ml5.js</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
@@ -11,10 +13,11 @@
 
   // Video
   let video;
+  let flipVideo;
 
   // To store the classification
   let label = "";
-  
+
   const size = 240;
 
   // Load the model first
@@ -29,12 +32,14 @@
         aspectRatio: 1
       }
     };
-  
+
     createCanvas(size, size);
     // Create the video
     video = createCapture(constraints);
     video.size(size, size);
     video.hide();
+    // Flip the video to match TM
+    flipVideo = ml5.flipImage(video);
 
     // Start classifying
     classifyVideo();
@@ -43,7 +48,7 @@
   function draw() {
     background(0);
     // Draw the video
-    image(video, 0, 0);
+    image(flipVideo, 0, 0);
 
     // Draw the label
     fill(255);
@@ -54,7 +59,9 @@
 
   // Get a prediction for the current video frame
   function classifyVideo() {
-    classifier.classify(video, gotResult);
+    // Flip the video to match TM
+    flipVideo = ml5.flipImage(video);
+    classifier.classify(flipVideo, gotResult);
   }
 
   // When we get a result
