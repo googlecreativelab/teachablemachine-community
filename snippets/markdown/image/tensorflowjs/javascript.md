@@ -32,7 +32,7 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         const flip = true; // whether to flip the webcam
         webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
         await webcam.setup(); // request access to the webcam
-        webcam.play();
+        await webcam.play();
         window.requestAnimationFrame(loop);
 
         // append elements to the DOM
