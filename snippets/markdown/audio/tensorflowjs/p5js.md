@@ -1,5 +1,12 @@
-```javascript
-// Global variable to store the classifier
+Open up the code snippet below directly in the [p5.js Web Editor](https://editor.p5js.org/ml5/sketches/SoundModel_TM).
+
+```html
+<div>Teachable Machine Audio Model - p5.js and ml5.js</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script>
+<script src="https://unpkg.com/ml5@0.4.1/dist/ml5.min.js"></script>
+<script type="text/javascript">
+  // Global variable to store the classifier
 let classifier;
 
 // Label
@@ -41,4 +48,5 @@ function gotResult(error, results) {
   // console.log(results[0]);
   label = results[0].label;
 }
+</script>
 ```
