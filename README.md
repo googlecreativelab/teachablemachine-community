@@ -1,9 +1,5 @@
 # Teachable Machine Community
 
-(some gif)
-
-[Teachable Machine](https://teachablemachine.withgoogle.com) is a web tool that makes it fast and easy to create machine learning models for your projects, no coding required. Train a computer to recognize your images, sounds, & poses, then export your model for your sites, apps, and more. [Try it out here.](https://teachablemachine.withgoogle.com)
-
 This repository contains parts of Teachable Machine that can be contributed to by community. Its split up into two sections, [snippets](/snippets) and [librarires](/librarires). 
 
 The snippets are markdown files that are shown inside the [Teachable Machine](https://teachablemachine.withgoogle.com) tool, that are meant as starting points to use the trained models outside the tool.
