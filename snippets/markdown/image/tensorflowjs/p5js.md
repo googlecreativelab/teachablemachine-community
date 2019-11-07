@@ -9,31 +9,30 @@ Open up the code snippet below directly in the [p5.js Web Editor](https://editor
   // Classifier Variable
   let classifier;
   // Model URL
-  const imageModel = '{{URL}}';
+  let imageModelURL = '{{URL}}';
 
+  // Classifier Variable
+  let classifier;
+  
   // Video
   let video;
-  let flipVideo;
-
+  let flippedVideo;
   // To store the classification
   let label = "";
 
-  const size = 240;
-
   // Load the model first
   function preload() {
-    classifier = ml5.imageClassifier(imageModel + 'model.json');
+    classifier = ml5.imageClassifier(imageModelURL + 'model.json');
   }
 
   function setup() {
-    createCanvas(size, size);
+    createCanvas(320, 260);
     // Create the video
     video = createCapture(VIDEO);
-    video.size(size, size);
+    video.size(320, 240);
     video.hide();
-    // Flip the video to match TM
-    flipVideo = ml5.flipImage(video);
 
+    flippedVideo = ml5.flipImage(video)
     // Start classifying
     classifyVideo();
   }
@@ -41,7 +40,7 @@ Open up the code snippet below directly in the [p5.js Web Editor](https://editor
   function draw() {
     background(0);
     // Draw the video
-    image(flipVideo, 0, 0);
+    image(flippedVideo, 0, 0);
 
     // Draw the label
     fill(255);
@@ -52,9 +51,8 @@ Open up the code snippet below directly in the [p5.js Web Editor](https://editor
 
   // Get a prediction for the current video frame
   function classifyVideo() {
-    // Flip the video to match TM
-    flipVideo = ml5.flipImage(video);
-    classifier.classify(flipVideo, gotResult);
+    flippedVideo = ml5.flipImage(video)
+    classifier.classify(flippedVideo, gotResult);
   }
 
   // When we get a result
@@ -65,7 +63,7 @@ Open up the code snippet below directly in the [p5.js Web Editor](https://editor
       return;
     }
     // The results are in an array ordered by confidence.
-    console.log(results[0]);
+    // console.log(results[0]);
     label = results[0].label;
     // Classifiy again!
     classifyVideo();
