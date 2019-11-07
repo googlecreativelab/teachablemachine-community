@@ -6,3 +6,5 @@ If you want to contribute with fixes or new snippets, please feel free to submit
 
 ### Deployment
 Each commit to master branch triggers [Cloud Build](https://pantheon.corp.google.com/cloud-build/dashboard?project=gweb-teachable-ai) task that copies the markdown files to a cloud storage bucket that is served to the Teachable Machine frontend.
+
+[markdown/index.json](markdown/index.json) serves as the index file of all markdown files, and contains the titles and tooltips of each file. If a new file is being added, you should also add it to the index file. 
