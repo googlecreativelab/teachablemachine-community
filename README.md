@@ -2,17 +2,17 @@
 
 ![Teachable Machine](./teachablemachine.gif)
 
-###What is Teachable Machine?
+### What is Teachable Machine?
 
 [Teachable Machine](https://teachablemachine.withgoogle.com/) is a web-based tool that makes creating machine learning models fast, easy, and accessible for everyone. [You can try it here](https://teachablemachine.withgoogle.com/).
 
-###Who is it for?
+### Who is it for?
 Educators, artists, students, innovators, makers of all kinds – really, anyone who has an idea they want to explore. No prerequisite machine learning knowledge required.
 
-###How does it work?
+### How does it work?
 You train a computer to recognize your images, sounds, and poses without writing any machine learning code. Then, use your model in your own projects, sites, apps, and more.
 
-###What is this repository for?
+### What is this repository for?
 
 This repository contains two components of [Teachable Machine](https://teachablemachine.withgoogle.com/):
 
@@ -20,7 +20,7 @@ This repository contains two components of [Teachable Machine](https://teachable
 
 2. **A [snippets](/snippets) section** that contains markdown snippets that are being displayed inside the export panel in [Teachable Machine](https://teachablemachine.withgoogle.com/). These snippets contain code and instructions on how to use the exported models from Teachable Machine in languages like Javascript, Java and Python.
 
-###How can I send feedback?
+### How can I send feedback?
 
 You have a few options:
 
