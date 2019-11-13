@@ -298,7 +298,9 @@ export class TeachablePoseNet extends CustomPoseNet {
                 kernelInitializer: varianceScaling, // 'varianceScaling'
                 useBias: true
             }),
-            // Layer 2. The number of units of the last layer should correspond
+            // Layer 2 dropout
+            tf.layers.dropout({rate: 0.5}),
+            // Layer 3. The number of units of the last layer should correspond
             // to the number of classes we want to predict.
             tf.layers.dense({
                 units: this.numClasses,
@@ -308,7 +310,8 @@ export class TeachablePoseNet extends CustomPoseNet {
             })
             ]
         });
-        const optimizer = tf.train.adam(params.learningRate);
+        // const optimizer = tf.train.adam(params.learningRate);
+        const optimizer = tf.train.rmsprop(params.learningRate);
         this.model.compile({
             optimizer,
             loss: 'categoricalCrossentropy',
