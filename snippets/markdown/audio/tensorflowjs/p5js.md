@@ -4,7 +4,7 @@ Open up the code snippet below directly in the [p5.js Web Editor](https://editor
 <div>Teachable Machine Audio Model - p5.js and ml5.js</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script>
-<script src="https://unpkg.com/ml5@0.4.2/dist/ml5.min.js"></script>
+<script src="https://unpkg.com/ml5@0.4.3/dist/ml5.min.js"></script>
 <script type="text/javascript">
   // Global variable to store the classifier
 let classifier;
