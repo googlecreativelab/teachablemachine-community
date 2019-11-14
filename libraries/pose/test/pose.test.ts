@@ -48,7 +48,10 @@ async function testPosenet(
 ) {
     const poseModel = await tm.createTeachable({
         tfjsVersion: tf.version.tfjs,
-        tmVersion: tm.version
+        tmVersion: tm.version,
+        posenetConfig: {
+            outputStride: 16
+        }
     });		
     assert.exists(poseModel);
     

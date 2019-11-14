@@ -458,7 +458,7 @@ export class TeachablePoseNet extends CustomPoseNet {
 }
 
 export async function createTeachable(metadata: Partial<Metadata>) {
-    const posenetModel = await loadPoseNet();
+    const posenetModel = await loadPoseNet(metadata.posenetConfig);
 
     return new TeachablePoseNet(tf.sequential(), posenetModel, metadata);
 }
