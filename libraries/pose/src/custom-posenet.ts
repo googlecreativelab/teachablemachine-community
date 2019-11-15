@@ -25,7 +25,8 @@ import {
 } from "@tensorflow-models/posenet/dist/util";
 import { SymbolicTensor } from "@tensorflow/tfjs";
 import { version } from "./version";
-import { decodeMultiplePoses } from "@tensorflow-models/posenet";
+import { decodeMultiplePoses, ModelConfig } from "@tensorflow-models/posenet";
+
 /**
  * the metadata to describe the model's creation,
  * includes the labels associated with the classes
@@ -40,6 +41,7 @@ export interface Metadata {
 	timeStamp?: string;
 	labels: string[];
 	userMetadata?: {};
+	posenetConfig?: Partial<ModelConfig>;
 }
 
 const MAX_PREDICTIONS = 3;
@@ -58,6 +60,7 @@ const fillMetadata = (data: Partial<Metadata>) => {
 	data.userMetadata = data.userMetadata || {};
 	data.modelName = data.modelName || "untitled";
 	data.labels = data.labels || [];
+	data.posenetConfig = fillConfig(data.posenetConfig);
 	return data as Metadata;
 };
 // tslint:disable-next-line:no-any
@@ -80,6 +83,21 @@ const processMetadata = async (metadata: string | Metadata) => {
 		throw new Error("Invalid Metadata provided");
 	}
 	return fillMetadata(metadataJSON);
+};
+
+/**
+ * process posenet configuration options
+ * @param config a PosenetConfig object
+ */
+const fillConfig = (config: Partial<ModelConfig>) => {
+	config = config ? config : {};
+
+	config.architecture = config.architecture || 'MobileNetV1';
+	config.outputStride = config.outputStride || 16;
+	config.inputResolution = config.inputResolution || 257;
+	config.multiplier = config.multiplier || 0.75;
+
+	return config as ModelConfig;
 };
 
 export type ClassifierInputSource = PosenetInput;
@@ -304,12 +322,14 @@ export class CustomPoseNet {
 	}
 }
 
-export async function loadPoseNet() {
+export async function loadPoseNet(posenetConfig: Partial<ModelConfig>) {
+	posenetConfig = fillConfig(posenetConfig);
+
 	const posenetModel = await posenet.load({
-		architecture: "MobileNetV1",
-		outputStride: 16,
-		inputResolution: 257,
-		multiplier: 0.75
+		architecture: posenetConfig.architecture,
+		outputStride: posenetConfig.outputStride,
+		inputResolution: posenetConfig.inputResolution,
+		multiplier: posenetConfig.multiplier
 	});
 	return posenetModel;
 }
@@ -317,7 +337,7 @@ export async function loadPoseNet() {
 export async function load(checkpoint: string, metadata?: string | Metadata) {
 	const customModel = await tf.loadLayersModel(checkpoint);
 	const metadataJSON = metadata ? await processMetadata(metadata) : null;
-	const posenetModel = await loadPoseNet();
+	const posenetModel = await loadPoseNet(metadataJSON.posenetConfig);
 	return new CustomPoseNet(customModel, posenetModel, metadataJSON);
 }
 
@@ -325,7 +345,6 @@ export async function loadFromFiles(json: File, weights: File, metadata: File) {
 	const customModel = await tf.loadLayersModel(tf.io.browserFiles([json, weights]));
 	const metadataFile = await new Response(metadata).json();
 	const metadataJSON = metadata ? await processMetadata(metadataFile) : null;
-	
-	const posenetModel = await loadPoseNet();
+	const posenetModel = await loadPoseNet(metadataJSON.posenetConfig);
 	return new CustomPoseNet(customModel, posenetModel, metadataJSON);
 }
