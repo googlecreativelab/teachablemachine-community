@@ -184,7 +184,7 @@ describe('Test pose library', () => {
     it('metadata loads correctly', async () => {
         const model = await testMetadata();
         assert.exists(model);
-    });
+    }).timeout(100000);;
 
     let poseModel: tm.TeachablePoseNet;
 
