@@ -41,7 +41,11 @@ export interface Metadata {
 	timeStamp?: string;
 	labels: string[];
 	userMetadata?: {};
-	posenetConfig?: Partial<ModelConfig>;
+	modelSettings?: {};
+}
+
+export interface PoseModelSettings {
+	posenet: Partial<ModelConfig>;
 }
 
 const MAX_PREDICTIONS = 3;
@@ -60,7 +64,7 @@ const fillMetadata = (data: Partial<Metadata>) => {
 	data.userMetadata = data.userMetadata || {};
 	data.modelName = data.modelName || "untitled";
 	data.labels = data.labels || [];
-	data.posenetConfig = fillConfig(data.posenetConfig);
+	data.modelSettings = fillConfig(data.modelSettings);
 	return data as Metadata;
 };
 // tslint:disable-next-line:no-any
@@ -87,17 +91,19 @@ const processMetadata = async (metadata: string | Metadata) => {
 
 /**
  * process posenet configuration options
- * @param config a PosenetConfig object
+ * @param config a ModelSettings object
  */
-const fillConfig = (config: Partial<ModelConfig>) => {
-	config = config ? config : {};
+const fillConfig = (config: Partial<PoseModelSettings> = {}): PoseModelSettings => {
+	if (!config.posenet) {
+		config.posenet = {};
+	}
 
-	config.architecture = config.architecture || 'MobileNetV1';
-	config.outputStride = config.outputStride || 16;
-	config.inputResolution = config.inputResolution || 257;
-	config.multiplier = config.multiplier || 0.75;
+	config.posenet.architecture = config.posenet.architecture || 'MobileNetV1';
+	config.posenet.outputStride = config.posenet.outputStride || 16;
+	config.posenet.inputResolution = config.posenet.inputResolution || 257;
+	config.posenet.multiplier = config.posenet.multiplier || 0.75;
 
-	return config as ModelConfig;
+	return config as PoseModelSettings;
 };
 
 export type ClassifierInputSource = PosenetInput;
@@ -322,14 +328,14 @@ export class CustomPoseNet {
 	}
 }
 
-export async function loadPoseNet(posenetConfig: Partial<ModelConfig>) {
-	posenetConfig = fillConfig(posenetConfig);
+export async function loadPoseNet(config: Partial<PoseModelSettings> = {}) {
+	config = fillConfig(config);
 
 	const posenetModel = await posenet.load({
-		architecture: posenetConfig.architecture,
-		outputStride: posenetConfig.outputStride,
-		inputResolution: posenetConfig.inputResolution,
-		multiplier: posenetConfig.multiplier
+		architecture: config.posenet.architecture,
+		outputStride: config.posenet.outputStride,
+		inputResolution: config.posenet.inputResolution,
+		multiplier: config.posenet.multiplier
 	});
 	return posenetModel;
 }
@@ -337,7 +343,7 @@ export async function loadPoseNet(posenetConfig: Partial<ModelConfig>) {
 export async function load(checkpoint: string, metadata?: string | Metadata) {
 	const customModel = await tf.loadLayersModel(checkpoint);
 	const metadataJSON = metadata ? await processMetadata(metadata) : null;
-	const posenetModel = await loadPoseNet(metadataJSON.posenetConfig);
+	const posenetModel = await loadPoseNet(metadataJSON.modelSettings);
 	return new CustomPoseNet(customModel, posenetModel, metadataJSON);
 }
 
@@ -345,6 +351,6 @@ export async function loadFromFiles(json: File, weights: File, metadata: File) {
 	const customModel = await tf.loadLayersModel(tf.io.browserFiles([json, weights]));
 	const metadataFile = await new Response(metadata).json();
 	const metadataJSON = metadata ? await processMetadata(metadataFile) : null;
-	const posenetModel = await loadPoseNet(metadataJSON.posenetConfig);
+	const posenetModel = await loadPoseNet(metadataJSON.modelSettings);
 	return new CustomPoseNet(customModel, posenetModel, metadataJSON);
 }
