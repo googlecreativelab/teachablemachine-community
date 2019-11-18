@@ -2,9 +2,9 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
 
 ```html
 <div>Teachable Machine Pose Model</div>
-<button type='button' onclick='init()'>Start</button>
-<div><canvas id='canvas'></canvas></div>
-<div id='label-container'></div>
+<button type="button" onclick="init()">Start</button>
+<div><canvas id="canvas"></canvas></div>
+<div id="label-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js"></script>
 <script type="text/javascript">
@@ -12,16 +12,16 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
     // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/pose
 
     // the link to your model provided by Teachable Machine export panel
-    const URL = '{{URL}}';
+    const URL = "{{URL}}";
     let model, webcam, ctx, labelContainer, maxPredictions;
 
     async function init() {
-        const modelURL = URL + 'model.json';
-        const metadataURL = URL + 'metadata.json';
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
 
         // load the model and metadata
         // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-        // Note: the pose library adds 'tmPose' object to your window (window.tmPose)
+        // Note: the pose library adds a tmPose object to your window (window.tmPose)
         model = await tmPose.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
 
@@ -34,12 +34,12 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         window.requestAnimationFrame(loop);
 
         // append/get elements to the DOM
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById("canvas");
         canvas.width = size; canvas.height = size;
-        ctx = canvas.getContext('2d');
-        labelContainer = document.getElementById('label-container');
+        ctx = canvas.getContext("2d");
+        labelContainer = document.getElementById("label-container");
         for (let i = 0; i < maxPredictions; i++) { // and class labels
-            labelContainer.appendChild(document.createElement('div'));
+            labelContainer.appendChild(document.createElement("div"));
         }
     }
 
@@ -58,7 +58,7 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
 
         for (let i = 0; i < maxPredictions; i++) {
             const classPrediction =
-                prediction[i].className + ': ' + prediction[i].probability.toFixed(2);
+                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
             labelContainer.childNodes[i].innerHTML = classPrediction;
         }
 
