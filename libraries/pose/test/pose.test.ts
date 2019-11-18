@@ -19,7 +19,7 @@ import { assert } from 'chai';
 
 import * as tm from '../src/index';
 import * as tf from '@tensorflow/tfjs';
-import { ModelSettings } from '../src/custom-posenet';
+import { PoseModelSettings } from '../src/custom-posenet';
 
 const dataset_url = 
     "https://storage.googleapis.com/teachable-machine-models/test_data/pose/arms/";
@@ -56,7 +56,7 @@ async function testMetadata() {
             posenet: {}
         }
     });
-    assert.exists((poseModel.getMetadata().modelSettings as ModelSettings).posenet);
+    assert.exists((poseModel.getMetadata().modelSettings as PoseModelSettings).posenet);
 
     poseModel = await tm.createTeachable({
         tfjsVersion: tf.version.tfjs,
@@ -69,8 +69,8 @@ async function testMetadata() {
             }
         }
     });
-    assert.equal((poseModel.getMetadata().modelSettings as ModelSettings).posenet.outputStride, 8);
-    assert.equal((poseModel.getMetadata().modelSettings as ModelSettings).posenet.multiplier, 0.5);
+    assert.equal((poseModel.getMetadata().modelSettings as PoseModelSettings).posenet.outputStride, 8);
+    assert.equal((poseModel.getMetadata().modelSettings as PoseModelSettings).posenet.multiplier, 0.5);
 
     poseModel = await tm.createTeachable({
         tfjsVersion: tf.version.tfjs,
@@ -79,7 +79,7 @@ async function testMetadata() {
             randomExtraKey: 4
         }
     });		
-    assert.exists((poseModel.getMetadata().modelSettings as ModelSettings).posenet.outputStride);
+    assert.exists((poseModel.getMetadata().modelSettings as PoseModelSettings).posenet.outputStride);
 
     return poseModel;
 }

@@ -44,8 +44,8 @@ export interface Metadata {
 	modelSettings?: {};
 }
 
-export interface ModelSettings {
-	posenet?: Partial<ModelConfig>;
+export interface PoseModelSettings {
+	posenet: Partial<ModelConfig>;
 }
 
 const MAX_PREDICTIONS = 3;
@@ -93,7 +93,7 @@ const processMetadata = async (metadata: string | Metadata) => {
  * process posenet configuration options
  * @param config a ModelSettings object
  */
-const fillConfig = (config: ModelSettings = {}) => {
+const fillConfig = (config: Partial<PoseModelSettings> = {}): PoseModelSettings => {
 	if (!config.posenet) {
 		config.posenet = {};
 	}
@@ -103,7 +103,7 @@ const fillConfig = (config: ModelSettings = {}) => {
 	config.posenet.inputResolution = config.posenet.inputResolution || 257;
 	config.posenet.multiplier = config.posenet.multiplier || 0.75;
 
-	return config;
+	return config as PoseModelSettings;
 };
 
 export type ClassifierInputSource = PosenetInput;
@@ -328,7 +328,7 @@ export class CustomPoseNet {
 	}
 }
 
-export async function loadPoseNet(config: ModelSettings = {}) {
+export async function loadPoseNet(config: Partial<PoseModelSettings> = {}) {
 	config = fillConfig(config);
 
 	const posenetModel = await posenet.load({
