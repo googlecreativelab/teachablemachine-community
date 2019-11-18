@@ -19,6 +19,7 @@ import { assert } from 'chai';
 
 import * as tm from '../src/index';
 import * as tf from '@tensorflow/tfjs';
+import { ModelSettings } from '../src/custom-posenet';
 
 const dataset_url = 
     "https://storage.googleapis.com/teachable-machine-models/test_data/pose/arms/";
@@ -40,6 +41,49 @@ function loadPngImage(c: string, i: number, dataset_url: string): Promise<HTMLIm
 	});
 }
 
+async function testMetadata() {
+    let poseModel = await tm.createTeachable({
+        tfjsVersion: tf.version.tfjs,
+        tmVersion: tm.version,
+        modelSettings: {}
+    });		
+    assert.exists(poseModel.getMetadata().modelSettings);
+
+    poseModel = await tm.createTeachable({
+        tfjsVersion: tf.version.tfjs,
+        tmVersion: tm.version,
+        modelSettings: {
+            posenet: {}
+        }
+    });
+    assert.exists((poseModel.getMetadata().modelSettings as ModelSettings).posenet);
+
+    poseModel = await tm.createTeachable({
+        tfjsVersion: tf.version.tfjs,
+        tmVersion: tm.version,
+        modelSettings: {
+            posenet: {
+                architecture: 'MobileNetV1',
+                outputStride: 8,
+                multiplier: 0.50
+            }
+        }
+    });
+    assert.equal((poseModel.getMetadata().modelSettings as ModelSettings).posenet.outputStride, 8);
+    assert.equal((poseModel.getMetadata().modelSettings as ModelSettings).posenet.multiplier, 0.5);
+
+    poseModel = await tm.createTeachable({
+        tfjsVersion: tf.version.tfjs,
+        tmVersion: tm.version,
+        modelSettings: {
+            randomExtraKey: 4
+        }
+    });		
+    assert.exists((poseModel.getMetadata().modelSettings as ModelSettings).posenet.outputStride);
+
+    return poseModel;
+}
+
 async function testPosenet(
     epochs: number,
 	learningRate: number,
@@ -48,10 +92,7 @@ async function testPosenet(
 ) {
     const poseModel = await tm.createTeachable({
         tfjsVersion: tf.version.tfjs,
-        tmVersion: tm.version,
-        posenetConfig: {
-            outputStride: 16
-        }
+        tmVersion: tm.version
     });		
     assert.exists(poseModel);
     
@@ -138,6 +179,11 @@ describe('Test pose library', () => {
         assert.equal(typeof tm.Webcam, 'function', 'tm.Webcam should be a function');
         assert.equal(typeof tm.version, 'string', 'tm.version should be a string');
         assert.equal(tm.version, require('../package.json').version, "version does not match package.json.");
+    });
+
+    it('metadata loads correctly', async () => {
+        const model = await testMetadata();
+        assert.exists(model);
     });
 
     let poseModel: tm.TeachablePoseNet;
