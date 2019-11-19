@@ -18,7 +18,7 @@ data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 image = Image.open('Path to your image')
 
 # Make sure to resize all images to 224, 224 otherwise they won't fit in the array
-image.resize((224, 224))
+image = image.resize((224, 224))
 image_array = np.asarray(image)
 
 # Normalize the image
