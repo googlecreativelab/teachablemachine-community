@@ -5,7 +5,7 @@ To Use with [Edge TPU](https://coral.withgoogle.com/):
 **2.** pip install the following packages like so:
 
 ```bash
-pip3 install PIL opencv
+pip3 install Pillow opencv-python opencv-contrib-python
 ```
 
 **3.** Download model from TM2
