@@ -65,6 +65,7 @@ def main():
         # Classify and display image
         results = classifyImage(pil_im, engine)
         cv2.imshow('frame', cv2_im)
+        print(results)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
