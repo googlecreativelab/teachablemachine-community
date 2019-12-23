@@ -33,15 +33,14 @@ def loadLabels(labelPath):
         return {int(num): text.strip() for num, text in lines}
 
 # This function takes in a PIL Image from any source or path you choose
-def classifyImage(image_path):
+def classifyImage(image_path, engine):
     # Load and format your image for use with TM2 model
     # image is reformated to a square to match training
     image = Image.open(image_path)
-    image.resize(224, 224)
+    image.resize((224, 224))
 
     # Classify and ouptut inference
     classifications = engine.ClassifyWithImage(image)
-    print(classifications)
     return classifications
 
 def main():
@@ -57,15 +56,16 @@ def main():
 
         # Format the image into a PIL Image so its compatable with Edge TPU
         cv2_im = frame
-        pil_im = Image.fromArray(cv2_im)
+        pil_im = Image.fromarray(cv2_im)
 
         # Resize and flip image so its a square and matches training
-        pil_im.resize(224, 224)
+        pil_im.resize((224, 224))
         pil_im.transpose(Image.FLIP_LEFT_RIGHT)
 
         # Classify and display image
-        results = classifyImage(pil_im)
+        results = classifyImage(pil_im, engine)
         cv2.imshow('frame', cv2_im)
+        print(results)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
