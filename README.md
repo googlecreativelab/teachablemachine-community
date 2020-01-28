@@ -28,6 +28,10 @@ You have a few options:
 * Share your projects using [#teachablemachine](https://twitter.com/hashtag/teachablemachine) on Twitter or on the [Experiments with Google](https://experiments.withgoogle.com/submit) page.
 * Open an issue in this repository.
 
+## Community Contributions and Projects
+
+* [Teachable Machine Node Library for image models](https://github.com/tr7zw/teachablemachine-node-example)
+* [Teachable Machine Mobile for image models](https://github.com/mstale007/Teachable_Machine_Mobile/tree/master)
 
 
 ## Disclaimer
