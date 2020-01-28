@@ -14,7 +14,4 @@ This section contains support libraries for the new version of Teachable Machine
 
 You must use a node version > 12.
 
-## Community Contributions and Projects
-
-* [Teachable Machine Node library for image models](https://github.com/tr7zw/teachablemachine-node-example)
 
