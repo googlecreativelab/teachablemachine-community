@@ -29,7 +29,7 @@ Open up the code snippet below directly in the [p5.js Web Editor](https://editor
     video.size(320, 240);
     video.hide();
 
-    flippedVideo = ml5.flipImage(video)
+    flippedVideo = ml5.flipImage(video);
     // Start classifying
     classifyVideo();
   }
@@ -50,6 +50,8 @@ Open up the code snippet below directly in the [p5.js Web Editor](https://editor
   function classifyVideo() {
     flippedVideo = ml5.flipImage(video)
     classifier.classify(flippedVideo, gotResult);
+    flippedVideo.remove();
+
   }
 
   // When we get a result
