@@ -29,7 +29,7 @@ image_array = np.asarray(image)
 image.show()
 
 # Normalize the image
-normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
+normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
 
 # Load the image into the array
 data[0] = normalized_image_array
