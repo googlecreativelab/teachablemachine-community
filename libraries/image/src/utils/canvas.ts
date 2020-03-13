@@ -47,7 +47,7 @@ export function cropTo( image: Drawable, size: number,
     let height = image.height;
 
     // if video element
-    if (image instanceof HTMLVideoElement) {
+    if (typeof HTMLVideoElement != 'undefined' && image instanceof HTMLVideoElement) {
         width = (image as HTMLVideoElement).videoWidth;
         height = (image as HTMLVideoElement).videoHeight;
     }
