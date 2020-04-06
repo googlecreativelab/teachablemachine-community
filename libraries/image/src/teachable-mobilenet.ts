@@ -45,7 +45,7 @@ interface Sample {
 
 // tslint:disable-next-line:no-any
 const isTensor = (c: any): c is tf.Tensor =>
-    typeof c.dataId === 'object' && c.shape === 'object';
+    typeof c.dataId === 'object' && typeof c.shape === 'object';
 
 /**
  * Converts an integer into its one-hot representation and returns
