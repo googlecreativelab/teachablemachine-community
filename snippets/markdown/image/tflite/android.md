@@ -1,37 +1,45 @@
 The TFLite mobilenet example works with the teachable machine model.
 
-**1.** Get the project from [github](https://github.com/tensorflow/examples/tree/master/lite/examples/image_classification/android)
+For this Teachable Machine example, the _Quantized_ tflite model is being used.
 
-**2.** Put your downloaded model into `app/src/assets`
+**1.** Get the Android app example from [Github](https://github.com/tensorflow/examples/tree/master/lite/examples/image_classification/android)
 
-**3.** Create/update `labels.txt` in `app/src/assets` to contain each of your classes
+**2.** Unpack the _converted_tflite_quantized.zip_ archive exported from Teachable Machine
 
-**4.** Change the default model type in `CameraActivity.java` in
-`android/app/src/main/java/org/tensorflow/lite/examples/classification/`
+**3.** Rename _labels.txt_ to _labels2.txt_ (so there will be no conflict with the existing _labels.txt_ file later on) 
 
-from
+**4.** Rename _model.tflite_ to _modelquantized.tflite_ (so we remember this model is quantized)
 
-```java
-    private Model model = Model.QUANTIZED;
+**5.** Copy _labels2.txt_ and _modelquantized.tflite_
+
+**6.** Go to `examples-master\lite\examples\image_classification\android\app\src\main\assets`
+
+**7.** Paste in _labels2.txt_ and _modelquantized.tflite_
+
+**8.** Go to `examples-master\lite\examples\image_classification\android\app\src\main\java\org\tensorflow\lite\examples\classification\tflite`
+
+**9.** Open _ClassifierQuantizedMobileNet.java_ to edit
+
+**10.** In line 55 replace _mobilenet_v1_1.0_224_quant.tflite_ with your model _modelquantized.tflite_
+
+```
+  protected String getModelPath() {
+    return "mobilenet_v1_1.0_224_quant.tflite";
+  }
 ```
 
-to
+**11.** In line 60  replace _labels.txt_ with your label file _labels2.txt_
 
-```java
-    private Model model = Model.FLOAT;
+```
+  @Override
+  protected String getLabelPath() {
+    return "labels.txt";
+  }
 ```
 
-**5.** Change `ClassifierFloatMobileNet.java` in
-`android/app/src/main/java/org/tensorflow/lite/examples/classification/tflite/`
+**12.** Save your changes to _ClassifierQuantizedMobileNet.java_
 
-from
+Now you can build the app using AndroidStudio as described in the [readme](https://github.com/tensorflow/examples/blob/master/lite/examples/image_classification/android/README.md).
 
-```java
-    return "mobilenet_v1_1.0_224.tflite";
-```
+To enable your model in the app, switch the active model to _Quantized_MobileNet_
 
-to
-
-```java
-    return "model_unquant.tflite";
-```
