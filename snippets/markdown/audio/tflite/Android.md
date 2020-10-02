@@ -12,7 +12,8 @@ If you want to integrate the model into your existing app, follow these steps:
 ```kotlin
 var soundClassifier: SoundClassifier
 soundClassifier = SoundClassifier(context).also {
-    it.lifecycleOwner = context
+    it.lifecycleOwner = context // or viewLifecycleOwner when using in a Fragment
+
 }
 ```
 4. Start capturing live audio from the device's microphone and classify in realtime:
@@ -23,6 +24,6 @@ soundClassifier.start()
 ```kotlin
 let labelName = soundClassifier.labelList[0] // e.g. "Clap"
 soundClassifier.probabilities.observe(this) { resultMap ->
-    let probability = result[labelName] // e.g. 0.7
+    let probability = resultMap[labelName] // e.g. 0.7
 }
 ```
