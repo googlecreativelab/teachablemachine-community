@@ -7,6 +7,8 @@ You can test your TensorFlow Lite sound classification model on Android by follo
 1. Extract the ZIP archive that you download from Teachable Machine.
 1. Copy the `soundclassifier.tflite` and `labels.txt` files from the archive to the
  `src/main/assets` folder in the sample app, replacing the demo model there.
+ 
+ *Note: Please use a physical Android device to run the sample app.*
 
 ## Integrate your model into your own app
 
