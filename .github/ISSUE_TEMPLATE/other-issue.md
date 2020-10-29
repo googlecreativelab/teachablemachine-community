@@ -1,5 +1,5 @@
 ---
-name: Other issue
+name: Other Issue
 about: Use this template for issues that are NOT bugs or feature requests
 title: ''
 labels: ''
