@@ -20,6 +20,8 @@ You will get a "Gradle Sync" popup, the first time you open the project, asking 
 
 **6.** You can [run the App on a virtual device](https://codelabs.developers.google.com/codelabs/recognize-flowers-with-tensorflow-on-android/?hl=de#7) for testing.
 
-To build the APK, go to the _Build_ menu -> _Build Bundle(s) / APKs_ -> _Build APKs_. The menu will be greyed out as long as the project is still being loaded.
+To build the APK, go to the _Build_ menu -> _Build Bundle(s) / APKs_ -> _Build APKs_.
+
+The menu will be greyed out as long as the project is still being loaded.
 
 A more detailed tutorial can be found here: [Recognize Flowers with TensorFlow Lite on Android Tutorial](https://codelabs.developers.google.com/codelabs/recognize-flowers-with-tensorflow-on-android/).
