@@ -1,6 +1,6 @@
 For this Teachable Machine example, the TFlite model format is being used.
 
-**1.** Download the Tensorflow Examples repository [Github](clone https://github.com/tensorflow/examples)
+**1.** Download the Tensorflow Examples repository [Github](https://github.com/tensorflow/examples)
 
 (`git clone https://github.com/tensorflow/examples.git`).
 
