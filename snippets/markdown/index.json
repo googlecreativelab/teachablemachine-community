@@ -39,8 +39,10 @@
             }            
         ],
         "tflite": [
-            "title": "Android",
-            "url": "/audio/tflite/Android.md"
+            {
+                "title": "Android",
+                "url": "/audio/tflite/Android.md"
+            }
         ]
     }, 
     "pose": {
