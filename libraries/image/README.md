@@ -59,7 +59,7 @@ import * as tmImage from '@teachablemachine/image';
     let model, webcam, labelContainer, maxPredictions;
 
     let isIos = false; 
-    // fix when demo run in ios, video will be freezed;
+    // fix when running demo in ios, video will be frozen;
     if (window.navigator.userAgent.indexOf('iPhone') > -1 || window.navigator.userAgent.indexOf('iPad') > -1) {
       isIos = true;
     }
