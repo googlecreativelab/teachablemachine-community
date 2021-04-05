@@ -26,8 +26,8 @@ const DEFAULT_MOBILENET_VERSION = 1;
 const DEFAULT_TRAINING_LAYER_V1 = 'conv_pw_13_relu';
 const DEFAULT_TRAINING_LAYER_V2 = "out_relu"; 
 const DEFAULT_ALPHA_V1 = 0.25;
-const DEFAULT_ALPHA_V2 = 0.35; 
-export const IMAGE_SIZE = 224;
+const DEFAULT_ALPHA_V2 = 0.35;
+export const IMAGE_SIZE = 96;
 
 /**
  * the metadata to describe the model's creation,
@@ -43,6 +43,7 @@ export interface Metadata {
     timeStamp?: string;
     labels: string[];
     userMetadata?: {};
+    grayscale?: boolean;
 }
 
 export interface ModelOptions {
@@ -255,7 +256,7 @@ export class CustomMobileNet {
         const croppedImage = cropTo(image, IMAGE_SIZE, flipped);
 
         const logits = tf.tidy(() => {
-            const captured = capture(croppedImage);
+            const captured = capture(croppedImage, this._metadata.grayscale);
             return this.model.predict(captured);
         });
 
