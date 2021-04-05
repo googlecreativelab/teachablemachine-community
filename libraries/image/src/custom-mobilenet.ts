@@ -27,7 +27,7 @@ const DEFAULT_TRAINING_LAYER_V1 = 'conv_pw_13_relu';
 const DEFAULT_TRAINING_LAYER_V2 = "out_relu"; 
 const DEFAULT_ALPHA_V1 = 0.25;
 const DEFAULT_ALPHA_V2 = 0.35;
-export let IMAGE_SIZE = 224;
+export const IMAGE_SIZE = 224;
 
 /**
  * the metadata to describe the model's creation,
@@ -44,6 +44,7 @@ export interface Metadata {
     labels: string[];
     userMetadata?: {};
     grayscale?: boolean;
+    imageSize?: number;
 }
 
 export interface ModelOptions {
@@ -51,7 +52,6 @@ export interface ModelOptions {
     checkpointUrl?: string;
     alpha?: number;
     trainingLayer?: string;
-    imageSize?: number;
 }
 
 /**
@@ -66,6 +66,7 @@ const fillMetadata = (data: Partial<Metadata>) => {
     data.userMetadata = data.userMetadata || {};
     data.modelName = data.modelName || 'untitled';
     data.labels = data.labels || [];
+    data.imageSize = data.imageSize || IMAGE_SIZE;
     return data as Metadata;
 };
 
@@ -93,9 +94,7 @@ const isAlphaValid = (version: number, alpha: number) => {
 };
 
 const parseModelOptions = (options?: ModelOptions) => {
-    options = options || {};
-
-    if (options.imageSize) IMAGE_SIZE = options.imageSize;
+    options = options || {}
 
     if (options.checkpointUrl && options.trainingLayer) {
         if (options.alpha || options.version){
@@ -256,7 +255,7 @@ export class CustomMobileNet {
      * @param flipped whether to flip the image on X
      */
     async predict(image: ClassifierInputSource, flipped = false) {
-        const croppedImage = cropTo(image, IMAGE_SIZE, flipped);
+        const croppedImage = cropTo(image, this._metadata.imageSize, flipped);
 
         const logits = tf.tidy(() => {
             const captured = capture(croppedImage, this._metadata.grayscale);
