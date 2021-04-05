@@ -94,11 +94,8 @@ const isAlphaValid = (version: number, alpha: number) => {
 
 const parseModelOptions = (options?: ModelOptions) => {
     options = options || {};
-    console.log(options);
-    if (options.imageSize) {
-        console.log('setting custom image size', options.imageSize)
-        IMAGE_SIZE = options.imageSize;
-    }
+
+    if (options.imageSize) IMAGE_SIZE = options.imageSize;
 
     if (options.checkpointUrl && options.trainingLayer) {
         if (options.alpha || options.version){
