@@ -27,7 +27,7 @@ const DEFAULT_TRAINING_LAYER_V1 = 'conv_pw_13_relu';
 const DEFAULT_TRAINING_LAYER_V2 = "out_relu"; 
 const DEFAULT_ALPHA_V1 = 0.25;
 const DEFAULT_ALPHA_V2 = 0.35;
-export const IMAGE_SIZE = 96;
+export let IMAGE_SIZE = 224;
 
 /**
  * the metadata to describe the model's creation,
@@ -51,6 +51,7 @@ export interface ModelOptions {
     checkpointUrl?: string;
     alpha?: number;
     trainingLayer?: string;
+    imageSize?: number;
 }
 
 /**
@@ -93,6 +94,11 @@ const isAlphaValid = (version: number, alpha: number) => {
 
 const parseModelOptions = (options?: ModelOptions) => {
     options = options || {};
+    console.log(options);
+    if (options.imageSize) {
+        console.log('setting custom image size', options.imageSize)
+        IMAGE_SIZE = options.imageSize;
+    }
 
     if (options.checkpointUrl && options.trainingLayer) {
         if (options.alpha || options.version){
