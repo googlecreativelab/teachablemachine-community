@@ -234,10 +234,10 @@ export class CustomMobileNet {
      * @param maxPredictions the maximum number of classification predictions
      */
     async predictTopK(image: ClassifierInputSource, maxPredictions = 10, flipped = false) {
-        const croppedImage = cropTo(image, IMAGE_SIZE, flipped);
+        const croppedImage = cropTo(image, this._metadata.imageSize, flipped);
 
         const logits = tf.tidy(() => {
-            const captured = capture(croppedImage);
+            const captured = capture(croppedImage, this._metadata.grayscale);
             return this.model.predict(captured);
         });
 

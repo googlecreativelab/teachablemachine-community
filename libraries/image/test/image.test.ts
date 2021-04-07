@@ -23,6 +23,7 @@ import * as tm from "../src/index";
 import * as seedrandom from "seedrandom";
 import { TeachableMobileNet } from "../src/index";
 import { assertTypesMatch } from "@tensorflow/tfjs-core/dist/tensor_util";
+import { cropTo } from "../src/utils/canvas";
 
 // @ts-ignore
 var Table = require("cli-table");
@@ -162,7 +163,8 @@ async function testModel(
 	epochs: number,
 	learningRate: number,
 	showEpochResults: boolean = false,
-	earlyStopEpoch: number = epochs
+	earlyStopEpoch: number = epochs,
+	imageSize?: number,
 ) {
 	model.setLabels(classes);
 	model.setSeed(SEED_WORD); // set a seed to shuffle predictably
@@ -174,7 +176,13 @@ async function testModel(
 		let index = 0;
 		for (const imgSet of trainAndValidationImages) {
 			for (const img of imgSet) {
-				await model.addExample(index, img);
+				if (imageSize) {
+					let croppedImg = cropTo(img, 96, false);
+					await model.addExample(index, croppedImg);
+				}
+				else {
+					await model.addExample(index, img);
+				}
 			}
 			index++;
 		}
@@ -230,7 +238,7 @@ async function testModel(
 
 }
 
-async function testMobilenet(dataset_url: string, version: number, loadFunction: Function, maxImages: number = 200, earlyStop: boolean = false){
+async function testMobilenet(dataset_url: string, version: number, loadFunction: Function, maxImages: number = 200, earlyStop: boolean = false, grayscale: boolean = false){
 	// classes, samplesPerClass, url
 	const metadata = await (await fetch(
 		dataset_url + "metadata.json"
@@ -288,14 +296,25 @@ async function testMobilenet(dataset_url: string, version: number, loadFunction:
 		const lineEnd = "====================================//\n\n";
 		console.log(lineStart);
 		// 3. Test data on the model
-		const teachableMobileNetV2 = await tm.createTeachable(
-			{ tfjsVersion: tf.version.tfjs },
-			{ version: MOBILENET_VERSION, alpha: a }
-		);
-
+		let teachableMobileNet;
+		let imageSize;
+		if (grayscale) {
+			imageSize = 96;
+			teachableMobileNet = await tm.createTeachable(
+				{ tfjsVersion: tf.version.tfjs, grayscale: true, imageSize },
+				{ version: 1, alpha: 0.25, checkpointUrl: 'https://storage.googleapis.com/teachable-machine-models/mobilenet_v1_grayscale_025_96/model.json',
+				trainingLayer: 'conv_pw_13_relu'}
+			);
+		}
+		else {
+			teachableMobileNet = await tm.createTeachable(
+				{ tfjsVersion: tf.version.tfjs },
+				{ version: MOBILENET_VERSION, alpha: a }
+			);
+		}
 		
 		const lastEpoch = await testModel(
-			teachableMobileNetV2,
+			teachableMobileNet,
 			a,
 			classLabels,
 			trainAndValidationImages,
@@ -304,13 +323,14 @@ async function testMobilenet(dataset_url: string, version: number, loadFunction:
 			EPOCHS,
 			LEARNING_RATE,
 			false,
-			earlyStopEpochs
+			earlyStopEpochs,
+			imageSize
 		);
 			
 		// assert.isTrue(accuracyV2 > 0.7);
 		console.log(lineEnd);
 
-		return { model: teachableMobileNetV2, lastEpoch };
+		return { model: teachableMobileNet, lastEpoch };
 	}
 }
 
@@ -373,6 +393,44 @@ describe("CI Test", () => {
 		assert.equal(predictionTopK[0].className, 'good_bean');
 		assert.isAbove(predictionTopK[0].probability, 0.9);
 	}).timeout(500000);
+
+
+	it("creates a grayscale model", async() => {
+		const grayscaleMobilenet = await tm.createTeachable(
+			{ tfjsVersion: tf.version.tfjs, grayscale: true, imageSize: 96 },
+			{ version: 1, alpha: 0.25, checkpointUrl: 'https://storage.googleapis.com/teachable-machine-models/mobilenet_v1_grayscale_025_96/model.json',
+			trainingLayer: 'conv_pw_13_relu'}
+		)
+
+		assert.exists(grayscaleMobilenet);
+	}).timeout(5000);
+
+	let testGrayscaleModel: tm.TeachableMobileNet;
+	it('test grayscale model accuracy (for CI)', async () => {
+		const { model, lastEpoch } = await testMobilenet(BEAN_DATASET_URL, 1, loadPngImage, 30, false, true);
+		testGrayscaleModel = model;
+		assert.isAbove(lastEpoch.val_acc, 0.8);
+		assert.isBelow(lastEpoch.val_loss, 0.2);
+		
+	}).timeout(50000);
+
+	it('tests graysale predict functions', async() => {
+		let testImage, prediction, predictionTopK;
+		testImage = await loadPngImage('bad_bean', 0, BEAN_DATASET_URL);
+		prediction = await testGrayscaleModel.predict(testImage, false);
+		assert.isAbove(prediction[1].probability, 0.8);
+		predictionTopK = await testGrayscaleModel.predictTopK(testImage, 3, false);
+		assert.equal(predictionTopK[0].className, 'bad_bean');
+		assert.isAbove(predictionTopK[0].probability, 0.8);
+
+
+		testImage = await loadPngImage('good_bean', 0, BEAN_DATASET_URL);
+		prediction = await testGrayscaleModel.predict(testImage, false);
+		assert.isAbove(prediction[0].probability, 0.8);
+		predictionTopK = await testGrayscaleModel.predictTopK(testImage, 3, false);
+		assert.equal(predictionTopK[0].className, 'good_bean');
+		assert.isAbove(predictionTopK[0].probability, 0.8);
+	})
 });
 
 // These test compare multiple models. Needs to run in non-headless chrome

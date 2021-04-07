@@ -46,7 +46,19 @@ export function cropTensor( img: tf.Tensor3D, grayscale?: boolean ) : tf.Tensor3
     const beginHeight = centerHeight - (size / 2);
     const centerWidth = img.shape[1] / 2;
     const beginWidth = centerWidth - (size / 2);
-    return grayscale ?
-           img.slice([beginHeight, beginWidth, 0], [size, size, 1]) :
-           img.slice([beginHeight, beginWidth, 0], [size, size, 3]);
+    
+    if (grayscale) {
+        let grayscale_cropped = img.slice([beginHeight, beginWidth, 0], [size, size, 3]);
+        grayscale_cropped = grayscale_cropped.reshape([size * size, 1, 3])
+        
+        const rgb_weights = [0.2989, 0.5870, 0.1140]
+        grayscale_cropped = tf.mul(grayscale_cropped, rgb_weights)
+        grayscale_cropped = grayscale_cropped.reshape([size, size, 3]);
+
+        grayscale_cropped = tf.sum(grayscale_cropped, -1)
+        grayscale_cropped = tf.expandDims(grayscale_cropped, -1)
+
+        return grayscale_cropped;
+    }
+    return img.slice([beginHeight, beginWidth, 0], [size, size, 3]);
 }
