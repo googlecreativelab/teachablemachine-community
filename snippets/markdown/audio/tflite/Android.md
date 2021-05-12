@@ -2,7 +2,7 @@
 
 You can test your TensorFlow Lite sound classification model on Android by following these steps:
 
-1. Download the [sample app](https://github.com/tensorflow/examples/tree/master/lite/examples/sound_classification/android)
+1. Download the [sample app](https://github.com/tensorflow/examples/tree/master/lite/examples/sound_classification/android_legacy)
  from GitHub.
 1. Extract the ZIP archive that you download from Teachable Machine.
 1. Copy the `soundclassifier.tflite` and `labels.txt` files from the archive to the
@@ -15,7 +15,7 @@ You can test your TensorFlow Lite sound classification model on Android by follo
 If you want to integrate the model into your existing app, follow these steps:
 
 1. Put the `soundclassifier.tflite` and `labels.txt` files into the `assets` folder in your app.
-1. Copy the [SoundClassifier.kt](https://github.com/tensorflow/examples/blob/master/lite/examples/sound_classification/android/app/src/main/java/org/tensorflow/lite/examples/soundclassifier/SoundClassifier.kt)
+1. Copy the [SoundClassifier.kt](https://github.com/tensorflow/examples/blob/master/lite/examples/sound_classification/android_legacy/app/src/main/java/org/tensorflow/lite/examples/soundclassifier/SoundClassifier.kt)
  file to your app. This file contains the source code to use the sound classification model.
 1. Initialize a `SoundClassifier` instance from your `Activity` or `Fragment` class.
 
