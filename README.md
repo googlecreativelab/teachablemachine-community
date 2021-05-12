@@ -7,10 +7,6 @@ We’re working on a library called _teachablemachine.js_ which will let you do 
 
 [Hello Wizard](http://glitch.com/edit/#!/tm-wizard?path=README.md%3A1%3A0) - This demo shows how you can drop a machine learning “training wizard” on top of your website with just a few lines of code.
 
-Look out for more demos coming soon.
-
-Email us at teachablemachine-support@google.com if you’d like to chat more about teachablemachine.js. We’re interested in hearing what developers might like to create with it.
-
 # Teachable Machine Community
 
 ![Teachable Machine](./teachablemachine.gif)
@@ -33,11 +29,11 @@ This repository contains two components of [Teachable Machine](https://teachable
 
 2. **A [snippets](/snippets) section** that contains markdown snippets that are being displayed inside the export panel in [Teachable Machine](https://teachablemachine.withgoogle.com/). These snippets contain code and instructions on how to use the exported models from Teachable Machine in languages like Javascript, Java and Python.
 
-### How can I send feedback?
+### How can I send feedback or get in contact with you?
 
 You have a few options:
 
-* Email us at [teachablemachine-support@google.com](mailto:teachablemachine-support@google.com).
+* [Use this form](https://forms.gle/uthe2C4tZNPA11GX7).  
 * Share your projects using [#teachablemachine](https://twitter.com/hashtag/teachablemachine) on Twitter or on the [Experiments with Google](https://experiments.withgoogle.com/submit) page.
 * Open an issue in this repository.
 

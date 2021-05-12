@@ -146,7 +146,7 @@ export class TeachableMobileNet extends CustomMobileNet {
      */
     // public async addExample(className: number, sample: HTMLCanvasElement | tf.Tensor) {
     public async addExample(className: number, sample: HTMLImageElement | HTMLCanvasElement | tf.Tensor) {
-        const cap = isTensor(sample) ? sample : capture(sample);
+        const cap = isTensor(sample) ? sample : capture(sample, this._metadata.grayscale);
         const example = this.truncatedModel.predict(cap) as tf.Tensor;
 
         const activation = example.dataSync() as Float32Array;

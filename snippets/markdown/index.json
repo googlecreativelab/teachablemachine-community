@@ -37,6 +37,12 @@
                 "title": "p5.js",
                 "url": "/audio/tensorflowjs/p5js.md"
             }            
+        ],
+        "tflite": [
+            {
+                "title": "Android",
+                "url": "/audio/tflite/Android.md"
+            }
         ]
     }, 
     "pose": {

@@ -193,13 +193,13 @@ describe('Test pose library', () => {
         poseModel = model;
         assert.isAbove(lastEpoch.acc, 0.9);
         assert.isBelow(lastEpoch.loss, 0.001);
-    }).timeout(100000);
+    }).timeout(1000000);
 
     it('test early stop', async () => {
         const { model, lastEpoch } = await testPosenet(10, 0.0001, false, 5);
         assert.isAbove(lastEpoch.acc, 0.9);
         assert.isBelow(lastEpoch.loss, 0.1);
-    }).timeout(100000);
+    }).timeout(1000000);
 
     it("Test predict functions", async () => {
         let testImage, prediction, poseResult, predictionTopK;
