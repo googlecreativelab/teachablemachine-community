@@ -8,7 +8,7 @@ This guide will show you how to connect a camera and Arduino Nano 33 BLE to Teac
 ## Requirements
 
 This guide is meant for use with the Arduino Nano 33 BLE Sense and Nano 33 BLE, combined with the OV7670 Camera module. You'll need some female to female leads to connect the two.
-We found the OV7670 Camera to be the most reliable, but you can also use the Arducam 2MP Plus. by replacing the image_provider.h with the one provided here.
+We found the OV7670 Camera to be the most reliable, but you can also use the Arducam 2MP Plus. by replacing the `ImageProvider.cpp` file with the one provided here.
 You'll also need a computer to run Teachable Machine, run the Arduino IDE, and run Processing.
 
 ## Software Setup
@@ -33,7 +33,7 @@ You'll need a few additional libraries for our processing sketch as well. Open t
 
 You'll need to install 2 libraries, the first is the ControlP5 library, and the second is called Websockets. Search for and install them.
 
-![image of processing library manager](GettingStartedImages/processing_libraries.png)
+![image of processing library manager](./GettingStartedImages/processing_libraries.png)
 
 ## Hardware Setup
 
@@ -105,9 +105,9 @@ When you're done adding training data, hit Train and don't switch tabs.
 
 ## Test Your Model
 
-Try your model out in the teachable machine preview window. Select TinyBLE from the input dropdown menu, you'll see the OV7670 Camera images start to be classified.
+Try your model out in the teachable machine preview window. Select Device from the input dropdown menu, you'll see the OV7670 Camera images start to be classified.
 
-![Teachable Machine Preview window](GettingStartedImages/tm_fpo.gif)
+![Teachable Machine Preview window](./GettingStartedImages/tm_fpo.gif)
 
 ## Running your model on the Arduino
 
@@ -115,4 +115,4 @@ Hit Export model above the preview window in Teachable Machine. Select Tensorflo
 
 *Close any open Processing Sketches* and upload this sketch to your Arduino. When the upload is complete, check the Serial Monitor. You will see the class names printed next to the confidence in each class.
 
-![Serial Monitor](GettingStartedImages/serial_mon.png)
+![Serial Monitor](./GettingStartedImages/serial_mon.png)
