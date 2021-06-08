@@ -1,0 +1,1 @@
+[To find out how to use this model, check out our gettnig started guide here.](../GettingStarted.md)
