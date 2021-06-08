@@ -418,7 +418,7 @@ describe("CI Test", () => {
 
 	it('tests graysale predict functions', async() => {
 		let testImage, prediction, predictionTopK;
-		testImage = await loadPngImage('bad_bean', 0, BEAN_DATASET_URL);
+		testImage = await loadJpgImage('bad_bean', 0, PLANT_DATASET_URL);
 		prediction = await testGrayscaleModel.predict(testImage, false);
 		assert.isAbove(prediction[1].probability, 0.8);
 		predictionTopK = await testGrayscaleModel.predictTopK(testImage, 3, false);
@@ -426,7 +426,7 @@ describe("CI Test", () => {
 		assert.isAbove(predictionTopK[0].probability, 0.8);
 
 
-		testImage = await loadPngImage('good_bean', 0, BEAN_DATASET_URL);
+		testImage = await loadJpgImage('good_bean', 0, PLANT_DATASET_URL);
 		prediction = await testGrayscaleModel.predict(testImage, false);
 		assert.isAbove(prediction[0].probability, 0.8);
 		predictionTopK = await testGrayscaleModel.predictTopK(testImage, 3, false);
