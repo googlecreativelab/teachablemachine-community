@@ -33,7 +33,7 @@ You'll need a few additional libraries for our processing sketch as well. Open t
 
 You'll need to install 2 libraries, the first is the ControlP5 library, and the second is called Websockets. Search for and install them.
 
-![image of processing library manager](./GettingStartedImages/processing_libraries.png)
+![image of processing library manager](./GettingStartedimages/processing_libraries.png)
 
 ## Hardware Setup
 
@@ -70,13 +70,13 @@ Create a new teachable machine [image project here](https://teachablemachine.wit
 
 Select **Device** as the input type, a window like this should pop up.
 
-![Image of Teachable Machine](./GettingStartedImages/sketches.png)
+![Image of Teachable Machine](./GettingStartedimages/sketches.png)
 
 **First, Download [TMArduinoSketch.zip](https://storage.googleapis.com/tiny-templates/TMConnector.zip)**, unzip it, and open it in the Arduino IDE by double clicking the .ino file. Make sure that you have selected Arduino Nano 33 inside of Tools -> Boards, and the correct port is selected under Tools -> Port. Upload this sketch to the Arduino. This sets up the Arduino to send images to teachable machine.
 
 **Next Download the [TMProcessingSketch.zip](https://storage.googleapis.com/tiny-templates/TMUploader.zip)**, unzip it and open it in the Processing IDE by double clicking on the .pde file. Hit play in the upper left corner. You should see a window Like this come up:
 
-![Image of Processing Sketch](./GettingStartedImages/port_select.png)
+![Image of Processing Sketch](./GettingStartedimages/port_select.png)
 
 Use the port select menu to choose the port for your Arduino. A good way to figure out what this should be is by referencing the port used in the Arduino IDE to upload the arduino sketch
 
@@ -95,7 +95,7 @@ Now hit 'Attempt to connect to device' on the Teachable Machine website. You sho
 
 Use the record button to collect samples inside of each class. The samples should contain examples of what you want to classify in real world lighting.
 
-![Example of training data](GettingStartedImages/train_data.png)
+![Example of training data](GettingStartedimages/train_data.png)
 
 ```text
 Note: Remember that the results of any machine learning model depend on the examples you give it. Trying different examples is a core part of exploring machine learning. So, if it's not working as you intended, play around with different approaches for what examples you provide.
@@ -107,7 +107,7 @@ When you're done adding training data, hit Train and don't switch tabs.
 
 Try your model out in the teachable machine preview window. Select Device from the input dropdown menu, you'll see the OV7670 Camera images start to be classified.
 
-![Teachable Machine Preview window](./GettingStartedImages/tm_fpo.gif)
+![Teachable Machine Preview window](./GettingStartedimages/tm_fpo.gif)
 
 ## Running your model on the Arduino
 
@@ -115,4 +115,4 @@ Hit Export model above the preview window in Teachable Machine. Select Tensorflo
 
 *Close any open Processing Sketches* and upload this sketch to your Arduino. When the upload is complete, check the Serial Monitor. You will see the class names printed next to the confidence in each class.
 
-![Serial Monitor](./GettingStartedImages/serial_mon.png)
+![Serial Monitor](./GettingStartedimages/serial_mon.png)
