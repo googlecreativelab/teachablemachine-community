@@ -26,7 +26,21 @@
                 "url": "/image/edgetpu/python.md"
             }
         ]
-    }, 
+    },
+    "tiny_image": {
+        "tensorflowjs": [
+            {
+                "title": "Javascript",
+                "url": "/image/tensorflowjs/javascript.md"
+            }
+        ],
+        "tflite": [
+            {
+            "title": "TensorFlow Lite for Microcontrollers",
+            "url": "/tiny_image/tflite/tinyml.md"
+            }
+        ]
+    },
     "audio": {
         "tensorflowjs": [
             {
