@@ -409,7 +409,7 @@ describe("CI Test", () => {
 
 	let testGrayscaleModel: tm.TeachableMobileNet;
 	it('test grayscale model accuracy (for CI)', async () => {
-		const { model, lastEpoch } = await testMobilenet(PLANT_DATASET_URL, 1, loadPngImage, 30, false, true);
+		const { model, lastEpoch } = await testMobilenet(PLANT_DATASET_URL, 1, loadJpgImage, 30, false, true);
 		testGrayscaleModel = model;
 		assert.isAbove(lastEpoch.val_acc, 0.8);
 		assert.isBelow(lastEpoch.val_loss, 0.2);
