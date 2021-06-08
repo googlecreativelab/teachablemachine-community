@@ -1,1 +1,1 @@
-[To find out how to use this model, check out our gettnig started guide here.](../GettingStarted.md)
+[To find out how to use this model, check out our getting started guide here.](https://github.com/googlecreativelab/teachablemachine-community/blob/master/snippets/markdown/tiny_image/GettingStarted.md)
