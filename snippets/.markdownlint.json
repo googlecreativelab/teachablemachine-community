@@ -1,6 +1,5 @@
 {
     "default": true,
     "MD041": false,
-    "MD013": {"line_length": 100},
     "MD047": false
 }

@@ -1,16 +1,18 @@
 # Getting Started With Teachable Machine's Embedded Model
+
 This guide is an overview of how to use Teachable Machine's Embedded Model.
 
 Teachable Machine is a web based tool that lets you train models entirely in the browser with no coding required. If you’ve never used Teachable Machine before, check out the getting started videos here to understand how it works. The embedded model is a smaller version of the standard image model, allowing you to run it on microcontrollers.
-This guide will show you how to connect a camera and Arduino Nano 33 BLE to Teachable Machine to gather training samples, how to train your model, and finally how to export the model and run it on device. 
-
+This guide will show you how to connect a camera and Arduino Nano 33 BLE to Teachable Machine to gather training samples, how to train your model, and finally how to export the model and run it on device.
 
 ## Requirements
+
 This guide is meant for use with the Arduino Nano 33 BLE Sense and Nano 33 BLE, combined with the OV7670 Camera module. You'll need some female to female leads to connect the two.
-We found the OV7670 Camera to be the most reliable, but you can also use the Arducam 2MP Plus. by replacing the image_provider.h with the one provided here. 
+We found the OV7670 Camera to be the most reliable, but you can also use the Arducam 2MP Plus. by replacing the image_provider.h with the one provided here.
 You'll also need a computer to run Teachable Machine, run the Arduino IDE, and run Processing.
 
 ## Software Setup
+
 You'll need a few programs and libraries to communicate with your OV7670 Camera.
 
 [Download and install the Arduino IDE from the Arduino Website](https://www.arduino.cc/en/software). Then:
@@ -24,6 +26,7 @@ To install it, open the Arduino library manager in Tools -> Manage Libraries... 
 To install it, open the Arduino library manager in Tools -> Manage Libraries... and search for Arduino_OV767X and install this as well.
 
 ### Processing IDE
+
 We will use a simple Processing Sketch to connect our arduino to Teachable Machine. [To get this running, first install the Processing IDE from the website here.](https://processing.org/download/)
 
 You'll need a few additional libraries for our processing sketch as well. Open the Processing IDE. In the Menu Bar, go to Sketch -> Add Library -> Manage Libraries.
@@ -69,7 +72,6 @@ Select **Device** as the input type, a window like this should pop up.
 
 ![Image of Teachable Machine](./GettingStartedImages/sketches.png)
 
-
 **First, Download [TMArduinoSketch.zip](https://storage.googleapis.com/tiny-templates/TMConnector.zip)**, unzip it, and open it in the Arduino IDE by double clicking the .ino file. Make sure that you have selected Arduino Nano 33 inside of Tools -> Boards, and the correct port is selected under Tools -> Port. Upload this sketch to the Arduino. This sets up the Arduino to send images to teachable machine.
 
 **Next Download the [TMProcessingSketch.zip](https://storage.googleapis.com/tiny-templates/TMUploader.zip)**, unzip it and open it in the Processing IDE by double clicking on the .pde file. Hit play in the upper left corner. You should see a window Like this come up:
@@ -78,13 +80,13 @@ Select **Device** as the input type, a window like this should pop up.
 
 Use the port select menu to choose the port for your Arduino. A good way to figure out what this should be is by referencing the port used in the Arduino IDE to upload the arduino sketch
 
-You should see the camera feed appear in the Processing App. 
+You should see the camera feed appear in the Processing App.
 
 ```
 Troubleshooting:
 
-- If you see static or nothing coming from the camera, make sure all your wiring connections are tight and correct. 
-- If you see a flat gray screen, try adjusting the camera's focus so that it's able to correctly auto-expose. 
+- If you see static or nothing coming from the camera, make sure all your wiring connections are tight and correct.
+- If you see a flat gray screen, try adjusting the camera's focus so that it's able to correctly auto-expose.
 ```
 Now hit 'Attempt to connect to device' on the Teachable Machine website. You should see a preview of your OV7670 Camera feed in the class window.
 
@@ -94,19 +96,21 @@ Use the record button to collect samples inside of each class. The samples shoul
 
 ![Example of training data](GettingStartedImages/train_data.png)
 
-```
+```text
 Note: Remember that the results of any machine learning model depend on the examples you give it. Trying different examples is a core part of exploring machine learning. So, if it's not working as you intended, play around with different approaches for what examples you provide.
 ```
 
 When you're done adding training data, hit Train and don't switch tabs.
 
 ## Test Your Model
+
 Try your model out in the teachable machine preview window. Select TinyBLE from the input dropdown menu, you'll see the OV7670 Camera images start to be classified.
 
 ![Teachable Machine Preview window](GettingStartedImages/tm_fpo.gif)
 
 ## Running your model on the Arduino
-Hit Export model above the preview window in Teachable Machine. Select Tensorflow Lite, then Tensorflow Lite for Microcontrollers and Hit 'Download my Model'. This will convert your model in the background for a few moments, then download a zip folder containing an arduino sketch with your model loaded. 
+
+Hit Export model above the preview window in Teachable Machine. Select Tensorflow Lite, then Tensorflow Lite for Microcontrollers and Hit 'Download my Model'. This will convert your model in the background for a few moments, then download a zip folder containing an arduino sketch with your model loaded.
 
 *Close any open Processing Sketches* and upload this sketch to your Arduino. When the upload is complete, check the Serial Monitor. You will see the class names printed next to the confidence in each class.
 
