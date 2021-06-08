@@ -82,7 +82,7 @@ Use the port select menu to choose the port for your Arduino. A good way to figu
 
 You should see the camera feed appear in the Processing App.
 
-```
+```text
 Troubleshooting:
 
 - If you see static or nothing coming from the camera, make sure all your wiring connections are tight and correct.
