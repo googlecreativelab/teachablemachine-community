@@ -66,7 +66,7 @@ Now that the camera is set up, let's connect it to Teachable Machine so we can u
 
 ### Run Uploader and Connector Sketches
 
-Create a new teachable machine [image project here](https://teachablemachine.withgoogle.com) **Make sure to select 'Embedded model' so that you'll be able to export our model to your arduino.** 
+Create a new teachable machine [image project here](https://teachablemachine.withgoogle.com) **Make sure to select 'Embedded model' so that you'll be able to export our model to your arduino.*
 
 Select **Device** as the input type, a window like this should pop up.
 
@@ -88,6 +88,7 @@ Troubleshooting:
 - If you see static or nothing coming from the camera, make sure all your wiring connections are tight and correct.
 - If you see a flat gray screen, try adjusting the camera's focus so that it's able to correctly auto-expose.
 ```
+
 Now hit 'Attempt to connect to device' on the Teachable Machine website. You should see a preview of your OV7670 Camera feed in the class window.
 
 ## Collect the Data
@@ -115,5 +116,3 @@ Hit Export model above the preview window in Teachable Machine. Select Tensorflo
 *Close any open Processing Sketches* and upload this sketch to your Arduino. When the upload is complete, check the Serial Monitor. You will see the class names printed next to the confidence in each class.
 
 ![Serial Monitor](GettingStartedImages/serial_mon.png)
-
-
