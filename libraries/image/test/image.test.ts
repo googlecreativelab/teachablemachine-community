@@ -418,19 +418,18 @@ describe("CI Test", () => {
 
 	it('tests graysale predict functions', async() => {
 		let testImage, prediction, predictionTopK;
-		testImage = await loadJpgImage('bad_bean', 0, PLANT_DATASET_URL);
+		testImage = await loadJpgImage('ficus', 0, PLANT_DATASET_URL);
 		prediction = await testGrayscaleModel.predict(testImage, false);
 		assert.isAbove(prediction[1].probability, 0.8);
 		predictionTopK = await testGrayscaleModel.predictTopK(testImage, 3, false);
-		assert.equal(predictionTopK[0].className, 'bad_bean');
+		assert.equal(predictionTopK[0].className, 'ficus');
 		assert.isAbove(predictionTopK[0].probability, 0.8);
 
-
-		testImage = await loadJpgImage('good_bean', 0, PLANT_DATASET_URL);
+		testImage = await loadJpgImage('lily', 0, PLANT_DATASET_URL);
 		prediction = await testGrayscaleModel.predict(testImage, false);
 		assert.isAbove(prediction[0].probability, 0.8);
 		predictionTopK = await testGrayscaleModel.predictTopK(testImage, 3, false);
-		assert.equal(predictionTopK[0].className, 'good_bean');
+		assert.equal(predictionTopK[0].className, 'lily');
 		assert.isAbove(predictionTopK[0].probability, 0.8);
 	})
 });
