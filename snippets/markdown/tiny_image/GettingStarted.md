@@ -112,5 +112,4 @@ Hit Export model above the preview window in Teachable Machine. Select Tensorflo
 
 ![Serial Monitor](GettingStartedImages/serial_mon.png)
 
-## Going further
 

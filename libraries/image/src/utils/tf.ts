@@ -41,7 +41,6 @@ export function capture(rasterElement: HTMLImageElement | HTMLVideoElement | HTM
 
 
 export function cropTensor( img: tf.Tensor3D, grayscaleModel?: boolean, grayscaleInput?: boolean ) : tf.Tensor3D {
-    console.log(img.shape);
     const size = Math.min(img.shape[0], img.shape[1]);
     const centerHeight = img.shape[0] / 2;
     const beginHeight = centerHeight - (size / 2);
