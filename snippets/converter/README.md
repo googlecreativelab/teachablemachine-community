@@ -55,6 +55,18 @@ localhost url: `localhost:9001/convert/{type}/{format}/`
 
 ## Test
 
+Uncomment lines 19-23 in `docker-compose.yml`
+
+```yaml
+## Uncomment these lines to enable tests
+   networks:
+     default:
+         external:
+             name: cloudbuild
+
+```
+
+Then run the cloudbuild testfile:
 [Learn more about testing locally with cloudbuild here](https://cloud.google.com/build/docs/build-debug-locally)
 
 ```bash

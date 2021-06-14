@@ -15,7 +15,9 @@ services:
     image: converter-audio:latest
     ports:
       - "9003:8080"
-networks:
-    default:
-        external:
-            name: cloudbuild
+
+## Uncomment these lines to enable tests
+# networks:
+#     default:
+#         external:
+#             name: cloudbuild
