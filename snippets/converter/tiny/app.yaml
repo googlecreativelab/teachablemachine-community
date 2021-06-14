@@ -1,0 +1,14 @@
+runtime: custom
+env: flex
+service: converter-tinyml-image
+
+env_variables:
+  EXTERNAL_PORT: "8080"
+
+resources:
+  cpu: 2
+  memory_gb: 4
+  disk_size_gb: 20
+
+automatic_scaling:
+  cool_down_period_sec: 240

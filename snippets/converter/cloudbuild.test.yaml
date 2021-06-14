@@ -1,0 +1,55 @@
+steps:
+  # Build docker image
+  - name: "docker/compose:1.24.1"
+    args:
+      [
+        "build",
+      ]
+
+  # Start server for testin
+  - name: "docker/compose:1.24.1"
+    args: ["up", "-d", "--force-recreate"]
+    id: "compose-up"
+
+  # Run tiny converter
+  - name: "converter-tiny:latest"
+    id: "test tiny converter"
+    entrypoint: "bash"
+    dir: "tiny/test"
+    waitFor: ["compose-up"]
+    args: ["-c", "./test.sh"]
+    env:
+      - "HOST=tiny"
+      - "PORT=8080"
+
+  # Test Audio converter
+  - name: "converter-audio:latest"
+    entrypoint: "bash"
+    id: "test audio converter"
+    waitFor: ["compose-up"]
+    dir: "audio/test"
+    args: ["-c", "./test.sh"]
+    env:
+      - "HOST=audio"
+      - "PORT=8080"
+  
+  # Test Image converter
+  - name: "converter-image:latest"
+    entrypoint: "bash"
+    dir: "image/test"
+    id: "test image converter"
+    waitFor: ["compose-up"]
+    args: ["-c", "./test.sh"]
+    env:
+      - "HOST=image"
+      - "PORT=8080"
+  
+  - name: "docker/compose:1.24.1"
+    args: ["down"]
+  
+  - name: "docker/compose:1.24.1"
+    args: ["logs"]
+    
+  
+options:
+  machineType: "N1_HIGHCPU_8"

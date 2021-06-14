@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  tiny:
+    build: tiny
+    image: converter-tiny:latest
+    ports:
+      - "9001:8080"
+  image:
+    build: image
+    image: converter-image:latest
+    ports:
+      - "9002:8080"
+  audio:
+    build: audio
+    image: converter-audio:latest
+    ports:
+      - "9003:8080"
+networks:
+    default:
+        external:
+            name: cloudbuild
