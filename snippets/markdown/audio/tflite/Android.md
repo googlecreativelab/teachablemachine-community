@@ -10,18 +10,22 @@ You can test your TensorFlow Lite sound classification model on Android by follo
 1. Copy the `soundclassifier_with_metadata.tflite` file from the archive to the
  `src/main/assets` folder in the sample app, replacing the demo model there.
 1. Open the file `src/main/java/org/tensorflow/lite/examples/soundclassifier/MainActivity.kt`
-1. Replace the line 
+1. Replace the line
 
-    ```kotlin 
+    ```kotlin
     private const val MODEL_FILE = "yamnet.tflite"
     ```
+
     with
-    ```kotlin 
+
+    ```kotlin
     private const val MODEL_FILE = "soundclassifier_with_metadata.tflite"
     ```
+
 1. Build and install the app on device
 
  *Note: Please use a physical Android device to run the sample app.*
+
 ## Integrate your model into your own app
 
 You can use TFLite Task Library - AudioClassifier API to integrate the model into your Android. See the TFLite [documentation](https://www.tensorflow.org/lite/inference_with_metadata/task_library/audio_classifier) for more details.
