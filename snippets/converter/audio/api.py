@@ -24,6 +24,10 @@ import tensorflow as tf
 import tensorflowjs as tfjs
 import numpy as np
 
+from tflite_support.metadata_writers import audio_classifier
+from tflite_support.metadata_writers import writer_utils
+from tflite_support import metadata
+
 import tempfile
 import shutil
 import zipfile
@@ -33,6 +37,9 @@ app.add_middleware(
 )
 labels = []
 datapath = ""
+
+AudioClassifierWriter = audio_classifier.MetadataWriter
+
 # load preproc layers
 preproc_model_path = 'sc_preproc_model'
 preproc_model = tf.keras.models.load_model(preproc_model_path)
@@ -91,7 +98,8 @@ async def create_upload_file(type: str, format: str, background_tasks: Backgroun
     labels = data['wordLabels']
     
     print("Generating lables.txt")
-    with open(model_dir + '/labels.txt', 'w') as f:
+    labels_path = model_dir + '/labels.txt'
+    with open(labels_path, 'w') as f:
         for idx, label in enumerate(labels):
             f.write("{} {}\n".format(idx, label))
     print('Labels:'+', '.join(labels), flush=True)
@@ -108,9 +116,14 @@ async def create_upload_file(type: str, format: str, background_tasks: Backgroun
     # save the model as a tflite file
     tflite_output_path = model_dir + '/soundclassifier.tflite'
     converter = tf.lite.TFLiteConverter.from_keras_model(combined_model)
-    converter.target_spec.supported_ops=[
-        tf.lite.OpsSet.TFLITE_BUILTINS, tf.lite.OpsSet.SELECT_TF_OPS 
-    ]
     with open(tflite_output_path, 'wb') as f:
         f.write(converter.convert())
-    return returnFile('soundclassifier.tflite', model_dir, data_dir, False)
+
+    # add metadata to model
+    save_to_path = model_dir + '/soundclassifier_with_metadata.tflite'
+    channels = 1
+    tm_sample_rate = 44100
+    writer = AudioClassifierWriter.create_for_inference(writer_utils.load_file(tflite_output_path),
+                                                        tm_sample_rate, channels, [labels_path])
+    writer_utils.save_file(writer.populate(), save_to_path)
+    return returnFile('soundclassifier_with_metadata.tflite', model_dir, data_dir, False)
