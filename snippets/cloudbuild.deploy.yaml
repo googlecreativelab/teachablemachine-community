@@ -2,3 +2,17 @@ steps:
 - name: 'gcr.io/cloud-builders/gsutil'
   args: ['-m', 'rsync', '-d', '-r', './markdown', 'gs://teachable-machine-snippets/github']
   dir: 'snippets'
+
+- name: 'gcr.io/cloud-builders/gsutil'
+  entrypoint: 'zip'
+  args: ['-r', 'TMConnector.zip', 'TMConnector/']
+  dir: 'snippets/markdown/tiny_image/tiny_templates'
+
+- name: 'gcr.io/cloud-builders/gsutil'
+  entrypoint: 'zip'
+  args: ['-r', 'TMUploader.zip', 'TMUploader/']
+  dir: 'snippets/markdown/tiny_image/tiny_templates'
+
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['cp', '*.zip', 'gs://tiny-templates']
+  dir: 'snippets/markdown/tiny_image/tiny_templates'
