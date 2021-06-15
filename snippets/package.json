@@ -4,7 +4,7 @@
     },
     "scripts": {
         "start": "http-server --cors snippets",
-        "lint": "markdownlint ./markdown"
+        "lint": "markdownlint ./markdown ./converter"
     },
     "devDependencies": {
         "markdownlint-cli": "^0.18.0"

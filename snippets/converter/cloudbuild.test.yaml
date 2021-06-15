@@ -1,0 +1,68 @@
+# ==============================================================================
+# Copyright 2021 Google LLC All Rights Reserved.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#     http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+steps:
+  # Build docker image
+  - name: "docker/compose:1.24.1"
+    args:
+      [
+        "build",
+      ]
+
+  # Start server for testin
+  - name: "docker/compose:1.24.1"
+    args: ["up", "-d", "--force-recreate"]
+    id: "compose-up"
+
+  # Run tiny converter
+  - name: "converter-tiny:latest"
+    id: "test tiny converter"
+    entrypoint: "bash"
+    dir: "tiny/test"
+    waitFor: ["compose-up"]
+    args: ["-c", "./test.sh"]
+    env:
+      - "HOST=tiny"
+      - "PORT=8080"
+
+  # Test Audio converter
+  - name: "converter-audio:latest"
+    entrypoint: "bash"
+    id: "test audio converter"
+    waitFor: ["compose-up"]
+    dir: "audio/test"
+    args: ["-c", "./test.sh"]
+    env:
+      - "HOST=audio"
+      - "PORT=8080"
+  
+  # Test Image converter
+  - name: "converter-image:latest"
+    entrypoint: "bash"
+    dir: "image/test"
+    id: "test image converter"
+    waitFor: ["compose-up"]
+    args: ["-c", "./test.sh"]
+    env:
+      - "HOST=image"
+      - "PORT=8080"
+  
+  - name: "docker/compose:1.24.1"
+    args: ["down"]
+  
+  - name: "docker/compose:1.24.1"
+    args: ["logs"]
+    
+  
+options:
+  machineType: "N1_HIGHCPU_8"
