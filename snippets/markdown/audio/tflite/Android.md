@@ -2,42 +2,30 @@
 
 You can test your TensorFlow Lite sound classification model on Android by following these steps:
 
-1. Download the [sample app](https://github.com/tensorflow/examples/tree/master/lite/examples/sound_classification/android_legacy)
+1. Download the [sample app](https://github.com/tensorflow/examples/tree/master/lite/examples/sound_classification/android)
  from GitHub.
+1. Follow instuctions in sample app README to import the app into Android Studio
+1. Make the project by going to Build -> Make Project
 1. Extract the ZIP archive that you download from Teachable Machine.
-1. Copy the `soundclassifier.tflite` and `labels.txt` files from the archive to the
+1. Copy the `soundclassifier_with_metadata.tflite` file from the archive to the
  `src/main/assets` folder in the sample app, replacing the demo model there.
+1. Open the file `src/main/java/org/tensorflow/lite/examples/soundclassifier/MainActivity.kt`
+1. Replace the line
+
+    ```kotlin
+    private const val MODEL_FILE = "yamnet.tflite"
+    ```
+
+    with
+
+    ```kotlin
+    private const val MODEL_FILE = "soundclassifier_with_metadata.tflite"
+    ```
+
+1. Build and install the app on device
 
  *Note: Please use a physical Android device to run the sample app.*
 
 ## Integrate your model into your own app
 
-If you want to integrate the model into your existing app, follow these steps:
-
-1. Put the `soundclassifier.tflite` and `labels.txt` files into the `assets` folder in your app.
-1. Copy the [SoundClassifier.kt](https://github.com/tensorflow/examples/blob/master/lite/examples/sound_classification/android_legacy/app/src/main/java/org/tensorflow/lite/examples/soundclassifier/SoundClassifier.kt)
- file to your app. This file contains the source code to use the sound classification model.
-1. Initialize a `SoundClassifier` instance from your `Activity` or `Fragment` class.
-
-    ```kotlin
-    var soundClassifier: SoundClassifier
-    soundClassifier = SoundClassifier(context).also {
-        it.lifecycleOwner = context // or viewLifecycleOwner when using in a Fragment
-    }
-    ```
-
-1. Start capturing live audio from the device's microphone and classify in realtime:
-
-    ```kotlin
-    soundClassifier.start()
-    ```
-
-1. Receive classification result in realtime as a map of human-readable class name and
- probabilities of the current sound belonging to each particular category.
-
-    ```kotlin
-    let labelName = soundClassifier.labelList[0] // e.g. "Clap"
-    soundClassifier.probabilities.observe(this) { resultMap ->
-        let probability = resultMap[labelName] // e.g. 0.7
-    }
-    ```
+You can use TFLite Task Library - AudioClassifier API to integrate the model into your Android. See the TFLite [documentation](https://www.tensorflow.org/lite/inference_with_metadata/task_library/audio_classifier) for more details.
