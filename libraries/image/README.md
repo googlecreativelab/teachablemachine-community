@@ -42,7 +42,7 @@ import * as tmImage from '@teachablemachine/image';
 
 ### Sample snippet
 
-```js
+```html
 <div>Teachable Machine Image Model</div>
 <button type='button' onclick='init()'>Start</button>
 <div id='webcam-container'></div>
@@ -78,14 +78,14 @@ import * as tmImage from '@teachablemachine/image';
         const flip = true; // whether to flip the webcam
         const width = 200;
         const height = 200;
-        webcam = new tmImage.Webcam(width, height, flip); // width, height, flipwidth, height, flip
+        webcam = new tmImage.Webcam(width, height, flip);
         await webcam.setup(); // request access to the webcam
 
         if (isIos) {
             document.getElementById('webcam-container').appendChild(webcam.webcam); // webcam object needs to be added in any case to make this work on iOS
-            // grab video-object in any way you want and set the attributes --> **"muted" and "playsinline"**
+            // grab video-object in any way you want and set the attributes
             const webCamVideo = document.getElementsByTagName('video')[0];
-            webCamVideo.setAttribute("playsinline", true); // written with "setAttribute" bc. iOS buggs otherwise :-)
+            webCamVideo.setAttribute("playsinline", true); // written with "setAttribute" bc. iOS buggs otherwise
             webCamVideo.muted = "true";
             webCamVideo.style.width = width + 'px';
             webCamVideo.style.height = height + 'px';

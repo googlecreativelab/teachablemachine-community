@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from keras.preprocessing import image
 from keras.models import load_model
 
-# Lode Image with right shape to feed into keras model
-pic = image.load_img('image Location',target_size=(224,224))
+# Load image with right shape to feed into keras model
+pic = image.load_img('<image path>',target_size=(224,224))
 
 # Load the model
 model = load_model('keras_model.h5')
