@@ -11,13 +11,13 @@ pic = image.load_img('<image path>',target_size=(224,224))
 model = load_model('keras_model.h5')
 
 # Display Image
-plt.imshow(testing)
+plt.imshow(pic)
 
 # Convert image to array of required type
-testing = image.img_to_array(testing)
+testing = image.img_to_array(pic)
 
 # Predict image through model
-k = model.predict_classes(testing.reshape(1,28,28,1))
+k = model.predict_classes(pic.reshape(1,28,28,1))
 
 # Print Prediction
 print(k)
