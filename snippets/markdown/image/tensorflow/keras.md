@@ -1,23 +1,31 @@
 ```python
-import numpy as np
-import matplotlib.pyplot as plt
-from keras.preprocessing import image
+import tensorflow.keras
 from keras.models import load_model
-
-# Load image with right shape to feed into keras model
-pic = image.load_img('<image path>',target_size=(224,224))
+from PIL import Image, ImageOps
+import numpy as np
 
 # Load the model
 model = load_model('keras_model.h5')
 
-# Display Image
-plt.imshow(testing)
+# Create the array of the right shape to feed into the keras model
+# The 'length' or number of images you can put into the array is
+# determined by the first position in the shape tuple, in this case 1.
+data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
+# Replace this with the path to your image
+image = Image.open('<IMAGE_PATH>')
+#resize the image to a 224x224 with the same strategy as in TM2:
+#resizing the image to be at least 224x224 and then cropping from the center
+size = (224, 224)
+image = ImageOps.fit(image, size, Image.ANTIALIAS)
 
-# Convert image to array of required type
-testing = image.img_to_array(testing)
+#turn the image into a numpy array
+image_array = np.asarray(image)
+# Normalize the image
+normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
+# Load the image into the array
+data[0] = normalized_image_array
 
-# Predict image through model
-k = model.predict_classes(testing.reshape(1,28,28,1))
-
-# Print Prediction
-print(k)
+# run the inference
+prediction = model.predict(data)
+print(prediction)
+```
