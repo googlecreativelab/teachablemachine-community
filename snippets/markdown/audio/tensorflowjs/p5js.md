@@ -13,7 +13,7 @@ let classifier;
 let label = 'listening...';
 
 // Teachable Machine model URL:
-let soundModel = '{{URL}}';
+let soundModel = '{{https://teachablemachine.withgoogle.com/vg67.json}}';
 
 
 function preload() {
@@ -27,6 +27,7 @@ function setup() {
   // The sound model will continuously listen to the microphone
   classifier.classify(gotResult);
 }
+  
 
 function draw() {
   background(0);
@@ -37,6 +38,14 @@ function draw() {
   text(label, width / 2, height / 2);
 }
 
+function draw() {
+  background(0);
+  // Draw the label in the canvas
+  fill(255);
+  textSize(36);
+  textAlign(CENTER, CENTER);
+  text(label, width / 2, height / 2);
+}
 
 // The model recognizing a sound will trigger this event
 function gotResult(error, results) {
