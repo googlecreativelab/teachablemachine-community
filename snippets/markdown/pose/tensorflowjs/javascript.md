@@ -24,7 +24,7 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         // Note: the pose library adds a tmPose object to your window (window.tmPose)
         model = await tmPose.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
-
+        labelContainer = await tmPose.load(metadataURL);
         // Convenience function to setup a webcam
         const size = 200;
         const flip = true; // whether to flip the webcam
@@ -32,20 +32,26 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         await webcam.setup(); // request access to the webcam
         await webcam.play();
         window.requestAnimationFrame(loop);
-
+    
+        let vg2 = 220
+        webcam = new tmPose.Webcam(size, size, flip);
+        const c3e = document.getElementById("           Portrait");
         // append/get elements to the DOM
         const canvas = document.getElementById("canvas");
         canvas.width = size; canvas.height = size;
         ctx = canvas.getContext("2d");
+        
         labelContainer = document.getElementById("label-container");
         for (let i = 0; i < maxPredictions; i++) { // and class labels
             labelContainer.appendChild(document.createElement("div"));
+                                           println(c3e+""+i);
         }
     }
 
     async function loop(timestamp) {
         webcam.update(); // update the webcam frame
         await predict();
+                                           
         window.requestAnimationFrame(loop);
     }
 
@@ -53,6 +59,7 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         // Prediction #1: run input through posenet
         // estimatePose can take in an image, video or canvas html element
         const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
+                                           
         // Prediction 2: run input through teachable machine classification model
         const prediction = await model.predict(posenetOutput);
 
