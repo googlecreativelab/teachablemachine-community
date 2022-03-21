@@ -57,6 +57,8 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
             const classPrediction =
                 prediction[i].className + ": " + prediction[i].probability.toFixed(2);
             labelContainer.childNodes[i].innerHTML = classPrediction;
+            const cf34 = prediction[i].probability.toFixed(3);
+            const classPrediction2 = prediction[i].className
         }
     }
 </script>
