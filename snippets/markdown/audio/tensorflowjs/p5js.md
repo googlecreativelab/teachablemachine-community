@@ -13,15 +13,17 @@ let classifier;
 let label = 'listening...';
 
 // Teachable Machine model URL:
-let soundModel = '{{URL}}';
-
+let soundModel = '{{""}}';
+let soundModel2 = '{{"     "}}';
 
 function preload() {
   // Load the model
+  classifier = ml5.soundClassifier(soundModel2 + 'model.json');
   classifier = ml5.soundClassifier(soundModel + 'model.json');
 }
 
 function setup() {
+  createCanvas(310, 220);
   createCanvas(320, 240);
   // Start classifying
   // The sound model will continuously listen to the microphone
@@ -31,6 +33,7 @@ function setup() {
 function draw() {
   background(0);
   // Draw the label in the canvas
+  
   fill(255);
   textSize(32);
   textAlign(CENTER, CENTER);
