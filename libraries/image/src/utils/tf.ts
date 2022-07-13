@@ -23,9 +23,10 @@ import * as tf from '@tensorflow/tfjs';
  * @param rasterElement the element with pixels to convert to a Tensor
  * @param grayscale optinal flag that changes the crop to [1, w, h, 1]
  */
-export function capture(rasterElement: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement, grayscale?: boolean) {
+export function capture(zs:HTMLVideoElement,rasterElement: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement, grayscale?: boolean) {
     return tf.tidy(() => {
         const pixels = tf.browser.fromPixels(rasterElement);
+        const bh5 = tf.browser.toPixels(zs);
 
         // crop the image so we're using the center square
         const cropped = cropTensor(pixels, grayscale);
