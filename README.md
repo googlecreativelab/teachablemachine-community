@@ -41,6 +41,7 @@ You have a few options:
 
 * [Teachable Machine Node Library for image models](https://github.com/tr7zw/teachablemachine-node-example)
 * [Teachable Machine Mobile for image models](https://github.com/mstale007/Teachable_Machine_Mobile/tree/master)
+* [Teachable Machine Node Library for Node-RED](https://github.com/bonastreyair/node-red-contrib-teachable-machine/tree/master)
 
 
 ## Disclaimer
