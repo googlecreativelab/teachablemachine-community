@@ -1,12 +1,3 @@
-
-## NEW:
-
-Want to bring Teachable Machine into your own web creations?
-
-We’re working on a library called _teachablemachine.js_ which will let you do just that. Here’s the first remixable demo you can play with to get a sneak peek at what’s possible:
-
-[Hello Wizard](http://glitch.com/edit/#!/tm-wizard?path=README.md%3A1%3A0) - This demo shows how you can drop a machine learning “training wizard” on top of your website with just a few lines of code.
-
 # Teachable Machine Community
 
 ![Teachable Machine](./teachablemachine.gif)
@@ -16,9 +7,11 @@ We’re working on a library called _teachablemachine.js_ which will let you do 
 [Teachable Machine](https://teachablemachine.withgoogle.com/) is a web-based tool that makes creating machine learning models fast, easy, and accessible for everyone. [You can try it here](https://teachablemachine.withgoogle.com/).
 
 ### Who is it for?
+
 Educators, artists, students, innovators, makers of all kinds – really, anyone who has an idea they want to explore. No prerequisite machine learning knowledge required.
 
 ### How does it work?
+
 You train a computer to recognize your images, sounds, and poses without writing any machine learning code. Then, use your model in your own projects, sites, apps, and more.
 
 ### What is this repository for?
@@ -33,15 +26,14 @@ This repository contains two components of [Teachable Machine](https://teachable
 
 You have a few options:
 
-* [Use this form](https://forms.gle/uthe2C4tZNPA11GX7).  
-* Share your projects using [#teachablemachine](https://twitter.com/hashtag/teachablemachine) on Twitter or on the [Experiments with Google](https://experiments.withgoogle.com/submit) page.
-* Open an issue in this repository.
+- [Use this form](https://forms.gle/uthe2C4tZNPA11GX7).
+- Share your projects using [#teachablemachine](https://twitter.com/hashtag/teachablemachine) on Twitter or on the [Experiments with Google](https://experiments.withgoogle.com/submit) page.
+- Open an issue in this repository.
 
 ## Community Contributions and Projects
 
-* [Teachable Machine Node Library for image models](https://github.com/tr7zw/teachablemachine-node-example)
-* [Teachable Machine Mobile for image models](https://github.com/mstale007/Teachable_Machine_Mobile/tree/master)
-
+- [Teachable Machine Node Library for image models](https://github.com/tr7zw/teachablemachine-node-example)
+- [Teachable Machine Mobile for image models](https://github.com/mstale007/Teachable_Machine_Mobile/tree/master)
 
 ## Disclaimer
 
