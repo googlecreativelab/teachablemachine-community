@@ -2,8 +2,6 @@
 import cv2
 import numpy as np
 from keras.models import load_model
-import numpy as np
-
 
 # Load the model
 model = load_model('keras_model.h5')
