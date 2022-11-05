@@ -14,7 +14,7 @@ class_names = open('labels.txt', 'r').readlines()
 
 # Create the array of the right shape to feed into the keras model
 # The 'length' or number of images you can put into the array is
-# determined by the first position in the shape tuple, in this case 1.
+# determined by the first position in the shape tuple, in this case 1
 data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
 # Replace this with the path to your image
@@ -40,6 +40,7 @@ index = np.argmax(prediction)
 class_name = class_names[index]
 confidence_score = prediction[0][index]
 
-print('Class:', class_name, end='')
-print('Confidence score:', confidence_score)
+# Print prediction and confidence score
+print('Class:', class_name[2:], end='')
+print('Confidence Score:', confidence_score)
 ```
