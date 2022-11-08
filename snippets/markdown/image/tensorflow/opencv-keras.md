@@ -49,4 +49,7 @@ while True:
     # 27 is the ASCII for the esc key on your keyboard.
     if keyboard_input == 27:
         break
+    
+camera.release()
+cv2.destroyAllWindows()
 ```
