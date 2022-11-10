@@ -1,7 +1,7 @@
 ```Python
+from keras.models import load_model # Tensorflow is needed for Keras to work
 import cv2 # Install opencv-python
 import numpy as np
-from keras.models import load_model
 
 # Disable scientific notation for clarity
 np.set_printoptions(suppress=True)
