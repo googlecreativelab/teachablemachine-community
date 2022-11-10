@@ -1,4 +1,4 @@
-```Python
+```python
 from keras.models import load_model # TensorFlow is needed for Keras to work
 import cv2 # Install opencv-python
 import numpy as np
@@ -16,7 +16,7 @@ camera = cv2.VideoCapture(0)
 class_names = open('labels.txt', 'r').readlines()
 
 while True:
-    # Grab the webcameras image.
+    # Grab the webcamera's image.
     ret, image = camera.read()
 
     # Resize the raw image into (224-height,224-width) pixels
