@@ -37,9 +37,7 @@ while True:
     # Normalize the image array
     image = (image / 127.5) - 1
 
-    # Have the model predict what the current image is. Model.predict
-    # returns an array of percentages. Example:[0.2,0.8] meaning its 20% sure
-    # it is the first label and 80% sure its the second label.
+    # Predicts the model
     prediction = model.predict(image)
     index = np.argmax(prediction)
     class_name = class_names[index]
