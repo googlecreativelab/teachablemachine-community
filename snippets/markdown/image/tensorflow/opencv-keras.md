@@ -1,7 +1,8 @@
 ```python
 """
 NOTE FOR WINDOWS USERS:
-Starting with TensorFlow 2.11, you will need to install TensorFlow in WSL2, or install tensorflow-cpu and, optionally, try the TensorFlow-DirectML-Plugin.
+Starting with TensorFlow 2.11, you will need to install TensorFlow in WSL2, 
+or install tensorflow-cpu and, optionally, try the TensorFlow-DirectML-Plugin.
 """
 
 from keras.models import load_model # TensorFlow is needed for Keras to work
@@ -14,11 +15,11 @@ np.set_printoptions(suppress=True)
 # Load the model
 model = load_model('keras_Model.h5', compile=False)
 
+# Load the labels
+class_names = open('labels.txt', 'r').readlines()
+
 # CAMERA can be 0 or 1 based on default camera of your computer
 camera = cv2.VideoCapture(0)
-
-# Grab the labels from the labels.txt file. This will be used later
-class_names = open('labels.txt', 'r').readlines()
 
 while True:
     # Grab the webcamera's image.
