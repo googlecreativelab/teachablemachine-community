@@ -35,7 +35,7 @@ while True:
     image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
 
     # Normalize the image array
-    image = (image / 127.0) - 1
+    image = (image / 127.5) - 1
 
     # Predicts the model
     prediction = model.predict(image)
