@@ -1,11 +1,5 @@
 ```python
-"""
-NOTE FOR WINDOWS USERS:
-Starting with TensorFlow 2.11, you will need to install TensorFlow in WSL2, 
-or install tensorflow-cpu and, optionally, try the TensorFlow-DirectML-Plugin.
-"""
-
-from keras.models import load_model  # TensorFlow is needed for Keras to work
+from keras.models import load_model  # TensorFlow is required for Keras to work
 from PIL import Image, ImageOps  # Install pillow instead of PIL
 import numpy as np
 
