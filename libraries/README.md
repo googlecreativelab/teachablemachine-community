@@ -1,6 +1,6 @@
 # Teachable Machine Libraries
 
-This section contains support libraries for the new version of Teachable Machine. For more info go to: [Teachable Machine](https://teachablemachine.withgoogle.com/io19).
+This section contains support libraries for the new version of Teachable Machine.
 
 ## Model Libraries
 
