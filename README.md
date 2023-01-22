@@ -31,7 +31,7 @@ You have a few options:
 
 ## Community Contributions and Projects
 
-- [Teachable Machine Node Library for image models](https://github.com/tr7zw/teachablemachine-node-example) (Archived and now continued [here](https://github.com/drinkspiller/teachablemachine-node-example/)
+- [Teachable Machine Node Library for image models](https://github.com/tr7zw/teachablemachine-node-example) (Archived and now continued [here](https://github.com/drinkspiller/teachablemachine-node-example/))
 - [Teachable Machine Mobile for image models](https://github.com/mstale007/Teachable_Machine_Mobile/tree/master)
 
 ## Disclaimer
