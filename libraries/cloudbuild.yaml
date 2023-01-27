@@ -18,12 +18,6 @@ steps:
     id: "pose-install"
     waitFor: ["prepare"]
 
-  - name: "custom-npm"
-    args: ["ci"]
-    dir: "libraries/audio"
-    id: "audio-install"
-    waitFor: ["prepare"]
-
     # Build the image bundle
   - name: "custom-npm"
     args: ["run", "build"]
