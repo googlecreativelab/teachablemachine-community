@@ -5,7 +5,6 @@ node_modules/
 .sass-cache
 *.swp
 .idea/
-package-lock.json
 dist/*
 bundles/*
 *.tgz
