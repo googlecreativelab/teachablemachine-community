@@ -1,6 +1,7 @@
 steps:
   - name: "gcr.io/cloud-builders/npm"
     dir: "snippets"
+    args: ["ci"]
   - name: "gcr.io/cloud-builders/npm"
     args: ["lint"]
     dir: "snippets"
