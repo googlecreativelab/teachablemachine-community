@@ -1,47 +1,39 @@
 steps:
-  # Build docker image with chrome installed 
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'custom-yarn', '.']
-  id: 'prepare'
-  dir: 'libraries'
+  # Build docker image with chrome installed
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "custom-npm", "."]
+    id: "prepare"
+    dir: "libraries"
 
-  # Run yarn install on all folders
-- name: 'custom-yarn'
-  args: ['install']
-  dir: 'libraries/image'
-  id: 'image-install'
-  waitFor: ['prepare']
+    # Run npm install on all folders
+  - name: "custom-npm"
+    args: ["ci"]
+    dir: "libraries/image"
+    id: "image-install"
+    waitFor: ["prepare"]
 
-- name: 'custom-yarn'
-  args: ['install']
-  dir: 'libraries/pose'
-  id: 'pose-install'
-  waitFor: ['prepare']
+  - name: "custom-npm"
+    args: ["ci"]
+    dir: "libraries/pose"
+    id: "pose-install"
+    waitFor: ["prepare"]
 
-- name: 'custom-yarn'
-  args: ['install']
-  dir: 'libraries/audio'
-  id: 'audio-install'
-  waitFor: ['prepare']
+    # Build the image bundle
+  - name: "custom-npm"
+    args: ["run", "build"]
+    dir: "libraries/image"
 
-  # Build the image bundle
-- name: 'custom-yarn'
-  args: ['run', 'build']
-  dir: 'libraries/image'
-  
-  # Test the image library
-- name: 'custom-yarn'
-  args: ['run', 'test']
-  dir: 'libraries/image'
-  
+    # Test the image library
+  - name: "custom-npm"
+    args: ["run", "test"]
+    dir: "libraries/image"
 
-  # Build the pose bundle
-- name: 'custom-yarn'
-  args: ['run', 'build']
-  dir: 'libraries/pose'
-  
-  # Test the pose library
-- name: 'custom-yarn'
-  args: ['run', 'test']
-  dir: 'libraries/pose'
-  
+    # Build the pose bundle
+  - name: "custom-npm"
+    args: ["run", "build"]
+    dir: "libraries/pose"
+
+    # Test the pose library
+  - name: "custom-npm"
+    args: ["run", "test"]
+    dir: "libraries/pose"
