@@ -76,17 +76,14 @@ const isMetadata = (c: any): c is Metadata =>
  * process either a URL string or a Metadata object
  * @param metadata a url to load metadata or a Metadata object
  */
-const processMetadata = async (metadata: string | Metadata) => {
-	let metadataJSON: Metadata;
-	if (typeof metadata === "string") {
-		const metadataResponse = await fetch(metadata);
-        metadataJSON = await metadataResponse.json();
-	} else if (isMetadata(metadata)) {
-		metadataJSON = metadata;
-	} else {
-		throw new Error("Invalid Metadata provided");
-	}
-	return fillMetadata(metadataJSON);
+let metadataJSON: Metadata;
+if (typeof metadata === "string") {
+	const metadataResponse = await fetch(metadata);
+    metadataJSON = await metadataResponse.json().catch(error => { throw new Error(`metadata fetch error: ${error}`); });
+} else if (isMetadata(metadata)) {
+	metadataJSON = metadata;
+} else {
+	throw new Error("Invalid Metadata provided");
 };
 
 /**
