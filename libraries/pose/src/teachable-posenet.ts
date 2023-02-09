@@ -35,7 +35,7 @@ export interface TrainingParameters {
 
 interface Sample {
     data: Float32Array;
-    label: number[];
+    label: number;
 }
 
 // tslint:disable-next-line:no-any
