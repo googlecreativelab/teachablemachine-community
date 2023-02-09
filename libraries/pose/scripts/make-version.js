@@ -19,7 +19,12 @@
 
 const fs = require('fs');
 const { join } = require('path');
-const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
+const pkgPath = 'package.json';
+if (!fs.existsSync(pkgPath)) {
+    throw new Error(`Could not find file: ${pkgPath}`);
+}
+const version = JSON.parse(fs.readFileSync(pkgPath, 'utf8')).version;
+
 
 const versionCode =
 `/** @license See the LICENSE file. */
@@ -30,9 +35,9 @@ export { version };
 
 `
 
-const defaultCallback = err => {
+const defaultCallback = (err) => {
     if (err) {
-        throw new Error(`Could not save version file ${version}: ${err}`);
+        throw new Error(`Could not save version file for version ${version}: ${err}`);
     }
     console.log(`Version file for version ${version} saved sucessfully.`);
 };
