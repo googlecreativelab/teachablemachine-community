@@ -1,30 +1,27 @@
-For this Teachable Machine example, the _Quantized_ tflite model is being used.
-It is using the [TFLite Android example](https://github.com/tensorflow/examples/tree/master/lite/examples/image_classification/android),
-note that the example only supports models with 3 or more classes,
-even though the classifier itself in the example supports 2.
+For this Teachable Machine example, the TFlite model format is being used.
 
-**1.** Get the Android app example from [Github](https://github.com/tensorflow/examples/tree/master/lite/examples/image_classification/android)
+**1.** Download the Tensorflow Examples repository from [Github](https://github.com/tensorflow/examples)
 
-**2.** Unpack the _converted_tflite_quantized.zip_ archive exported from Teachable Machine
+(`git clone https://github.com/tensorflow/examples.git`).
 
-**3.** Copy _converted_tflite_quantized_ folder to the example asset folder `examples/lite/examples/image_classification/android/app/src/main/assets/`
+**2.** Unpack the _converted_tflite_model.zip_ archive exported from Teachable Machine.
 
-**4.** Open [`examples/lite/examples/image_classification/android/app/src/main/java/org/tensorflow/lite/examples/classification/tflite/_ClassifierQuantizedMobileNet.java`](https://github.com/tensorflow/examples/blob/master/lite/examples/image_classification/android/app/src/main/java/org/tensorflow/lite/examples/classification/tflite/ClassifierQuantizedMobileNet.java)
+**3.** Copy the _TFlite model_ and the _labels.txt file_ to the asset folder:
 
-**5.** Modify `getModelPath()` and `getLabelPath()` to
+`examples/tree/master/lite/codelabs/flower_classification/android/finish/app/src/main/assets`.
 
-```java
-@Override
-protected String getModelPath() {
-  return "converted_tflite_quantized/model.tflite";
-}
+**4.** Install and run _Android Studio_.
 
-@Override
-protected String getLabelPath() {
-  return "converted_tflite_quantized/labels.txt";
-}
-```
+**5.** Click on "Open an existing Android Studio project".
 
-You can now build the app using _Android Studio_ as described in the [README](https://github.com/tensorflow/examples/blob/master/lite/examples/image_classification/android/README.md).
+In the file selector, `choose examples/lite/codelabs/flower_classification/android/finish`.
 
-To enable your model in the app, switch the active model to _Quantized_MobileNet_
+You will get a "Gradle Sync" popup, the first time you open the project, asking about using gradle wrapper. Click "OK".
+
+**6.** You can [run the App on a virtual device](https://codelabs.developers.google.com/codelabs/recognize-flowers-with-tensorflow-on-android/?hl=de#7) for testing.
+
+To build the APK, go to the _Build_ menu -> _Build Bundle(s) / APKs_ -> _Build APKs_.
+
+The menu will be greyed out as long as the project is still being loaded.
+
+A more detailed tutorial can be found here: [Recognize Flowers with TensorFlow Lite on Android Tutorial](https://codelabs.developers.google.com/codelabs/recognize-flowers-with-tensorflow-on-android/).
