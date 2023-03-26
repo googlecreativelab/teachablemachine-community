@@ -20,7 +20,8 @@ while True:
     ret, image = camera.read()
 
     # Resize the raw image into (224-height,224-width) pixels
-    image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_AREA)
+    image = cv2.resize(image, (224, 224))
+    image = cv2.flip(image, 1)
 
     # Show the image in a window
     cv2.imshow("Webcam Image", image)
@@ -50,4 +51,5 @@ while True:
 
 camera.release()
 cv2.destroyAllWindows()
+
 ```
