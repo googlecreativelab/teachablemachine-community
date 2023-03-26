@@ -19,11 +19,11 @@ while True:
     # Grab the webcamera's image.
     ret, image = camera.read()
 
-    # Resize the raw image into (224-height,224-width) pixels
-    image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_AREA)
+    # Flip and resize the raw image into (224, 224) pixels
+    image = cv2.resize(cv2.flip(image, 1), (224, 224))
 
     # Show the image in a window
-    cv2.imshow("Webcam Image", image)
+    cv2.imshow("Webcam", image)
 
     # Make the image a numpy array and reshape it to the models input shape.
     image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
