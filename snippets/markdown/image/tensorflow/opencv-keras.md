@@ -19,9 +19,8 @@ while True:
     # Grab the webcamera's image.
     ret, image = camera.read()
 
-    # Resize the raw image into (224-height,224-width) pixels
-    image = cv2.resize(image, (224, 224))
-    image = cv2.flip(image, 1)
+    # Flip and resize the raw image into (224, 224) pixels
+    image = cv2.resize(cv2.flip(image, 1), (224, 224))
 
     # Show the image in a window
     cv2.imshow("Webcam Image", image)
@@ -51,5 +50,4 @@ while True:
 
 camera.release()
 cv2.destroyAllWindows()
-
 ```
