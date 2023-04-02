@@ -46,8 +46,8 @@
 
 const int kCaptureWidth = 320;
 const int kCaptureHeight = 240;
-
-byte captured_data[kCaptureWidth * kCaptureHeight * 2]; // QVGA: 320x240 X 2 bytes per pixel (RGB565)
+const int capDataLen = kCaptureWidth * kCaptureHeight * 2;
+byte captured_data[capDataLen]; // QVGA: 320x240 X 2 bytes per pixel (RGB565)
 
 // Crop image and convert it to grayscale
 TfLiteStatus ProcessImage(
