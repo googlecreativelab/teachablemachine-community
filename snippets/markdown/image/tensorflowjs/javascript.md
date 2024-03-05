@@ -1,3 +1,4 @@
+Thapelo Moruti AKA Makhathini's smaller nyana project in 2024.
 Learn more about how to use the code snippet on [github](https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image).
 
 ```html
