@@ -3,6 +3,8 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
 ```html
 <div>Teachable Machine Image Model</div>
 <button type="button" onclick="init()">Start</button>
+<button type="button" onclick="stopWebcam()">Stop</button>
+<div id="status">Initializing...</div>
 <div id="webcam-container"></div>
 <div id="label-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -14,10 +16,13 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
     // the link to your model provided by Teachable Machine export panel
     const URL = "{{URL}}";
 
-    let model, webcam, labelContainer, maxPredictions;
+    let model, webcam, labelContainer, maxPredictions, isRunning = false;
 
     // Load the image model and setup the webcam
     async function init() {
+
+        document.getElementById("status").innerText = "Loading model...";
+
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
 
@@ -33,14 +38,24 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
         await webcam.setup(); // request access to the webcam
         await webcam.play();
+        isRunning = true;
         window.requestAnimationFrame(loop);
 
         // append elements to the DOM
+        document.getElementById("webcam-container").innerHTML = "";
         document.getElementById("webcam-container").appendChild(webcam.canvas);
+
         labelContainer = document.getElementById("label-container");
-        for (let i = 0; i < maxPredictions; i++) { // and class labels
-            labelContainer.appendChild(document.createElement("div"));
+        labelContainer.innerHTML = "";
+        for (let i = 0; i < maxPredictions; i++) {
+            let label = document.createElement("div");
+            label.style.fontSize = "16px";
+            label.style.marginTop = "5px";
+            label.style.fontWeight = "bold";
+            labelContainer.appendChild(label);
         }
+
+        document.getElementById("status").innerText = "Model loaded. Ready!";
     }
 
     async function loop() {
@@ -54,10 +69,18 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         // predict can take in an image, video or canvas html element
         const prediction = await model.predict(webcam.canvas);
         for (let i = 0; i < maxPredictions; i++) {
-            const classPrediction =
-                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+            const classPrediction = `${prediction[i].className}: ${Math.round(prediction[i].probability * 100)}%`;
             labelContainer.childNodes[i].innerHTML = classPrediction;
         }
     }
+
+    // stop webcam execution
+    function stopWebcam() {
+            if (webcam) {
+                webcam.stop();
+                isRunning = false;
+                document.getElementById("status").innerText = "Webcam stopped.";
+            }
+        }
 </script>
 ```
