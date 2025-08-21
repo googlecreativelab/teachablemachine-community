@@ -1,4 +1,4 @@
-# Teachable Machine Library - Image
+# hand gesture recognition of (rock paper scissor) using teachable machine - Image
 
 Library for using image models created with Teachable Machine.
 
