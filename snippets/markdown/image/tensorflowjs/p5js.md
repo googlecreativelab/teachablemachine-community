@@ -1,4 +1,4 @@
-Open up the code snippet below directly in the [p5.js Web Editor](https://editor.p5js.org/ml5/sketches/ImageModel_TM).
+Open up the code snippet below directly in the [p5.js Web Editor](https://editor.p5js.org/ima_ml/sketches/8Wmwnig7-).
 
 ```html
 <div>Teachable Machine Image Model - p5.js and ml5.js</div>
