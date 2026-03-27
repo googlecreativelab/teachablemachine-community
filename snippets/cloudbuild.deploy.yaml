@@ -1,11 +1,12 @@
 steps:
-  - name: "gcr.io/cloud-builders/gsutil"
+  - name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "gcloud"
     args:
       [
-        "-m",
+        "storage",
         "rsync",
-        "-d",
-        "-r",
+        "--delete-unmatched-destination-objects",
+        "--recursive",
         "./markdown",
         "gs://teachable-machine-snippets/github",
       ]
@@ -21,6 +22,7 @@ steps:
     args: ["-r", "TMUploader.zip", "TMUploader/"]
     dir: "snippets/markdown/tiny_image/tiny_templates"
 
-  - name: "gcr.io/cloud-builders/gsutil"
-    args: ["cp", "*.zip", "gs://tiny-templates"]
+  - name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "gcloud"
+    args: ["storage", "cp", "*.zip", "gs://tiny-templates"]
     dir: "snippets/markdown/tiny_image/tiny_templates"
