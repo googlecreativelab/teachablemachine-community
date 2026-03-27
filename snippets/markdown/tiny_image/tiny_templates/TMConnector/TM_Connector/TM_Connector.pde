@@ -1,4 +1,5 @@
-/* Copyright 2021 Google LLC. Bose All Rights Reserved.
+/* 
+  Copyright 2021 Google LLC. Bose All Rights Reserved.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -12,13 +13,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   ==============================================================================
+  Modified: Andres Sabas 2023
  */
 
 import processing.serial.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import websockets.*;
-import javax.xml.bind.DatatypeConverter;
+import java.util.Base64;
 import controlP5.*;
 import java.util.*;
 
@@ -140,7 +142,8 @@ void serialEvent(Serial myPort) {
   
   myImage.updatePixels();
   myPort.clear();
-  String data = DatatypeConverter.printBase64Binary(frameBuffer);
+  byte[] decodedBytes = Base64.getDecoder().decode(frameBuffer);
+  String data = new String(decodedBytes);
   ws.sendMessage(data);
 }
 
