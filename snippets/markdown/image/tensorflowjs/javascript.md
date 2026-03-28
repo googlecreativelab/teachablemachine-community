@@ -1,5 +1,52 @@
 Learn more about how to use the code snippet on [github](https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image).
+The issue lies in how the URL variable is being used in your JavaScript code. Specifically, URL is a reserved global object in JavaScript, and redefining it causes unintended behavior. When you assign a string to URL, it conflicts with the native URL object, leading to the broken behavior you observed.
 
+<!--How to Fix:
+Rename the URL variable to something else, such as MODEL_URL. Here's the corrected code:
+const MODEL_URL = "https://teachablemachine.withgoogle.com/models/dcnaYze98/";
+
+let model, webcam, labelContainer, maxPredictions;
+
+// Load the image model and setup the webcam
+async function init() {
+    const modelURL = MODEL_URL + "model.json";
+    const metadataURL = MODEL_URL + "metadata.json";
+
+    // load the model and metadata
+    model = await tmImage.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
+
+    // Convenience function to setup a webcam
+    const flip = true; // whether to flip the webcam
+    webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+    await webcam.setup(); // request access to the webcam
+    await webcam.play();
+    window.requestAnimationFrame(loop);
+
+    // append elements to the DOM
+    document.getElementById("webcam-container").appendChild(webcam.canvas);
+    labelContainer = document.getElementById("label-container");
+    for (let i = 0; i < maxPredictions; i++) { // and class labels
+        labelContainer.appendChild(document.createElement("div"));
+    }
+}
+
+async function loop() {
+    webcam.update(); // update the webcam frame
+    await predict();
+    window.requestAnimationFrame(loop);
+}
+
+// run the webcam image through the image model
+async function predict() {
+    const prediction = await model.predict(webcam.canvas);
+    for (let i = 0; i < maxPredictions; i++) {
+        const classPrediction =
+            prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+        labelContainer.childNodes[i].innerHTML = classPrediction;
+    }
+}
+-->
 ```html
 <div>Teachable Machine Image Model</div>
 <button type="button" onclick="init()">Start</button>
