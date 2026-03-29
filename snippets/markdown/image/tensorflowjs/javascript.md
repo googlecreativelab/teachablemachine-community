@@ -58,6 +58,13 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
                 prediction[i].className + ": " + prediction[i].probability.toFixed(2);
             labelContainer.childNodes[i].innerHTML = classPrediction;
         }
+      // 🔔 Sonido de detección cuando alguna clase supera el 45%
+        const alertSound = document.getElementById("alert-sound");
+        const detected = prediction.some(p => p.probability > 0.45);
+        if (detected) {
+            alertSound.currentTime = 0;
+            alertSound.play();
+        }
     }
 </script>
 ```
