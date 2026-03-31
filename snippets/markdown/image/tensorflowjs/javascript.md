@@ -1,6 +1,3 @@
-Learn more about how to use the code snippet on [github](https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image).
-
-```html
 <div>Teachable Machine Image Model</div>
 <button type="button" onclick="init()">Start</button>
 <div id="webcam-container"></div>
@@ -12,7 +9,7 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
     // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
 
     // the link to your model provided by Teachable Machine export panel
-    const URL = "{{URL}}";
+    const URL = "https://teachablemachine.withgoogle.com/models/YGjC_5QaO/";
 
     let model, webcam, labelContainer, maxPredictions;
 
@@ -60,4 +57,3 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         }
     }
 </script>
-```
