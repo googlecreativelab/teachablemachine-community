@@ -46,11 +46,11 @@
     "mocha": "^6.1.4",
     "puppeteer": "^1.20.0",
     "source-map-loader": "^0.2.4",
-    "terser-webpack-plugin": "^2.1.0",
+    "terser-webpack-plugin": "^5.3.11",
     "ts-loader": "^6.1.2",
     "tslint": "^5.20.0",
     "typescript": "^3.6.3",
-    "webpack": "^4.40.2",
+    "webpack": "^5.97.1",
     "webpack-cli": "^3.3.9",
     "yalc": "^1.0.0-pre.34"
   },
