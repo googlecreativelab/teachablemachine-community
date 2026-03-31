@@ -50,8 +50,8 @@
     "ts-loader": "^6.1.2",
     "tslint": "^5.20.0",
     "typescript": "^3.6.3",
-    "webpack": "^4.40.2",
-    "webpack-cli": "^3.3.9",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4",
     "yalc": "^1.0.0-pre.34"
   },
   "dependencies": {
