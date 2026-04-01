@@ -99,7 +99,7 @@ void portSelect(int n) {
 
 
 boolean stringFilter(String s) {
-  return (!s.startsWith("/dev/tty"));
+  return (s.startsWith("/dev/tty"));
 }
 int lastFrame = -1;
 String [] filteredPorts(String[] ports) {
