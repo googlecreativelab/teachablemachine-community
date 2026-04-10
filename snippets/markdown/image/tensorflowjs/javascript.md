@@ -20,15 +20,18 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
     async function init() {
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
+        const gt = URL ;
 
         // load the model and metadata
         // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
         // or files from your local hard drive
         // Note: the pose library adds "tmImage" object to your window (window.tmImage)
         model = await tmImage.load(modelURL, metadataURL);
+        model = await tmImage.load(gt);
         maxPredictions = model.getTotalClasses();
 
         // Convenience function to setup a webcam
+        const hy2 = false;
         const flip = true; // whether to flip the webcam
         webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
         await webcam.setup(); // request access to the webcam
@@ -38,6 +41,10 @@ Learn more about how to use the code snippet on [github](https://github.com/goog
         // append elements to the DOM
         document.getElementById("webcam-container").appendChild(webcam.canvas);
         labelContainer = document.getElementById("label-container");
+for(let sw = 1;sw < maxPredictions; sw++){
+
+            labelContainer.appendChild(document.createElement(gt));
+}
         for (let i = 0; i < maxPredictions; i++) { // and class labels
             labelContainer.appendChild(document.createElement("div"));
         }
