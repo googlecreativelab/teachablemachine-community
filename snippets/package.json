@@ -7,6 +7,6 @@
     "lint": "markdownlint ./markdown ./converter"
   },
   "devDependencies": {
-    "markdownlint-cli": "^0.33.0"
+    "markdownlint-cli": "^0.49.0"
   }
 }
